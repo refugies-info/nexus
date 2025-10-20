@@ -5,6 +5,24 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
+## User Research *(mandatory for Nexus)*
+
+<!--
+  Constitution Principle IX: User-Centered Development (NON-NEGOTIABLE)
+  Document user research conducted with Réfugiés.info end users before feature development.
+-->
+
+**User Research Conducted**:
+- [Describe user research methods: interviews, observations, usability testing, surveys]
+- [Identify user personas: linguistic backgrounds, tech literacy, access contexts]
+- [Document validated user needs and pain points]
+- [Include findings about accessibility needs: multilingual, low-literacy, mobile-first]
+
+**AI Transparency Testing** (if applicable):
+- [Document user research on AI disclosure formulation to avoid adoption barriers]
+- [Test different transparency messaging approaches with representative users]
+- [Validate user understanding of AI's role in content generation]
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
@@ -104,6 +122,9 @@
 - **Editorial Compliance**: Réfugiés.info charter compliance and approval workflow requirements
 - **Observability**: Logging, metrics, and traceability requirements
 - **Integration**: API contracts with external systems (Data Inclusion, Carif Oref, Réfugiés.info)
+- **User-Centered**: Analytics implementation, user feedback mechanisms, iterative testing plan
+- **AI Transparency**: Disclosure of AI-generated content, explainability for editors
+- **GDPR Compliance**: Data minimization, legal basis, user rights, privacy notices, DPAs with third parties
 
 ### Key Entities *(include if feature involves data)*
 

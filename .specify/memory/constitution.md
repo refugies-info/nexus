@@ -1,15 +1,25 @@
 <!--
 Sync Impact Report:
-- Version: 1.0.0 → 1.1.0 (MINOR: Added new principle + expanded governance)
-- New Principle VIII: Technology Foundation (polyglot monorepo, Python-first)
-- Strengthened: Testing Discipline elevated to NON-NEGOTIABLE with explicit TDD requirements
-- New Governance Section: Development Workflow (issue tracking, branch naming, PR process)
+- Version: 1.1.0 → 1.2.0 (MINOR: Added user-centered development principle + expanded privacy)
+- New Principle IX: User-Centered Development (NON-NEGOTIABLE)
+  * Mandatory user research with Réfugiés.info end users
+  * Iterative development with alpha/beta/production progression
+  * Continuous validation via analytics and usability testing
+  * Data-driven decisions based on usage patterns
+  * AI transparency requirements (formulation via user research)
+- Expanded: Data Retention & Privacy section
+  * GDPR Compliance elevated to NON-NEGOTIABLE with explicit requirements
+  * Added: data minimization, legal basis, user rights, privacy notices, DPIA
+  * Added: AI-specific privacy (data leakage prevention, translation API validation)
+  * Added: Security requirements (encryption, access controls, incident response)
 - Modified principles: None
 - Templates requiring updates:
-  ✅ plan-template.md (Added Technology Foundation + TDD to Constitution Check; added Option 4 monorepo structure)
-  ✅ spec-template.md (No changes needed - Constitution-Aligned Requirements already covers this)
-  ✅ tasks-template.md (Added issue tracking note, TDD compliance emphasis, red-green-refactor phases, monorepo path conventions)
-- Follow-up: None - all templates synchronized
+  ✅ plan-template.md (Added User-Centered Development + GDPR to Constitution Check)
+  ✅ spec-template.md (Added User Research section, expanded Constitution-Aligned Requirements)
+  ✅ tasks-template.md (Added Phase 2.5 User Research, GDPR foundational tasks)
+- Follow-up: 
+  * Next amendment (v1.3.0): Add Notebook Governance principle
+  * User research needed to determine AI transparency disclosure formulation
 -->
 
 # Nexus Constitution
@@ -107,6 +117,46 @@ Sync Impact Report:
 
 **Rationale**: Python is the industry standard for data pipelines and AI/ML workflows, providing rich ecosystem support for data processing, API integration, and testing. A monorepo ensures atomic changes across components and simplifies dependency management. Node.js complements Python for developer tooling where JavaScript ecosystem tools excel.
 
+### IX. User-Centered Development (NON-NEGOTIABLE)
+
+**MUST** adopt iterative, user-centered practices to ensure information sheets meet real user needs:
+
+**User Research Requirements**:
+- Conduct user research with Réfugiés.info end users before building features (interviews, observations, usability testing)
+- Identify and validate user needs with actual refugees and immigrants, not just Réfugiés.info staff
+- Document user personas representing diverse linguistic backgrounds, tech literacy levels, and access contexts
+- Test information sheet prototypes with representative users before full implementation
+- Consider accessibility needs: multilingual users, low-literacy users, mobile-first access
+
+**Iterative Development**:
+- Release minimum viable products (MVPs) early for user feedback via Réfugiés.info
+- Follow alpha → beta → production progression with user testing at each stage
+- Iterate based on real user feedback from Réfugiés.info analytics and user research
+- Be willing to pivot or discard features that don't meet validated user needs
+- Validate translation quality and cultural appropriateness with native speakers
+
+**Continuous Validation**:
+- Implement analytics to understand how users interact with generated information sheets
+- Monitor user behavior post-publication to identify comprehension issues or gaps
+- Conduct regular usability testing with Réfugiés.info users
+- Collect and act on user feedback through Réfugiés.info support channels
+- Track key metrics: information sheet completion rates, user satisfaction, support ticket volume
+
+**Data-Driven Decisions**:
+- Base content and feature decisions on usage data, not assumptions
+- Track metrics: sheet views, time-on-page, bounce rates, user satisfaction scores
+- Use data to prioritize improvements (e.g., which topics need better translations)
+- Validate hypotheses about user needs with actual usage patterns
+
+**AI Transparency (MANDATORY)**:
+- Disclose when content is AI-generated vs. human-written in information sheets
+- Exact formulation MUST be determined through user research to avoid adoption barriers
+- Provide clear explanations of AI's role in content generation and translation
+- Enable Réfugiés.info editorial team to understand and override AI decisions
+- Document AI limitations and known failure modes for editors
+
+**Rationale**: Information sheets directly impact vulnerable populations making critical decisions about integration services. User-centered practices ensure content is comprehensible, culturally appropriate, and actionable. This is especially critical for refugees and immigrants who may be under stress, have varying tech literacy, or be accessing services in non-native languages. AI transparency builds trust while user research ensures disclosure doesn't create adoption barriers.
+
 ## Data Sources & Integration
 
 ### Primary Data Sources
@@ -126,10 +176,34 @@ Sync Impact Report:
 
 ### Data Retention & Privacy
 
+**GDPR Compliance (NON-NEGOTIABLE)**:
+- **Data Minimization**: Collect only data necessary for pipeline operation and information sheet generation
+- **Legal Basis**: Document legal basis for processing personal data (legitimate interest, consent, etc.)
+- **User Rights**: Implement mechanisms to support GDPR rights (access, rectification, erasure, portability)
+- **Privacy Notices**: Provide clear information about data processing activities
+- **Data Protection Impact Assessment (DPIA)**: Conduct DPIA if processing high-risk personal data
+- **Data Processing Agreements**: Establish DPAs with third-party processors (translation APIs, etc.)
+
+**Data Retention**:
 - Source data MUST be retained with timestamps and provenance metadata
-- Personal data (if any) MUST comply with GDPR and French data protection regulations
-- Data retention policies MUST be documented and enforced
-- Audit logs MUST be retained for compliance and debugging
+- Retention periods MUST be documented and justified (operational needs, legal requirements)
+- Implement automatic deletion of data after retention period expires
+- Personal data MUST NOT be retained longer than necessary
+- Audit logs MUST be retained per compliance requirements (minimum periods TBD)
+
+**AI-Specific Privacy**:
+- Document what data is used for AI model training vs. inference
+- Implement safeguards to prevent sensitive personal data leakage in AI-generated content
+- Validate that translation APIs do not retain or train on user data
+- Monitor AI outputs for inadvertent disclosure of personal information
+- Provide transparency about AI decision-making processes to data subjects
+
+**Security**:
+- Encrypt personal data at rest and in transit (TLS 1.3+)
+- Implement access controls and authentication for systems processing personal data
+- Sanitize and validate all inputs to prevent injection attacks
+- Conduct regular security assessments of data processing systems
+- Document and test incident response procedures for data breaches
 
 ## Quality Standards
 
@@ -215,4 +289,4 @@ This constitution supersedes all other development practices and guidelines. Whe
 
 The constitution is a living document. As the project evolves and new patterns emerge, principles should be refined to reflect learned best practices. Amendments should be proposed proactively when gaps or conflicts are identified.
 
-**Version**: 1.1.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+**Version**: 1.2.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20

@@ -63,16 +63,32 @@ description: "Task list template for feature implementation"
 Examples of foundational tasks (adjust based on your project and Nexus Constitution):
 
 - [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework (if needed)
+- [ ] T005 [P] Implement authentication/authorization framework
 - [ ] T006 [P] Setup API routing and middleware structure
 - [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and structured logging infrastructure (JSON format per Constitution)
+- [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
-- [ ] T010 [P] Implement data validation framework (Constitution: Data Quality First)
-- [ ] T011 [P] Setup observability infrastructure (metrics, tracing, alerts per Constitution)
-- [ ] T012 [P] Configure multilingual support framework (8 languages per Constitution)
+- [ ] T010 [P] Implement analytics infrastructure for user behavior tracking (Constitution: User-Centered Development)
+- [ ] T011 [P] Setup GDPR compliance framework (data minimization, user rights, audit logging)
+- [ ] T012 [P] Implement privacy notices and consent mechanisms
+- [ ] T013 [P] Configure encryption for data at rest and in transit (TLS 1.3+)
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - user research and story implementation can now begin
+
+---
+
+## Phase 2.5: User Research (Constitution: User-Centered Development - NON-NEGOTIABLE)
+
+**Purpose**: Validate user needs with Réfugiés.info end users before implementation
+
+- [ ] T014 [P] Conduct user interviews with Réfugiés.info end users (refugees, immigrants)
+- [ ] T015 [P] Document user personas (linguistic backgrounds, tech literacy, access contexts)
+- [ ] T016 [P] Conduct usability testing of existing Bonjour Bonjour sheets
+- [ ] T017 [P] Validate user needs and pain points
+- [ ] T018 Test AI transparency disclosure approaches with users (if feature uses AI)
+- [ ] T019 Document user research findings in spec.md
+
+**Checkpoint**: User needs validated - user story implementation can now begin in parallel
 
 ---
 
