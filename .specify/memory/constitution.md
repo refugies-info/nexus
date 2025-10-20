@@ -1,13 +1,15 @@
 <!--
 Sync Impact Report:
-- Version: 0.0.0 → 1.0.0 (Initial constitution, amended to clarify Réfugiés.info API design requirement)
-- New principles: Data Quality First, Pipeline Modularity, Multilingual by Design, Editorial Compliance, Integration Independence
-- Amendment: Clarified that Réfugiés.info publication API does not exist and MUST be designed/specified by Nexus MVP
+- Version: 1.0.0 → 1.1.0 (MINOR: Added new principle + expanded governance)
+- New Principle VIII: Technology Foundation (polyglot monorepo, Python-first)
+- Strengthened: Testing Discipline elevated to NON-NEGOTIABLE with explicit TDD requirements
+- New Governance Section: Development Workflow (issue tracking, branch naming, PR process)
+- Modified principles: None
 - Templates requiring updates:
-  ✅ plan-template.md (Constitution Check section will reference these principles)
-  ✅ spec-template.md (Requirements align with quality and compliance principles)
-  ✅ tasks-template.md (Task categorization reflects pipeline stages and testing discipline)
-- Follow-up: API specification design must be included as a deliverable in Carif Oref MVP planning
+  ✅ plan-template.md (Added Technology Foundation + TDD to Constitution Check; added Option 4 monorepo structure)
+  ✅ spec-template.md (No changes needed - Constitution-Aligned Requirements already covers this)
+  ✅ tasks-template.md (Added issue tracking note, TDD compliance emphasis, red-green-refactor phases, monorepo path conventions)
+- Follow-up: None - all templates synchronized
 -->
 
 # Nexus Constitution
@@ -92,6 +94,19 @@ Sync Impact Report:
 
 **Rationale**: The Carif Oref French learning use case provides a concrete, bounded problem to validate the pipeline architecture. Incremental delivery reduces risk and enables early feedback from Réfugiés.info stakeholders.
 
+### VIII. Technology Foundation
+
+**MUST** maintain a polyglot monorepo architecture with Python-first pipeline development:
+- **Monorepo Structure**: All Nexus components (pipeline, APIs, tooling) MUST reside in a single repository
+- **Python-First**: Data pipeline stages (ingestion, reconciliation, enrichment, translation, validation) MUST be implemented in Python
+- **Node.js for Tooling**: Developer tooling, build scripts, and auxiliary services MAY use Node.js when appropriate
+- **Shared Standards**: Linting, formatting, and type checking MUST be enforced across all languages
+- **Dependency Management**: Each language ecosystem MUST have clear dependency management (e.g., uv for Python, pnpm for Node.js)
+- **Code Quality Tools**: Consistent tooling for linting and formatting (e.g., ruff for Python, biome for Node.js)
+- **Monorepo Tooling**: Build orchestration and task running MUST support cross-language dependencies
+
+**Rationale**: Python is the industry standard for data pipelines and AI/ML workflows, providing rich ecosystem support for data processing, API integration, and testing. A monorepo ensures atomic changes across components and simplifies dependency management. Node.js complements Python for developer tooling where JavaScript ecosystem tools excel.
+
 ## Data Sources & Integration
 
 ### Primary Data Sources
@@ -132,12 +147,19 @@ Sync Impact Report:
 - Critical paths MUST have contract tests ensuring API compatibility
 - Performance MUST meet defined SLAs (processing time, throughput) per pipeline stage
 
-### Testing Discipline
+### Testing Discipline (NON-NEGOTIABLE)
 
-- Tests MUST be written before implementation (test-first approach)
-- Tests MUST fail before implementation (red-green-refactor)
+**Test-Driven Development (TDD) is MANDATORY**:
+- Tests MUST be written before implementation begins (test-first approach)
+- Tests MUST fail initially, demonstrating they test the right behavior (red phase)
+- Implementation MUST make tests pass with minimal code (green phase)
+- Code MUST be refactored for quality while keeping tests green (refactor phase)
+- **Red-Green-Refactor cycle is strictly enforced** - no implementation without failing tests first
 - Breaking changes MUST be caught by contract tests before deployment
 - Integration tests MUST validate real API contracts (not just mocks)
+- Test coverage MUST be tracked and maintained at acceptable levels per component type
+
+**Rationale**: TDD ensures code correctness, prevents regressions, and produces maintainable, well-designed code. For an AI pipeline handling critical refugee information, test discipline is non-negotiable to ensure reliability and quality.
 
 ## Governance
 
@@ -155,15 +177,42 @@ This constitution supersedes all other development practices and guidelines. Whe
 - Amendments MUST include Sync Impact Report documenting affected templates and artifacts
 - All dependent templates (plan, spec, tasks) MUST be updated to reflect amendments
 
+### Development Workflow
+
+**Issue Tracking & Planning**:
+- All work MUST be tracked in an issue tracking system
+- Features MUST be broken down into phases, with each phase represented as a sub-issue or task
+- Sub-issues MUST correspond to implementation phases (Setup, Foundational, User Story 1, User Story 2, etc.)
+- Issues MUST include acceptance criteria and links to relevant design documents
+- Issue IDs MUST be traceable from branches, commits, and PRs
+
+**Branch Naming Convention**:
+- Feature branches: `feat/<issue-id>-<short-description>` (e.g., `feat/NEX-123-data-ingestion`)
+- Bug fixes: `fix/<issue-id>-<short-description>`
+- Documentation: `docs/<issue-id>-<short-description>`
+- Branch names MUST include issue ID for traceability
+
+**Pull Request Process**:
+- PRs MUST reference the issue ID in title and description
+- PRs MUST include test evidence (test output, coverage reports)
+- PRs MUST pass all CI checks (linting, type checking, tests)
+- PRs MUST be reviewed by at least one team member
+- PRs MUST demonstrate TDD compliance (tests written first, initially failing)
+
+**Commit Messages**:
+- Follow conventional commits format: `<type>(<scope>): <description>`
+- Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`
+- Include issue ID in commit body or footer (e.g., `Refs: NEX-123`)
+
 ### Compliance Review
 
 - All feature specifications MUST include Constitution Check section validating compliance
 - Implementation plans MUST document any principle violations with justification
-- Code reviews MUST verify adherence to principles (modularity, quality, observability)
+- Code reviews MUST verify adherence to principles (modularity, quality, observability, TDD)
 - Complexity violations MUST be justified in Complexity Tracking section of plan.md
 
 ### Continuous Improvement
 
 The constitution is a living document. As the project evolves and new patterns emerge, principles should be refined to reflect learned best practices. Amendments should be proposed proactively when gaps or conflicts are identified.
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+**Version**: 1.1.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20

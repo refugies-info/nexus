@@ -7,7 +7,9 @@ description: "Task list template for feature implementation"
 **Input**: Design documents from `/specs/[###-feature-name]/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Issue Tracking**: Each phase below SHOULD map to a sub-issue in your issue tracking system for granular progress tracking. Reference issue IDs in task descriptions.
+
+**TDD Compliance (NON-NEGOTIABLE)**: All test tasks MUST be completed and FAIL before implementation tasks begin. Follow red-green-refactor cycle strictly per Constitution.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -20,6 +22,7 @@ description: "Task list template for feature implementation"
 - **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
+- **Polyglot monorepo (Nexus)**: `packages/pipeline/src/`, `packages/api/src/`, `packages/tooling/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 
@@ -79,14 +82,18 @@ Examples of foundational tasks (adjust based on your project and Nexus Constitut
 
 **Independent Test**: [How to verify this story works on its own]
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1 (TDD: RED PHASE) 🔴
 
-**NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+**CRITICAL: Write these tests FIRST, run them, verify they FAIL, then proceed to implementation**
 
-- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
-- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
+- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py (MUST FAIL initially)
+- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py (MUST FAIL initially)
 
-### Implementation for User Story 1
+**Checkpoint**: All tests written and failing (red phase complete) - implementation can now begin
+
+### Implementation for User Story 1 (TDD: GREEN PHASE) 🟢
+
+**Goal: Make tests pass with minimal code**
 
 - [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
 - [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py
@@ -95,7 +102,14 @@ Examples of foundational tasks (adjust based on your project and Nexus Constitut
 - [ ] T016 [US1] Add validation and error handling
 - [ ] T017 [US1] Add logging for user story 1 operations
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: All tests passing (green phase) - ready for refactor
+
+### Refactor for User Story 1 (TDD: REFACTOR PHASE) ♻️
+
+- [ ] T018 [US1] Refactor for code quality while keeping tests green
+- [ ] T019 [US1] Add unit tests for edge cases (if needed)
+
+**Checkpoint**: User Story 1 fully functional, tested, and refactored
 
 ---
 

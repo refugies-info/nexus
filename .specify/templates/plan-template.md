@@ -40,6 +40,8 @@ Validate compliance with Nexus Constitution (`.specify/memory/constitution.md`):
 - [ ] **Integration Independence**: Clean API contracts with Réfugiés.info (reference: karfur repo)
 - [ ] **Observability & Traceability**: Structured logging, metrics, and data lineage tracking planned
 - [ ] **Incremental Delivery**: MVP scope clearly defined, user stories prioritized for value delivery
+- [ ] **Technology Foundation**: Monorepo structure defined; Python for pipeline, Node.js for tooling; dependency management specified
+- [ ] **TDD Compliance (NON-NEGOTIABLE)**: Test-first approach planned; red-green-refactor cycle enforced; test coverage strategy defined
 
 *If any principle cannot be satisfied, document justification in Complexity Tracking section.*
 
@@ -99,6 +101,41 @@ api/
 
 ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
+
+# [REMOVE IF UNUSED] Option 4: Polyglot Monorepo (Nexus: Python pipeline + Node.js tooling)
+# Constitution Principle VIII: Technology Foundation
+packages/
+├── pipeline/              # Python: Data pipeline stages
+│   ├── src/
+│   │   ├── ingestion/
+│   │   ├── reconciliation/
+│   │   ├── enrichment/
+│   │   ├── translation/
+│   │   ├── validation/
+│   │   └── publication/
+│   ├── tests/
+│   │   ├── contract/
+│   │   ├── integration/
+│   │   └── unit/
+│   ├── pyproject.toml     # uv dependency management
+│   └── pytest.ini
+│
+├── api/                   # Python: REST API (if needed)
+│   ├── src/
+│   ├── tests/
+│   └── pyproject.toml
+│
+└── tooling/               # Node.js: Build scripts, dev tools
+    ├── src/
+    ├── package.json
+    └── tsconfig.json
+
+# Monorepo root files
+├── pyproject.toml         # Root Python workspace config (uv workspaces)
+├── package.json           # Root Node.js workspace config (pnpm workspaces)
+├── .github/
+│   └── workflows/         # CI/CD pipelines
+└── docs/                  # Shared documentation
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
