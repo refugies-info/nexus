@@ -54,7 +54,7 @@ As a developer, I need to set up Python package management with uv so that I can
 1. **Given** a fresh clone of the repository, **When** I run `just install`, **Then** all Python and Node.js dependencies are installed
 2. **Given** a fresh clone of the repository, **When** I run `uv sync`, **Then** all Python dependencies are installed in a virtual environment
 3. **Given** the Python workspace is configured, **When** I add a new dependency to `pyproject.toml`, **Then** `uv sync` installs it correctly
-4. **Given** the monorepo structure, **When** I run `uv run python -c "import libs.common"`, **Then** Python can resolve imports from the libs/ workspace packages
+4. **Given** the monorepo structure, **When** I run `uv run python -c "import nexus.common"`, **Then** Python can resolve imports from the nexus workspace packages
 
 ---
 
