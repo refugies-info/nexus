@@ -57,14 +57,17 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+Examples of foundational tasks (adjust based on your project and Nexus Constitution):
 
 - [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Implement authentication/authorization framework
+- [ ] T005 [P] Implement authentication/authorization framework (if needed)
 - [ ] T006 [P] Setup API routing and middleware structure
 - [ ] T007 Create base models/entities that all stories depend on
-- [ ] T008 Configure error handling and logging infrastructure
+- [ ] T008 Configure error handling and structured logging infrastructure (JSON format per Constitution)
 - [ ] T009 Setup environment configuration management
+- [ ] T010 [P] Implement data validation framework (Constitution: Data Quality First)
+- [ ] T011 [P] Setup observability infrastructure (metrics, tracing, alerts per Constitution)
+- [ ] T012 [P] Configure multilingual support framework (8 languages per Constitution)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -246,6 +249,19 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+### Nexus-Specific Task Categories
+
+For AI pipeline features, consider organizing tasks by pipeline stage:
+
+- **Ingestion**: Data fetching from Data Inclusion, schema validation
+- **Reconciliation**: Carif Oref API integration, data matching and merging
+- **Enrichment**: Web scraping, missing data completion
+- **Translation**: Multilingual content generation (8 languages)
+- **Validation**: Editorial compliance checks, quality metrics
+- **Publication**: Réfugiés.info API integration, approval workflow
+
+Each stage should be independently testable per Constitution Principle II (Pipeline Modularity).
 
 
 

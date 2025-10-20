@@ -31,7 +31,17 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Validate compliance with Nexus Constitution (`.specify/memory/constitution.md`):
+
+- [ ] **Data Quality First**: Data validation and reconciliation strategy defined for all pipeline stages
+- [ ] **Pipeline Modularity**: Each stage designed as independent, testable component with clear contracts
+- [ ] **Multilingual by Design**: 8-language support planned with translation quality validation
+- [ ] **Editorial Compliance**: Réfugiés.info editorial charter compliance checks integrated
+- [ ] **Integration Independence**: Clean API contracts with Réfugiés.info (reference: karfur repo)
+- [ ] **Observability & Traceability**: Structured logging, metrics, and data lineage tracking planned
+- [ ] **Incremental Delivery**: MVP scope clearly defined, user stories prioritized for value delivery
+
+*If any principle cannot be satisfied, document justification in Complexity Tracking section.*
 
 ## Project Structure
 

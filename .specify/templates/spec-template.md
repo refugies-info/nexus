@@ -95,6 +95,16 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Constitution-Aligned Requirements
+
+*Include these if relevant to the feature (based on Nexus Constitution):*
+
+- **Data Quality**: Validation, reconciliation, and quality metrics requirements
+- **Multilingual**: 8-language support and translation quality requirements
+- **Editorial Compliance**: Réfugiés.info charter compliance and approval workflow requirements
+- **Observability**: Logging, metrics, and traceability requirements
+- **Integration**: API contracts with external systems (Data Inclusion, Carif Oref, Réfugiés.info)
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]
