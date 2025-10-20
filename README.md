@@ -2,7 +2,7 @@
 
 > AI pipeline transforming integration data into multilingual information sheets for refugees and immigrants
 
-[![Constitution](https://img.shields.io/badge/constitution-v1.4.0-blue.svg)](.specify/memory/constitution.md)
+[![Constitution](https://img.shields.io/badge/constitution-v1.4.1-blue.svg)](.specify/memory/constitution.md)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## 🎯 Mission
@@ -54,10 +54,12 @@ Data Sources → Ingestion → Reconciliation → Enrichment → Langage Clair �
 
 **Polyglot Monorepo** (Python-first + Node.js tooling):
 
+Following [dsfr-kit](https://github.com/betagouv/dsfr-kit) convention: Python packages in `libs/`, Node.js packages in `packages/`
+
 ```
 nexus/
-├── packages/
-│   ├── pipeline/          # Python: Data pipeline stages
+├── libs/                  # Python packages
+│   ├── pipeline/          # Data pipeline stages
 │   │   ├── src/
 │   │   │   ├── ingestion/
 │   │   │   ├── reconciliation/
@@ -67,8 +69,9 @@ nexus/
 │   │   │   ├── validation/
 │   │   │   └── publication/
 │   │   └── tests/
-│   ├── api/               # Python: REST API (if needed)
-│   └── tooling/           # Node.js: Build scripts, dev tools
+│   └── api/               # REST API (if needed)
+├── packages/              # Node.js packages
+│   └── tooling/           # Build scripts, dev tools
 ├── notebooks/             # Jupyter: Exploratory analysis
 └── docs/                  # Documentation
 ```
@@ -214,7 +217,7 @@ uv run pytest tests/contract/test_ingestion.py
 
 ## 📚 Documentation
 
-- **[Constitution](.specify/memory/constitution.md)**: Project principles and governance (v1.4.0)
+- **[Constitution](.specify/memory/constitution.md)**: Project principles and governance (v1.4.1)
 - **[Contributing](CONTRIBUTING.md)**: Development guidelines and workflow
 - **[Architecture](docs/architecture.md)**: Detailed system design
 - **[API Specification](docs/api-spec.md)**: Réfugiés.info publication API design

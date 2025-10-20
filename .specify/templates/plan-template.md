@@ -106,10 +106,12 @@ api/
 ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
 
-# [REMOVE IF UNUSED] Option 4: Polyglot Monorepo (Nexus: Python pipeline + Node.js tooling)
+# [REMOVE IF UNUSED] Option 4: Polyglot Monorepo (Nexus: Python libs/ + Node.js packages/)
 # Constitution Principles VIII (Technology Foundation) + XI (Langage Clair)
-packages/
-├── pipeline/              # Python: Data pipeline stages
+# Following dsfr-kit convention: Python in libs/, Node.js in packages/
+
+libs/                      # Python packages
+├── pipeline/              # Data pipeline stages
 │   ├── src/
 │   │   ├── ingestion/
 │   │   ├── reconciliation/
@@ -125,15 +127,18 @@ packages/
 │   ├── pyproject.toml     # uv dependency management
 │   └── pytest.ini
 │
-├── api/                   # Python: REST API (if needed)
-│   ├── src/
-│   ├── tests/
-│   └── pyproject.toml
-│
-└── tooling/               # Node.js: Build scripts, dev tools
+└── api/                   # REST API (if needed)
+    ├── src/
+    ├── tests/
+    └── pyproject.toml
+
+packages/                  # Node.js packages
+└── tooling/               # Build scripts, dev tools
     ├── src/
     ├── package.json
     └── tsconfig.json
+
+notebooks/                 # Jupyter notebooks (exploratory work)
 
 # Monorepo root files
 ├── pyproject.toml         # Root Python workspace config (uv workspaces)

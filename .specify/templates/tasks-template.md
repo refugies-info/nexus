@@ -22,7 +22,8 @@ description: "Task list template for feature implementation"
 - **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- **Polyglot monorepo (Nexus)**: `packages/pipeline/src/`, `packages/api/src/`, `packages/tooling/src/`
+- **Polyglot monorepo (Nexus)**: `libs/pipeline/src/`, `libs/api/src/`, `packages/tooling/src/`
+  * Python packages in `libs/`, Node.js packages in `packages/` (dsfr-kit convention)
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 

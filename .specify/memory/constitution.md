@@ -1,25 +1,16 @@
 <!--
 Sync Impact Report:
-- Version: 1.3.0 → 1.4.0 (MINOR: Added langage clair principle - KEY INNOVATION)
-- New Principle XI: Langage Clair (Plain Language) (NON-NEGOTIABLE)
-  * AI-assisted transformation of bureaucratic/technical text to clear, accessible French
-  * Reifies Réfugiés.info editorial expertise for scalable throughput
-  * Training on Réfugiés.info corpus with before/after examples
-  * Readability validation (Flesch-Kincaid, SMOG, CEFR A2-B1 level)
-  * Quality standards: clarity, concreteness, actionability, accessibility, accuracy
-  * Human oversight: editorial review, approval authority, feedback loop
-  * Translation dependency: plain language French as source for multilingual content
-  * New pipeline stage between enrichment and translation
-- Modified principles: 
-  * Principle III (Multilingual by Design): Now explicitly depends on langage clair as source
+- Version: 1.4.0 → 1.4.1 (PATCH: Clarified monorepo structure following dsfr-kit convention)
+- Modified: Principle VIII (Technology Foundation)
+  * Clarified language separation: Python packages in libs/, Node.js packages in packages/
+  * Following dsfr-kit convention for cleaner separation
+  * Updated all pipeline stage references to reflect libs/ location
 - Templates requiring updates:
-  ✅ plan-template.md (Added Langage Clair to Constitution Check; added langage_clair/ to monorepo structure)
-  ✅ spec-template.md (Added Langage Clair to Constitution-Aligned Requirements)
-  ✅ tasks-template.md (No changes needed - langage clair tasks added per feature as needed)
-  ✅ README.md (Updated pipeline diagram, architecture, principles list to include Langage Clair)
+  ✅ plan-template.md (Updated monorepo structure: libs/ for Python, packages/ for Node.js)
+  ✅ tasks-template.md (Updated path conventions to reflect libs/pipeline/src/)
+  ✅ README.md (Updated architecture diagram with libs/ and packages/ separation)
 - Follow-up: 
-  * Update pipeline architecture diagrams to show 7-stage pipeline
-  * Create langage_clair/ package in monorepo structure
+  * Create libs/ and packages/ directory structure when implementing first feature
   * Collect Réfugiés.info editorial corpus for model training
   * Define readability metrics and validation criteria
   * User research needed to determine AI transparency disclosure formulation
@@ -112,7 +103,8 @@ Sync Impact Report:
 
 **MUST** maintain a polyglot monorepo architecture with Python-first pipeline development:
 - **Monorepo Structure**: All Nexus components (pipeline, APIs, tooling) MUST reside in a single repository
-- **Python-First**: Data pipeline stages (ingestion, reconciliation, enrichment, translation, validation) MUST be implemented in Python
+- **Language Separation**: Python packages MUST be in `libs/` directory; Node.js packages MUST be in `packages/` directory (following dsfr-kit convention)
+- **Python-First**: Data pipeline stages (ingestion, reconciliation, enrichment, langage_clair, translation, validation, publication) MUST be implemented in Python
 - **Node.js for Tooling**: Developer tooling, build scripts, and auxiliary services MAY use Node.js when appropriate
 - **Shared Standards**: Linting, formatting, and type checking MUST be enforced across all languages
 - **Dependency Management**: Each language ecosystem MUST have clear dependency management (e.g., uv for Python, pnpm for Node.js)
@@ -387,4 +379,4 @@ This constitution supersedes all other development practices and guidelines. Whe
 
 The constitution is a living document. As the project evolves and new patterns emerge, principles should be refined to reflect learned best practices. Amendments should be proposed proactively when gaps or conflicts are identified.
 
-**Version**: 1.4.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+**Version**: 1.4.1 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
