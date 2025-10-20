@@ -102,25 +102,25 @@
 
 ### DS2 Tasks
 
-- [ ] T038 [DS2] Create `packages/tooling/` directory structure with `src/`, `package.json`, `tsconfig.json`
-- [ ] T039 [DS2] Configure `packages/tooling/package.json` with biome dependency
-- [ ] T040 [DS2] Create `biome.json` at root with linting and formatting rules
-- [ ] T041 [DS2] Create `notebooks/` directory for Jupyter notebooks
-- [ ] T042 [DS2] Create `docs/` directory for shared documentation
-- [ ] T043 [DS2] Create `justfile` at root with default recipe listing all commands
-- [ ] T044 [P] [DS2] Add `install` recipe to `justfile` with prerequisite checks (uv, pnpm, just)
-- [ ] T045 [P] [DS2] Add `lint` recipe to `justfile` running ruff and biome
-- [ ] T046 [P] [DS2] Add `format` recipe to `justfile` running ruff format and biome format
-- [ ] T047 [P] [DS2] Add `test` recipe to `justfile` running pytest
-- [ ] T048 [P] [DS2] Add `test-lib` recipe to `justfile` for running tests on specific library
-- [ ] T049 [DS2] Implement fail-fast error handling in `justfile` for missing prerequisites with specific error messages:
+- [X] T038 [DS2] Create `packages/tooling/` directory structure with `src/`, `package.json`, `tsconfig.json`
+- [X] T039 [DS2] Configure `packages/tooling/package.json` with biome dependency
+- [X] T040 [DS2] Create `biome.json` at root with linting and formatting rules
+- [X] T041 [DS2] Create `notebooks/` directory for Jupyter notebooks
+- [X] T042 [DS2] Create `docs/` directory for shared documentation
+- [X] T043 [DS2] Create `justfile` at root with default recipe listing all commands
+- [X] T044 [P] [DS2] Add `install` recipe to `justfile` with prerequisite checks (uv, pnpm, just)
+- [X] T045 [P] [DS2] Add `lint` recipe to `justfile` running ruff and biome
+- [X] T046 [P] [DS2] Add `format` recipe to `justfile` running ruff format and biome format
+- [X] T047 [P] [DS2] Add `test` recipe to `justfile` running pytest
+- [X] T048 [P] [DS2] Add `test-lib` recipe to `justfile` for running tests on specific library
+- [X] T049 [DS2] Implement fail-fast error handling in `justfile` for missing prerequisites with specific error messages:
   - Check uv: "Error: uv not found. Install: curl -LsSf https://astral.sh/uv/install.sh | sh"
   - Check pnpm: "Error: pnpm not found. Install: npm install -g pnpm"
-- [ ] T050 [DS2] Run `pnpm install` to verify Node.js workspace setup
-- [ ] T051 [DS2] Test `just` command lists all available recipes
-- [ ] T052 [DS2] Test `just lint` runs successfully (may have no violations yet)
-- [ ] T053 [DS2] Test `just format` formats code without errors
-- [ ] T054 [DS2] Verify directory structure matches plan.md specification
+- [X] T050 [DS2] Run `pnpm install` to verify Node.js workspace setup
+- [X] T051 [DS2] Test `just` command lists all available recipes
+- [X] T052 [DS2] Test `just lint` runs successfully (may have no violations yet)
+- [X] T053 [DS2] Test `just format` formats code without errors
+- [X] T054 [DS2] Verify directory structure matches plan.md specification
 
 **DS2 Checkpoint**: Full tooling operational - developers have quality gates and command runner
 
