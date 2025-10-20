@@ -143,7 +143,7 @@ uv run ruff check .
 uv run ruff format .
 
 # Type checking
-uv run mypy packages/pipeline
+uv run mypy libs/pipeline
 
 # Run notebooks (exploratory work)
 jupyter lab notebooks/
@@ -264,7 +264,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 **Focus**: French language learning information sheets from Carif Oref
 
-- [x] Constitution ratified (v1.3.0)
+- [x] Constitution ratified (v1.5.0)
 - [x] Project structure defined
 - [x] Development templates created
 - [ ] Data ingestion implementation
