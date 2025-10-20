@@ -2,7 +2,7 @@
 
 > AI pipeline transforming integration data into multilingual information sheets for refugees and immigrants
 
-[![Constitution](https://img.shields.io/badge/constitution-v1.4.1-blue.svg)](.specify/memory/constitution.md)
+[![Constitution](https://img.shields.io/badge/constitution-v1.5.0-blue.svg)](.specify/memory/constitution.md)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## 🎯 Mission
@@ -217,14 +217,14 @@ uv run pytest tests/contract/test_ingestion.py
 
 ## 📚 Documentation
 
-- **[Constitution](.specify/memory/constitution.md)**: Project principles and governance (v1.4.1)
+- **[Constitution](.specify/memory/constitution.md)**: Project principles and governance (v1.5.0)
 - **[Contributing](CONTRIBUTING.md)**: Development guidelines and workflow
 - **[Architecture](docs/architecture.md)**: Detailed system design
 - **[API Specification](docs/api-spec.md)**: Réfugiés.info publication API design
 
 ## 🌟 Constitutional Principles
 
-Nexus is governed by [11 core principles](.specify/memory/constitution.md):
+Nexus is governed by [12 core principles](.specify/memory/constitution.md):
 
 1. **Data Quality First**: Validation and reconciliation at every stage
 2. **Pipeline Modularity**: Independent, testable components
@@ -237,6 +237,7 @@ Nexus is governed by [11 core principles](.specify/memory/constitution.md):
 9. **User-Centered Development** *(NON-NEGOTIABLE)*: Mandatory user research
 10. **Notebook Governance**: Structured exploratory work with security
 11. **Langage Clair** *(NON-NEGOTIABLE)* ⭐: AI-assisted plain language transformation
+12. **Culturally-Aware Translation** *(NON-NEGOTIABLE)* ⭐: Cultural mediation with glossaries and annotations
 
 ## 🤝 Contributing
 

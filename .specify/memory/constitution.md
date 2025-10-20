@@ -1,16 +1,24 @@
 <!--
 Sync Impact Report:
-- Version: 1.4.0 → 1.4.1 (PATCH: Clarified monorepo structure following dsfr-kit convention)
-- Modified: Principle VIII (Technology Foundation)
-  * Clarified language separation: Python packages in libs/, Node.js packages in packages/
-  * Following dsfr-kit convention for cleaner separation
-  * Updated all pipeline stage references to reflect libs/ location
+- Version: 1.4.1 → 1.5.0 (MINOR: Added culturally-aware translation principle)
+- New Principle XII: Culturally-Aware Translation (NON-NEGOTIABLE)
+  * Fine-grained translation accounting for administrative and cultural differences
+  * Glossary-based approach with cultural annotations ("piqûres de culture")
+  * Following Maisons de la sagesse-Traduire best practices
+  * Cultural mediation for French administrative vocabulary
+  * Reciprocal understanding between newcomers and French administration
+  * 8 target languages with specific cultural contexts
+  * Human oversight by cultural mediators and community co-development
+- Modified principles: None
 - Templates requiring updates:
-  ✅ plan-template.md (Updated monorepo structure: libs/ for Python, packages/ for Node.js)
-  ✅ tasks-template.md (Updated path conventions to reflect libs/pipeline/src/)
-  ✅ README.md (Updated architecture diagram with libs/ and packages/ separation)
+  ✅ plan-template.md (Added Culturally-Aware Translation to Constitution Check)
+  ✅ spec-template.md (Added Cultural Translation to Constitution-Aligned Requirements)
+  ✅ tasks-template.md (No changes needed - cultural glossary tasks added per feature as needed)
+  ✅ README.md (Updated principles list to 12 principles including Culturally-Aware Translation)
 - Follow-up: 
-  * Create libs/ and packages/ directory structure when implementing first feature
+  * Acquire or develop bilingual glossaries for 8 target languages
+  * Partner with Maisons de la sagesse-Traduire or similar organizations
+  * Recruit cultural mediators for each target language/culture
   * Collect Réfugiés.info editorial corpus for model training
   * Define readability metrics and validation criteria
   * User research needed to determine AI transparency disclosure formulation
@@ -247,6 +255,63 @@ Sync Impact Report:
 
 **Rationale**: Bureaucratic and technical source data is incomprehensible to vulnerable populations. Réfugiés.info's core value proposition is transforming this complexity into clear, actionable information. AI-assisted "langage clair" transformation scales this editorial expertise, enabling higher throughput while maintaining quality. This is the key innovation that differentiates Nexus from simple translation pipelines—it reifies years of editorial expertise into a scalable AI system.
 
+### XII. Culturally-Aware Translation (NON-NEGOTIABLE)
+
+**MUST** adopt fine-grained, culturally-mediated translation that accounts for administrative and cultural differences:
+
+**Cultural Mediation Requirements**:
+- Translation MUST go beyond linguistic equivalence to address cultural and administrative context gaps
+- Administrative vocabulary MUST be translated with cultural annotations explaining French administrative structures and behaviors
+- Translation MUST account for lack of knowledge about how French administration is structured, works, and behaves
+- Cultural differences between source and target contexts MUST be explicitly addressed
+- Translation MUST facilitate "reciprocal understanding" between newcomers and French administration
+
+**Glossary-Based Approach**:
+- Maintain bilingual glossaries of French administrative vocabulary for each target language
+- Glossaries MUST include short cultural annotations ("piqûres de culture") explaining:
+  - French administrative concepts that don't exist in target culture
+  - Cultural differences that create translation difficulties
+  - Behavioral expectations in French administrative contexts
+- Follow best practices from "Glossaires bilingues de l'administration française" (Maisons de la sagesse-Traduire)
+- Glossaries MUST be maintained and updated based on user feedback and editorial corrections
+
+**Translation Quality Standards**:
+- **Linguistic Accuracy**: Correct translation of terms and concepts
+- **Cultural Appropriateness**: Terminology adapted to target culture's administrative understanding
+- **Contextual Clarity**: Explanations of French-specific concepts (e.g., "préfecture", "CAF", "OFII")
+- **Actionability**: Users understand not just what terms mean, but how to interact with French administration
+- **Reciprocal Understanding**: Both newcomers and French administrators understand potential misunderstandings
+
+**Examples of Cultural Mediation**:
+- **"Préfecture"**: Not just "prefecture" but explanation of its role, powers, and when/why to interact with it
+- **"Attestation"**: Explain French administrative culture's reliance on written documentation
+- **"Rendez-vous"**: Cultural expectations around scheduling, punctuality, and preparation
+- **"Dossier"**: Concept of administrative file compilation and completeness requirements
+
+**Integration with Pipeline**:
+- Cultural annotations MUST be generated during translation stage (after langage clair transformation)
+- Annotations MUST be reviewed by cultural mediators or bilingual editorial team
+- User feedback MUST identify where cultural gaps remain and inform glossary updates
+- Translation models MUST be trained on culturally-annotated corpus, not just parallel text
+
+**Target Languages & Cultural Contexts**:
+- Arabic (multiple dialects and administrative cultures)
+- Persian/Dari (Afghan and Iranian contexts)
+- Pashto
+- Tigrinya (Eritrean context)
+- English (various administrative cultures)
+- Ukrainian (Ukrainian context)
+- Russian (Eastern European and Central Asian contexts)
+- Other languages as prioritized by Réfugiés.info (8 languages total)
+
+**Human Oversight**:
+- Cultural mediators or bilingual experts MUST review cultural annotations
+- Community feedback MUST be collected on cultural appropriateness and clarity
+- Glossaries MUST be co-developed with community members from target cultures
+- High-stakes administrative vocabulary MUST have mandatory cultural mediation review
+
+**Rationale**: Simple linguistic translation of French administrative vocabulary fails because it assumes shared understanding of administrative structures and cultural norms. Newcomers don't just need word-for-word translation—they need cultural mediation to understand how French administration works and what is expected of them. This principle ensures translation serves as a bridge between cultures, not just languages, following the "reciprocal understanding" approach of Maisons de la sagesse-Traduire glossaries.
+
 ## Data Sources & Integration
 
 ### Primary Data Sources
@@ -379,4 +444,4 @@ This constitution supersedes all other development practices and guidelines. Whe
 
 The constitution is a living document. As the project evolves and new patterns emerge, principles should be refined to reflect learned best practices. Amendments should be proposed proactively when gaps or conflicts are identified.
 
-**Version**: 1.4.1 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+**Version**: 1.5.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
