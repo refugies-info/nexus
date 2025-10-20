@@ -54,36 +54,36 @@
 
 ### DS1 Tasks
 
-- [ ] T008 [DS1] Create `libs/common/` directory structure with `src/nexus/common/`, `tests/{contract,integration,unit}/`
-- [ ] T009 [P] [DS1] Create `libs/common/pyproject.toml` with minimal dependencies (ruff, pytest, mypy, pre-commit, nbstripout)
-- [ ] T010 [P] [DS1] Create `libs/common/src/nexus/common/__init__.py` with package marker
-- [ ] T011 [P] [DS1] Create `libs/ingestion/` directory structure with `src/nexus/ingestion/`, `tests/{contract,integration,unit}/`
-- [ ] T012 [P] [DS1] Create `libs/ingestion/pyproject.toml` with common dependency
-- [ ] T013 [P] [DS1] Create `libs/ingestion/src/nexus/ingestion/__init__.py`
-- [ ] T014 [P] [DS1] Create `libs/reconciliation/` directory structure with `src/nexus/reconciliation/`, `tests/{contract,integration,unit}/`
-- [ ] T015 [P] [DS1] Create `libs/reconciliation/pyproject.toml` with common dependency
-- [ ] T016 [P] [DS1] Create `libs/reconciliation/src/nexus/reconciliation/__init__.py`
-- [ ] T017 [P] [DS1] Create `libs/enrichment/` directory structure with `src/nexus/enrichment/`, `tests/{contract,integration,unit}/`
-- [ ] T018 [P] [DS1] Create `libs/enrichment/pyproject.toml` with common dependency
-- [ ] T019 [P] [DS1] Create `libs/enrichment/src/nexus/enrichment/__init__.py`
-- [ ] T020 [P] [DS1] Create `libs/langage_clair/` directory structure with `src/nexus/langage_clair/`, `tests/{contract,integration,unit}/`
-- [ ] T021 [P] [DS1] Create `libs/langage_clair/pyproject.toml` with common dependency
-- [ ] T022 [P] [DS1] Create `libs/langage_clair/src/nexus/langage_clair/__init__.py`
-- [ ] T023 [P] [DS1] Create `libs/translation/` directory structure with `src/nexus/translation/`, `tests/{contract,integration,unit}/`
-- [ ] T024 [P] [DS1] Create `libs/translation/pyproject.toml` with common dependency
-- [ ] T025 [P] [DS1] Create `libs/translation/src/nexus/translation/__init__.py`
-- [ ] T026 [P] [DS1] Create `libs/validation/` directory structure with `src/nexus/validation/`, `tests/{contract,integration,unit}/`
-- [ ] T027 [P] [DS1] Create `libs/validation/pyproject.toml` with common dependency
-- [ ] T028 [P] [DS1] Create `libs/validation/src/nexus/validation/__init__.py`
-- [ ] T029 [P] [DS1] Create `libs/publication/` directory structure with `src/nexus/publication/`, `tests/{contract,integration,unit}/`
-- [ ] T030 [P] [DS1] Create `libs/publication/pyproject.toml` with common dependency
-- [ ] T031 [P] [DS1] Create `libs/publication/src/nexus/publication/__init__.py`
-- [ ] T032 [DS1] Configure root `pyproject.toml` with pytest settings (testpaths, markers for contract/integration/unit)
-- [ ] T033 [DS1] Configure root `pyproject.toml` with ruff settings (target py312, line-length 100, src=["libs"])
-- [ ] T034 [DS1] Configure root `pyproject.toml` with mypy settings
-- [ ] T035 [DS1] Run `uv sync` and verify all 8 libraries are installed
-- [ ] T036 [DS1] Test import resolution: `uv run python -c "import nexus.common"`
-- [ ] T037 [DS1] Test workspace: `uv run python -c "from nexus.common import *; from nexus.ingestion import *"`
+- [X] T008 [DS1] Create `libs/common/` directory structure with `src/nexus/common/`, `tests/{contract,integration,unit}/`
+- [X] T009 [P] [DS1] Create `libs/common/pyproject.toml` with minimal dependencies (ruff, pytest, mypy, pre-commit, nbstripout)
+- [X] T010 [P] [DS1] Create `libs/common/src/nexus/common/__init__.py` with package marker
+- [X] T011 [P] [DS1] Create `libs/ingestion/` directory structure with `src/nexus/ingestion/`, `tests/{contract,integration,unit}/`
+- [X] T012 [P] [DS1] Create `libs/ingestion/pyproject.toml` with common dependency
+- [X] T013 [P] [DS1] Create `libs/ingestion/src/nexus/ingestion/__init__.py`
+- [X] T014 [P] [DS1] Create `libs/reconciliation/` directory structure with `src/nexus/reconciliation/`, `tests/{contract,integration,unit}/`
+- [X] T015 [P] [DS1] Create `libs/reconciliation/pyproject.toml` with common dependency
+- [X] T016 [P] [DS1] Create `libs/reconciliation/src/nexus/reconciliation/__init__.py`
+- [X] T017 [P] [DS1] Create `libs/enrichment/` directory structure with `src/nexus/enrichment/`, `tests/{contract,integration,unit}/`
+- [X] T018 [P] [DS1] Create `libs/enrichment/pyproject.toml` with common dependency
+- [X] T019 [P] [DS1] Create `libs/enrichment/src/nexus/enrichment/__init__.py`
+- [X] T020 [P] [DS1] Create `libs/langage_clair/` directory structure with `src/nexus/langage_clair/`, `tests/{contract,integration,unit}/`
+- [X] T021 [P] [DS1] Create `libs/langage_clair/pyproject.toml` with common dependency
+- [X] T022 [P] [DS1] Create `libs/langage_clair/src/nexus/langage_clair/__init__.py`
+- [X] T023 [P] [DS1] Create `libs/translation/` directory structure with `src/nexus/translation/`, `tests/{contract,integration,unit}/`
+- [X] T024 [P] [DS1] Create `libs/translation/pyproject.toml` with common dependency
+- [X] T025 [P] [DS1] Create `libs/translation/src/nexus/translation/__init__.py`
+- [X] T026 [P] [DS1] Create `libs/validation/` directory structure with `src/nexus/validation/`, `tests/{contract,integration,unit}/`
+- [X] T027 [P] [DS1] Create `libs/validation/pyproject.toml` with common dependency
+- [X] T028 [P] [DS1] Create `libs/validation/src/nexus/validation/__init__.py`
+- [X] T029 [P] [DS1] Create `libs/publication/` directory structure with `src/nexus/publication/`, `tests/{contract,integration,unit}/`
+- [X] T030 [P] [DS1] Create `libs/publication/pyproject.toml` with common dependency
+- [X] T031 [P] [DS1] Create `libs/publication/src/nexus/publication/__init__.py`
+- [X] T032 [DS1] Configure root `pyproject.toml` with pytest settings (testpaths, markers for contract/integration/unit)
+- [X] T033 [DS1] Configure root `pyproject.toml` with ruff settings (target py312, line-length 100, src=["libs"])
+- [X] T034 [DS1] Configure root `pyproject.toml` with mypy settings
+- [X] T035 [DS1] Run `uv sync` and verify all 8 libraries are installed
+- [X] T036 [DS1] Test import resolution: `uv run python -c "import nexus.common"`
+- [X] T037 [DS1] Test workspace: `uv run python -c "from nexus.common import *; from nexus.ingestion import *"`
 
 **DS1 Checkpoint**: Python workspace functional - developers can add dependencies and import across libraries
 

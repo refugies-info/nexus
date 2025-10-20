@@ -1,0 +1,18 @@
+[project]
+name = "nexus-validation"
+version = "0.1.0"
+description = "Quality validation stage for Nexus AI Pipeline"
+requires-python = ">=3.12"
+dependencies = [
+    "nexus-common",
+]
+
+[tool.uv.sources]
+nexus-common = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexus"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

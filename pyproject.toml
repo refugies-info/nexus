@@ -5,6 +5,16 @@ description = "Nexus AI Pipeline - Polyglot monorepo for Réfugiés.info content
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
+dependencies = [
+    "nexus-common",
+    "nexus-ingestion",
+    "nexus-reconciliation",
+    "nexus-enrichment",
+    "nexus-langage-clair",
+    "nexus-translation",
+    "nexus-validation",
+    "nexus-publication",
+]
 
 [tool.uv.workspace]
 members = [
@@ -26,6 +36,16 @@ dev-dependencies = [
     "pre-commit>=3.8.0",
     "nbstripout>=0.7.0",
 ]
+
+[tool.uv.sources]
+nexus-common = { workspace = true }
+nexus-ingestion = { workspace = true }
+nexus-reconciliation = { workspace = true }
+nexus-enrichment = { workspace = true }
+nexus-langage-clair = { workspace = true }
+nexus-translation = { workspace = true }
+nexus-validation = { workspace = true }
+nexus-publication = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = ["libs"]
