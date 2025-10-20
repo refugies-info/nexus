@@ -1,22 +1,28 @@
 <!--
 Sync Impact Report:
-- Version: 1.2.0 → 1.3.0 (MINOR: Added notebook governance principle)
-- New Principle X: Notebook Governance
-  * Notebook organization in top-level notebooks/ directory
-  * Categories: exploratory, production-informing, learning materials, archive
-  * Security requirements (NON-NEGOTIABLE): no credentials, nbstripout, GDPR compliance
-  * Quality standards: reproducibility, documentation, version control, code quality
-  * Integration with SpecKit workflow (exploratory vs. production-informing)
-  * Tooling: nbstripout, nbconvert, papermill (optional), ruff via nbqa
-- Modified principles: None
+- Version: 1.3.0 → 1.4.0 (MINOR: Added langage clair principle - KEY INNOVATION)
+- New Principle XI: Langage Clair (Plain Language) (NON-NEGOTIABLE)
+  * AI-assisted transformation of bureaucratic/technical text to clear, accessible French
+  * Reifies Réfugiés.info editorial expertise for scalable throughput
+  * Training on Réfugiés.info corpus with before/after examples
+  * Readability validation (Flesch-Kincaid, SMOG, CEFR A2-B1 level)
+  * Quality standards: clarity, concreteness, actionability, accessibility, accuracy
+  * Human oversight: editorial review, approval authority, feedback loop
+  * Translation dependency: plain language French as source for multilingual content
+  * New pipeline stage between enrichment and translation
+- Modified principles: 
+  * Principle III (Multilingual by Design): Now explicitly depends on langage clair as source
 - Templates requiring updates:
-  ✅ plan-template.md (Added Notebook Governance to Constitution Check)
-  ✅ spec-template.md (No changes needed - notebooks referenced in research if used)
-  ✅ tasks-template.md (No changes needed - notebook tasks added per feature as needed)
+  ✅ plan-template.md (Added Langage Clair to Constitution Check; added langage_clair/ to monorepo structure)
+  ✅ spec-template.md (Added Langage Clair to Constitution-Aligned Requirements)
+  ✅ tasks-template.md (No changes needed - langage clair tasks added per feature as needed)
+  ✅ README.md (Updated pipeline diagram, architecture, principles list to include Langage Clair)
 - Follow-up: 
+  * Update pipeline architecture diagrams to show 7-stage pipeline
+  * Create langage_clair/ package in monorepo structure
+  * Collect Réfugiés.info editorial corpus for model training
+  * Define readability metrics and validation criteria
   * User research needed to determine AI transparency disclosure formulation
-  * Consider adding .gitignore patterns for notebook outputs
-  * Consider adding nbstripout pre-commit hook to project setup
 -->
 
 # Nexus Constitution
@@ -49,12 +55,13 @@ Sync Impact Report:
 
 **MUST** treat multilingual support as a first-class requirement, not an afterthought:
 - All information sheets MUST support 8 languages (French + 7 others as per Réfugiés.info standards)
+- **Translation source MUST be plain language French** (see Principle XI: Langage Clair) to ensure clarity is preserved across all languages
 - Translation quality MUST meet Réfugiés.info editorial charter standards
 - Language-specific validation MUST be applied (character encoding, right-to-left text, cultural appropriateness)
 - Translation metadata (source language, translation date, translator/service used) MUST be preserved
 - Untranslated or low-quality translations MUST be flagged for human review
 
-**Rationale**: The target audience includes refugees and immigrants with diverse linguistic backgrounds. Quality multilingual content is essential for accessibility and impact, as documented in the Réfugiés.info impact report.
+**Rationale**: The target audience includes refugees and immigrants with diverse linguistic backgrounds. Quality multilingual content is essential for accessibility and impact, as documented in the Réfugiés.info impact report. Translating from plain language French (rather than complex source text) ensures clarity is maintained across all target languages.
 
 ### IV. Editorial Compliance (NON-NEGOTIABLE)
 
@@ -199,6 +206,55 @@ Sync Impact Report:
 
 **Rationale**: AI pipeline work involves exploratory data analysis, translation quality assessment, and model evaluation. Structured notebook governance balances rapid experimentation with security, reproducibility, and compliance. Unlike high-risk AI systems, Nexus doesn't require extensive regulatory documentation, but notebooks still need discipline to prevent credential leaks and ensure insights are captured for production use.
 
+### XI. Langage Clair (Plain Language) (NON-NEGOTIABLE)
+
+**MUST** transform all source content into clear, accessible French before translation:
+
+**Plain Language Requirements**:
+- Source text (bureaucratic, technical, administrative) MUST be transformed into "langage clair" (plain language French)
+- Transformation MUST follow Réfugiés.info editorial guidelines for clarity, accessibility, and tone
+- AI models MUST be trained on Réfugiés.info's editorial corpus to reify expert knowledge
+- Plain language output MUST be validated against readability standards (e.g., Flesch-Kincaid adapted for French, SMOG index)
+- Complex administrative terms MUST be simplified without losing accuracy
+- Output MUST be optimized for low-literacy readers, non-native speakers, and mobile reading
+
+**Editorial Expertise Reification**:
+- AI transformation MUST embody Réfugiés.info editorial team's expertise and style
+- Training data MUST include before/after examples from Réfugiés.info dispositif sheets
+- Model outputs MUST maintain consistency with existing Réfugiés.info content tone and structure
+- Editorial team MUST review and validate AI-generated plain language transformations
+- Feedback loop MUST continuously improve AI model based on editorial corrections
+- Model performance MUST be tracked with metrics: readability scores, editorial approval rate, user comprehension
+
+**Quality Standards**:
+- **Clarity**: Remove jargon, use common vocabulary, short sentences (max 20 words recommended)
+- **Concreteness**: Replace abstract concepts with specific examples and actions
+- **Actionability**: Focus on what users can do, not just what exists
+- **Accessibility**: Optimize for CEFR A2-B1 French level (intermediate learners)
+- **Accuracy**: Preserve factual correctness while simplifying language
+- **Structure**: Use bullet points, clear headings, logical flow
+
+**Transformation Examples** (from Réfugiés.info corpus):
+- **Before**: "Dispositif d'apprentissage du français : permet de gagner en autonomie au quotidien grâce à des ateliers sociolinguistiques et cours de français langue professionnelle"
+- **After**: "Des ateliers 2 fois par semaine pour progresser en français, mieux communiquer au quotidien et dans le milieu professionnel."
+
+- **Before**: "Comprendre les différentes démarches administratives de la vie quotidienne, savoir remplir à l'ordinateur, savoir utiliser le bon interlocuteur"
+- **After**: "Comprendre les différentes démarches administratives au quotidien : documents, formulaires, services. Répondre à un courrier, savoir quel service contacter."
+
+**Translation Dependency**:
+- Multilingual translation (Principle III) MUST use plain language French as source
+- Translating from plain language ensures clarity is preserved across all 8 languages
+- Complex source text translated directly would produce unclear multilingual content
+- Plain language transformation MUST occur before translation stage in pipeline
+
+**Human Oversight**:
+- Editorial team MUST have final approval authority over AI-generated plain language content
+- AI suggestions MUST be clearly marked as requiring editorial review
+- Editorial corrections MUST be captured and used to retrain/fine-tune models
+- High-stakes content (legal rights, safety information) MUST have mandatory human review
+
+**Rationale**: Bureaucratic and technical source data is incomprehensible to vulnerable populations. Réfugiés.info's core value proposition is transforming this complexity into clear, actionable information. AI-assisted "langage clair" transformation scales this editorial expertise, enabling higher throughput while maintaining quality. This is the key innovation that differentiates Nexus from simple translation pipelines—it reifies years of editorial expertise into a scalable AI system.
+
 ## Data Sources & Integration
 
 ### Primary Data Sources
@@ -331,4 +387,4 @@ This constitution supersedes all other development practices and guidelines. Whe
 
 The constitution is a living document. As the project evolves and new patterns emerge, principles should be refined to reflect learned best practices. Amendments should be proposed proactively when gaps or conflicts are identified.
 
-**Version**: 1.3.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+**Version**: 1.4.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20

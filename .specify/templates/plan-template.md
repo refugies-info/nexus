@@ -43,6 +43,7 @@ Validate compliance with Nexus Constitution (`.specify/memory/constitution.md`):
 - [ ] **Technology Foundation**: Monorepo structure defined; Python for pipeline, Node.js for tooling; dependency management specified
 - [ ] **User-Centered Development (NON-NEGOTIABLE)**: User research plan with Réfugiés.info end users; iterative testing strategy; analytics implementation; AI transparency disclosure approach
 - [ ] **Notebook Governance**: Notebooks organized in notebooks/ directory; categories defined; nbstripout configured; security review for credentials
+- [ ] **Langage Clair (NON-NEGOTIABLE)**: AI model training on Réfugiés.info corpus; readability validation; editorial review workflow; feedback loop for model improvement
 - [ ] **TDD Compliance (NON-NEGOTIABLE)**: Test-first approach planned; red-green-refactor cycle enforced; test coverage strategy defined
 - [ ] **GDPR Compliance (NON-NEGOTIABLE)**: Data minimization strategy; legal basis documented; user rights mechanisms; DPIA conducted if needed; DPAs with third parties
 
@@ -106,13 +107,14 @@ ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
 
 # [REMOVE IF UNUSED] Option 4: Polyglot Monorepo (Nexus: Python pipeline + Node.js tooling)
-# Constitution Principle VIII: Technology Foundation
+# Constitution Principles VIII (Technology Foundation) + XI (Langage Clair)
 packages/
 ├── pipeline/              # Python: Data pipeline stages
 │   ├── src/
 │   │   ├── ingestion/
 │   │   ├── reconciliation/
 │   │   ├── enrichment/
+│   │   ├── langage_clair/     # ⭐ AI-assisted plain language transformation
 │   │   ├── translation/
 │   │   ├── validation/
 │   │   └── publication/

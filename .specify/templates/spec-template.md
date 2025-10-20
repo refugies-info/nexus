@@ -123,6 +123,7 @@
 - **Observability**: Logging, metrics, and traceability requirements
 - **Integration**: API contracts with external systems (Data Inclusion, Carif Oref, Réfugiés.info)
 - **User-Centered**: Analytics implementation, user feedback mechanisms, iterative testing plan
+- **Langage Clair**: Plain language transformation requirements, readability targets (CEFR A2-B1), editorial review workflow
 - **AI Transparency**: Disclosure of AI-generated content, explainability for editors
 - **GDPR Compliance**: Data minimization, legal basis, user rights, privacy notices, DPAs with third parties
 
