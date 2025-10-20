@@ -96,6 +96,7 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **What happens when a stage times out?** System retries with exponential backoff; after max retries, marks stage as failed and alerts operators
 - **What happens when database connection is lost?** System queues operations in memory and retries; if connection not restored, fails gracefully with error logged
 - **What happens when two editors review the same diff simultaneously?** System uses optimistic locking; first approval wins, second editor sees "already reviewed" message
+- **What happens when a program is stuck in manual review queue for >7 days?** System sends notification to editorial team and marks as "review_overdue" but keeps in queue
 
 ## Requirements *(mandatory)*
 
@@ -105,11 +106,12 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **FR-001**: System MUST execute pipeline stages sequentially in order: ingestion → reconciliation → enrichment → langage clair → translation → validation → publication
 - **FR-002**: System MUST track the current stage of each program being processed
 - **FR-003**: System MUST persist program state after each stage completion to enable recovery from failures
-- **FR-004**: System MUST retry failed stages automatically with exponential backoff
+- **FR-004**: System MUST retry failed stages automatically with exponential backoff (up to 24 hours for external API failures)
 - **FR-005**: System MUST isolate stage failures so that one program's failure does not affect other programs
 - **FR-006**: System MUST support partial replay (re-running specific stages without full pipeline restart)
 - **FR-007**: System MUST route programs to manual review queues when quality checks fail
 - **FR-008**: System MUST support concurrent processing of multiple programs
+- **FR-009a**: System MUST queue programs when Data Inclusion or Carif Oref APIs are temporarily unavailable and retry until APIs recover
 
 #### Update Detection
 - **FR-009**: System MUST detect when source data has been updated by comparing checksums
@@ -133,14 +135,16 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **FR-023**: System MUST allow editors to approve all changes, reject all changes, or manually edit changes
 - **FR-024**: System MUST record which editor reviewed each diff and when
 - **FR-025**: System MUST prevent concurrent editing of the same diff by multiple editors
+- **FR-026**: System MUST authenticate editorial team users via Supabase Auth with email/password
+- **FR-027**: System MUST implement role-based access control (RBAC) to restrict diff review interface access to authorized editors
 
 #### State Management
-- **FR-026**: System MUST store workflow execution state (program ID, current stage, status, timestamps)
-- **FR-027**: System MUST store stage execution details (input data, output data, retry count, errors)
-- **FR-028**: System MUST store data source state (source ID, last fetched timestamp, checksum)
-- **FR-029**: System MUST store information sheet state with progressive enhancement (data added at each stage)
-- **FR-030**: System MUST store update events (original checksum, updated checksum, update strategy)
-- **FR-031**: System MUST store update diffs (original data, updated data, changes, risk score, review status)
+- **FR-028**: System MUST store workflow execution state (program ID, current stage, status, timestamps)
+- **FR-029**: System MUST store stage execution details (input data, output data, retry count, errors)
+- **FR-030**: System MUST store data source state (source ID, last fetched timestamp, checksum)
+- **FR-031**: System MUST store information sheet state with progressive enhancement (data added at each stage)
+- **FR-032**: System MUST store update events (original checksum, updated checksum, update strategy)
+- **FR-033**: System MUST store update diffs (original data, updated data, changes, risk score, review status)
 
 ### Constitution-Aligned Requirements
 
@@ -155,7 +159,7 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **CAR-006**: System MUST emit structured logs in machine-readable format for monitoring
 - **CAR-007**: System MUST track data lineage from source (Data Inclusion/Carif Oref) to publication (Réfugiés.info)
 - **CAR-008**: System MUST collect performance metrics per pipeline stage (processing time, throughput, error rates)
-- **CAR-009**: System MUST alert operators on pipeline failures, data quality issues, and SLA violations
+- **CAR-009**: System MUST alert operators on pipeline failures, data quality issues, and SLA violations (including programs stuck in manual review >7 days)
 
 #### Principle VII: Incremental Delivery
 - **CAR-010**: Pipeline orchestration MUST be deliverable and demonstrable independently of stage implementations
@@ -175,18 +179,18 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 
 ### Key Entities
 
-- **Workflow Run**: Represents a single execution of the pipeline for a program. Tracks program ID, current stage, status (pending/running/completed/failed), timestamps, and error messages.
+- **Workflow Run**: Represents a single execution of the pipeline for a program. Tracks program ID (Data Inclusion unique ID), current stage, status (pending/running/completed/failed), timestamps, and error messages.
 - **Stage Execution**: Represents execution of a single pipeline stage. Tracks stage name, status, retry count, input/output data, and execution metadata.
 - **Data Source State**: Represents the state of external data sources (Data Inclusion, Carif Oref). Tracks source ID, last fetched timestamp, checksum for change detection, and raw data.
-- **Information Sheet**: Represents a program's information sheet with progressive enhancement. Tracks program ID, current stage, status (draft/in_review/approved/published), and data added at each stage (ingested, reconciled, enriched, langage_clair, translated, validated, published).
-- **Update Event**: Represents detection of a source data update. Tracks program ID, original checksum, updated checksum, original stage, update strategy (full_reprocess/smart_catchup), and processing status.
-- **Update Diff**: Represents a diff awaiting editorial review. Tracks program ID, stage, original data, updated data, structured changes, risk score, priority, review status, and reviewer information.
+- **Information Sheet**: Represents a program's information sheet with progressive enhancement. Tracks program ID (Data Inclusion unique ID as primary key), current stage, status (draft/in_review/approved/published), and data added at each stage (ingested, reconciled, enriched, langage_clair, translated, validated, published).
+- **Update Event**: Represents detection of a source data update. Tracks program ID (Data Inclusion unique ID), original checksum, updated checksum, original stage, update strategy (full_reprocess/smart_catchup), and processing status.
+- **Update Diff**: Represents a diff awaiting editorial review. Tracks program ID (Data Inclusion unique ID), stage, original data, updated data, structured changes, risk score, priority, review status, and reviewer information.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: System successfully processes a new program through all 7 pipeline stages and publishes an information sheet to Réfugiés.info
+- **SC-001**: System successfully processes a new program through all 7 pipeline stages and publishes an information sheet to Réfugiés.info within 24 hours
 - **SC-002**: System handles 100 concurrent programs without degradation in processing time
 - **SC-003**: Stage failures are automatically retried and 95% of transient errors recover without manual intervention
 - **SC-004**: System detects 100% of source data updates via checksum comparison within 1 hour of update
@@ -219,7 +223,15 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - Machine learning-based risk scoring (Phase 3 enhancement, not MVP)
 - Batch diff review (reviewing multiple similar changes together - Phase 3 enhancement)
 - Integration with external monitoring services (Datadog, New Relic, etc.)
+- Slack notifications for API failures (to be specified in separate alerting feature)
+- SSO integration with existing Réfugiés.info authentication system (to be specified in separate feature)
 
 ## Clarifications
 
-No clarifications needed - all requirements are specified with reasonable defaults documented in Assumptions section.
+### Session 2025-10-20
+
+- Q: What should happen when Data Inclusion or Carif Oref APIs are temporarily unavailable during ingestion? → A: Queue programs and retry with exponential backoff until APIs recover (up to 24 hours). Slack notification should be sent (feature to be specified later).
+- Q: How should the system identify unique programs when the same program appears in both Data Inclusion and Carif Oref with potentially different IDs? → A: Use source ID as primary key; treat each source as independent (no deduplication). Data Inclusion schema includes unique ID that guarantees deduplication (https://gip-inclusion.github.io/data-inclusion-schema/latest/service/#id).
+- Q: What is the maximum acceptable processing time for a single program to complete all 7 pipeline stages (end-to-end latency)? → A: 24 hours (1 day) for complete pipeline execution.
+- Q: What should happen when a program is stuck in a manual review queue (enrichment, validation) for more than a configurable threshold (e.g., 7 days)? → A: Send notification to editorial team and mark as "review_overdue" but keep in queue.
+- Q: What authentication/authorization mechanism should the diff review interface use for editorial team access? → A: Supabase Auth with email/password + role-based access control (RBAC). SSO integration with existing Réfugiés.info system to be resolved at a later stage.
