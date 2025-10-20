@@ -8,16 +8,20 @@
 
 ## Executive Summary
 
-**Recommendation**: **Lightweight Pythonic Approach** with **Supabase for state management**
+**Recommendation**: **Hybrid Approach - n8n for Orchestration + Python Services for Complex Logic**
+
+**Update (2025-10-20)**: After evaluating n8n (team is currently prototyping with it), the recommendation has been updated to a hybrid approach that leverages existing n8n work while maintaining code quality for complex logic.
 
 **Key Decision Factors**:
+- **Existing Prototype**: Team already prototyping with n8n → leverage that investment
 - **Scale**: Processing ~hundreds of French learning programs, not millions of records
 - **Complexity**: 7-stage linear pipeline with well-defined dependencies
 - **Team**: Small team prioritizing velocity and simplicity over enterprise features
 - **Infrastructure**: Supabase provides managed PostgreSQL + real-time + auth out of the box
-- **Constitutional Alignment**: Principle VII (Incremental Delivery) favors starting simple
+- **Code Quality**: Complex logic (smart catch-up, diff generation, AI) requires testable Python services
+- **Constitutional Alignment**: Principle VII (Incremental Delivery) + TDD compliance
 
-**Trade-off**: Sacrifice enterprise orchestration features (complex DAGs, distributed execution, extensive UI) for development velocity, operational simplicity, and lower infrastructure overhead.
+**Trade-off**: Use n8n for orchestration (visual workflows, built-in observability) and Python services for complex business logic (testable, type-safe, TDD-compliant). Balances speed (leverage prototype) with quality (maintainable code).
 
 ---
 
@@ -160,6 +164,35 @@ Data Inclusion / Carif Oref API
 
 ---
 
+### 1E. n8n (Workflow Automation Platform)
+
+**Overview**: Open-source workflow automation platform with visual workflow builder, 400+ integrations, and self-hosting option.
+
+**Context**: **Team is currently prototyping with n8n** - this is a significant factor in the evaluation.
+
+**Pros**:
+- ✅ **Already prototyping**: Team has working knowledge, existing workflows, sunk learning curve
+- ✅ **Visual workflows**: Non-technical stakeholders can see and understand pipeline flow
+- ✅ **Built-in integrations**: Native nodes for Supabase, OpenAI, HTTP requests, webhooks
+- ✅ **Observability**: Built-in execution history, error logs, visual debugging
+- ✅ **Manual interventions**: Easy to pause workflows for human review
+- ✅ **Rapid iteration**: Change workflow logic without code deployments
+- ✅ **Self-hostable**: Open source, can run on own infrastructure
+- ✅ **Lower barrier**: Editorial team could potentially adjust workflows
+
+**Cons**:
+- ❌ **Complex logic awkward**: Smart catch-up, diff generation, risk scoring hard to express in visual nodes
+- ❌ **Testing challenges**: Visual workflows harder to unit test than Python functions (TDD compliance difficult)
+- ❌ **Version control**: Workflows export as JSON, messy diffs in Git, painful code reviews
+- ❌ **Code execution limitations**: JavaScript/Python nodes lack IDE debugging, type safety
+- ❌ **Vendor lock-in**: Workflows tightly coupled to n8n's node system, migration requires rewrite
+- ❌ **Performance**: Node.js runtime overhead, may be slower for data-heavy processing
+- ❌ **CI/CD friction**: Deploying workflow changes requires n8n API or manual import
+
+**Verdict**: **Recommended for Hybrid Approach** - Use n8n for orchestration (leverage existing prototype) + Python services for complex logic (TDD-compliant, testable).
+
+---
+
 ## Option 2: Lightweight Pythonic Approach
 
 ### 2A. Custom Orchestration + Lightweight Libraries
@@ -250,7 +283,84 @@ class PipelineStage(ABC):
 - ❌ **Limited observability**: No out-of-box lineage tracking (build custom)
 - ❌ **Scaling limitations**: Single-process execution (sufficient for MVP scope)
 
-**Verdict**: **RECOMMENDED** - Aligns with project constraints (small team, linear pipeline, incremental delivery). Trade enterprise features for velocity and simplicity.
+**Verdict**: **Alternative to Hybrid** - Pure Python approach if n8n prototype doesn't exist. Since team is prototyping with n8n, hybrid approach is preferred.
+
+---
+
+## Option 3: Hybrid Approach (n8n + Python Services) **[RECOMMENDED]**
+
+### 3A. n8n for Orchestration + Python for Complex Logic
+
+**Overview**: Leverage existing n8n prototype for workflow orchestration while implementing complex business logic in testable Python services.
+
+**Architecture**:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     n8n Workflows                           │
+│  (Orchestration, State Management, Error Handling)          │
+└────────────────────┬────────────────────────────────────────┘
+                     │
+        ┌────────────┼────────────┐
+        ▼            ▼            ▼
+┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+│   Python     │ │   Python     │ │   Python     │
+│   Services   │ │   Services   │ │   Services   │
+│  (FastAPI)   │ │  (FastAPI)   │ │  (FastAPI)   │
+│              │ │              │ │              │
+│ • Ingestion  │ │ • Langage    │ │ • Diff Gen   │
+│ • Reconcile  │ │   Clair      │ │ • Risk Score │
+│ • Enrichment │ │ • Translation│ │ • Validation │
+└──────────────┘ └──────────────┘ └──────────────┘
+        │            │            │
+        └────────────┼────────────┘
+                     ▼
+              ┌──────────────┐
+              │   Supabase   │
+              │  (State DB)  │
+              └──────────────┘
+```
+
+**What Goes Where**:
+
+**n8n Workflows Handle**:
+- Pipeline stage sequencing (ingestion → reconciliation → ... → publication)
+- Update detection and routing (full reprocess vs smart catch-up)
+- Retry logic and error handling (exponential backoff)
+- Manual review triggers (pause for editorial approval)
+- Supabase state updates (workflow_runs, stage_executions)
+- Monitoring and alerting (webhook notifications)
+
+**Python Services Handle** (FastAPI/Flask):
+- Complex data transformations and validation
+- AI integrations (OpenAI for langage clair, translation APIs)
+- Diff generation and risk scoring (field-level comparison)
+- Business logic (validation rules, quality checks)
+- Unit-testable code (TDD compliance)
+- Type-safe with mypy and pydantic
+
+**Pros**:
+- ✅ **Leverage existing work**: Use n8n prototype as foundation, don't throw away effort
+- ✅ **Fast MVP**: Existing workflows accelerate development
+- ✅ **Code quality**: Complex logic in testable, type-safe Python
+- ✅ **Visual workflows**: Editorial team can see pipeline flow
+- ✅ **TDD compliance**: Python services follow test-driven development
+- ✅ **Flexibility**: Can migrate away from n8n later (Python services remain portable)
+- ✅ **Best tool for each job**: n8n for orchestration, Python for logic
+- ✅ **Observability**: n8n execution logs + Python structured logging
+
+**Cons**:
+- ⚠️ **Two systems**: n8n + Python services to maintain
+- ⚠️ **Version control**: n8n workflows as JSON + Python code
+- ⚠️ **Debugging**: Correlation across two systems (mitigated by correlation IDs)
+- ⚠️ **Deployment**: n8n workflows + Python service deployments
+
+**Mitigations**:
+- **Clear separation**: n8n for orchestration only, Python for all logic
+- **Structured logging**: Correlation IDs link n8n executions to Python service calls
+- **Export workflows**: Store n8n JSON in Git, document changes
+- **Python services are portable**: Can swap orchestrator later if needed
+
+**Verdict**: **RECOMMENDED** - Balances speed (leverage prototype) with quality (TDD-compliant Python). Best fit given team is already prototyping with n8n.
 
 ---
 
@@ -506,52 +616,64 @@ CREATE TRIGGER update_information_sheets_updated_at BEFORE UPDATE ON information
 
 ## Decision Matrix
 
-| Criterion | Airflow | Prefect | Dagster | Temporal | Lightweight + Supabase |
-|-----------|---------|---------|---------|----------|------------------------|
-| **Infrastructure Overhead** | ❌ High | ⚠️ Medium | ❌ High | ❌ High | ✅ Low |
-| **Learning Curve** | ❌ Steep | ⚠️ Medium | ❌ Steep | ❌ Steep | ✅ Minimal |
-| **Development Velocity** | ❌ Slow | ⚠️ Medium | ⚠️ Medium | ❌ Slow | ✅ Fast |
-| **Operational Complexity** | ❌ High | ⚠️ Medium | ❌ High | ❌ High | ✅ Low |
-| **Testing Ease** | ❌ Hard | ⚠️ Medium | ✅ Good | ⚠️ Medium | ✅ Easy |
-| **Observability** | ✅ Excellent | ✅ Excellent | ✅ Excellent | ✅ Good | ⚠️ Custom |
-| **UI/Monitoring** | ✅ Rich | ✅ Rich | ✅ Rich | ✅ Good | ❌ Custom |
-| **Cost** | ⚠️ Medium | ⚠️ Medium-High | ⚠️ Medium | ⚠️ Medium | ✅ Low |
-| **Scalability** | ✅ Excellent | ✅ Excellent | ✅ Excellent | ✅ Excellent | ⚠️ Limited |
-| **Fit for Linear Pipeline** | ❌ Overkill | ❌ Overkill | ❌ Overkill | ❌ Overkill | ✅ Perfect |
-| **Constitutional Alignment** | ❌ Poor | ⚠️ Medium | ⚠️ Medium | ❌ Poor | ✅ Excellent |
+| Criterion | Airflow | Prefect | Dagster | Temporal | n8n Only | Python Only | **Hybrid (n8n + Python)** |
+|-----------|---------|---------|---------|----------|----------|-------------|---------------------------|
+| **Infrastructure Overhead** | ❌ High | ⚠️ Medium | ❌ High | ❌ High | ⚠️ Medium | ✅ Low | ⚠️ Medium |
+| **Learning Curve** | ❌ Steep | ⚠️ Medium | ❌ Steep | ❌ Steep | ✅ Minimal (prototyping) | ✅ Minimal | ✅ Minimal |
+| **Development Velocity** | ❌ Slow | ⚠️ Medium | ⚠️ Medium | ❌ Slow | ✅ Fast (prototype exists) | ❌ Slow (build from scratch) | ✅ Fast |
+| **Operational Complexity** | ❌ High | ⚠️ Medium | ❌ High | ❌ High | ⚠️ Medium | ✅ Low | ⚠️ Medium |
+| **Testing Ease (TDD)** | ❌ Hard | ⚠️ Medium | ✅ Good | ⚠️ Medium | ❌ Hard | ✅ Easy | ✅ Easy (Python services) |
+| **Observability** | ✅ Excellent | ✅ Excellent | ✅ Excellent | ✅ Good | ✅ Built-in | ⚠️ Custom | ✅ n8n UI + Python logs |
+| **UI/Monitoring** | ✅ Rich | ✅ Rich | ✅ Rich | ✅ Good | ✅ Visual workflows | ❌ Custom | ✅ Visual workflows |
+| **Version Control** | ⚠️ Medium | ⚠️ Medium | ⚠️ Medium | ⚠️ Medium | ❌ JSON diffs | ✅ Clean | ⚠️ Mixed (JSON + code) |
+| **Complex Logic** | ⚠️ Medium | ⚠️ Medium | ✅ Good | ⚠️ Medium | ❌ Awkward | ✅ Full control | ✅ Python services |
+| **Cost** | ⚠️ Medium | ⚠️ Medium-High | ⚠️ Medium | ⚠️ Medium | ✅ Low | ✅ Low | ⚠️ Medium |
+| **Scalability** | ✅ Excellent | ✅ Excellent | ✅ Excellent | ✅ Excellent | ⚠️ Limited | ⚠️ Limited | ⚠️ Limited (sufficient) |
+| **Fit for Linear Pipeline** | ❌ Overkill | ❌ Overkill | ❌ Overkill | ❌ Overkill | ✅ Good | ✅ Perfect | ✅ Perfect |
+| **Vendor Lock-in** | ⚠️ Medium | ⚠️ Medium | ⚠️ Medium | ⚠️ Medium | ❌ High | ✅ None | ⚠️ Medium (orchestration only) |
+| **Leverage Existing Work** | ❌ No | ❌ No | ❌ No | ❌ No | ✅ Yes (prototype) | ❌ No | ✅ Yes (prototype) |
+| **Constitutional Alignment** | ❌ Poor | ⚠️ Medium | ⚠️ Medium | ❌ Poor | ❌ TDD difficult | ✅ Excellent | ✅ Excellent |
 
 **Legend**: ✅ Excellent | ⚠️ Acceptable | ❌ Poor
 
+**Winner**: **Hybrid (n8n + Python)** - Best balance of speed (leverage prototype), quality (TDD-compliant Python), and observability (visual workflows).
+
 ---
 
-## Recommendation: Lightweight Pythonic Approach
+## Recommendation: Hybrid Approach (n8n + Python Services)
 
 ### Why This Is The Right Choice
 
-**1. Aligns with Constitutional Principles**
-- **Principle VII (Incremental Delivery)**: Start simple, add complexity only when needed
-- **Principle II (Pipeline Modularity)**: Stages are independently testable Python modules
-- **Principle VI (Observability)**: Custom logging and state tracking via Supabase
-- **TDD Compliance**: Plain Python functions are easier to test than framework-specific code
+**1. Leverage Existing Investment**
+- **Team is prototyping with n8n**: Don't throw away working knowledge and existing workflows
+- **Faster MVP**: Use n8n prototype as foundation, accelerate development
+- **Proven feasibility**: If prototype works, production version is lower risk
+- **Sunk learning curve**: Team already understands n8n's workflow model
 
-**2. Matches Project Constraints**
-- **Small team**: No dedicated DevOps, minimize operational burden
-- **Linear pipeline**: No complex DAG dependencies, sequential execution sufficient
-- **MVP scope**: ~Hundreds of programs, not millions of records
-- **Fast iteration**: Plain Python enables rapid prototyping and debugging
+**2. Aligns with Constitutional Principles**
+- **Principle VII (Incremental Delivery)**: Start with n8n prototype, extract complex logic to Python incrementally
+- **Principle II (Pipeline Modularity)**: Python services are independently testable modules
+- **Principle VI (Observability)**: n8n built-in execution logs + Python structured logging
+- **TDD Compliance**: Python services follow test-driven development (n8n handles orchestration only)
 
-**3. Technical Advantages**
-- **Minimal infrastructure**: Just Python app + Supabase (managed PostgreSQL)
-- **No vendor lock-in**: Supabase is open source, can self-host if needed
-- **Easy testing**: Mock Supabase client, test stages in isolation
-- **Full control**: Customize orchestration logic without framework constraints
-- **Debuggable**: Standard Python debugging tools, no black box
+**3. Best Tool for Each Job**
+- **n8n for orchestration**: Visual workflows, built-in retry logic, error handling, manual interventions
+- **Python for complex logic**: Smart catch-up, diff generation, risk scoring, AI integrations
+- **Clear separation**: n8n doesn't do business logic, Python doesn't do orchestration
+- **Testability**: Python services are unit-testable, n8n workflows are integration-testable
 
-**4. Future-Proofing**
-- **Gradual migration path**: If scale demands it, migrate to Prefect/Dagster later
-- **Supabase scales**: PostgreSQL handles millions of rows, sufficient for foreseeable future
-- **Modular design**: Stages are independent, can parallelize or distribute later
-- **Custom UI**: Build monitoring dashboard when needed (Streamlit/Gradio + Supabase)
+**4. Technical Advantages**
+- **Visual workflows**: Editorial team can see and understand pipeline flow
+- **Built-in observability**: n8n execution history, error logs, visual debugging
+- **Type-safe Python**: Use mypy and pydantic for Python services
+- **Portable services**: Python services can work with any orchestrator (future flexibility)
+- **Supabase integration**: n8n has native Supabase node, Python services use supabase-py
+
+**5. Future-Proofing**
+- **Python services are portable**: Can migrate orchestration away from n8n if needed
+- **Gradual extraction**: Start with n8n for everything, move complex logic to Python incrementally
+- **No vendor lock-in for logic**: Business logic in Python, not locked into n8n
+- **Migration path exists**: If n8n becomes a bottleneck, Python services remain
 
 ### When to Reconsider
 
@@ -562,7 +684,13 @@ CREATE TRIGGER update_information_sheets_updated_at BEFORE UPDATE ON information
 - Team grows to >5 engineers (operational overhead becomes acceptable)
 - Stakeholders demand rich UI for non-technical users
 
-**Until then**: Lightweight approach maximizes velocity and minimizes complexity.
+**Migrate fully to Python orchestration if:**
+- n8n visual workflows become too complex to maintain
+- Version control / CI/CD pain points become severe
+- Team prefers code-first development over visual workflows
+- n8n performance becomes a bottleneck
+
+**Until then**: Hybrid approach maximizes velocity (leverage prototype) while maintaining code quality (TDD-compliant Python services).
 
 ---
 
