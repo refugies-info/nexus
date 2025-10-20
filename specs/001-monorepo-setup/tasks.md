@@ -167,13 +167,13 @@
 
 ### Tasks
 
-- [ ] T072 Update `CONTRIBUTING.md` with actual setup experience and troubleshooting
-- [ ] T073 [P] Verify all success criteria from spec.md are met (SC-001 through SC-008)
-- [ ] T074 [P] Test complete setup flow: fresh clone → `just install` → verify under 3 minutes
-- [ ] T075 [P] Test developer workflow: create feature branch → make change → commit → hooks run
-- [ ] T076 [P] Document any deviations from plan.md in implementation notes
+- [X] T072 Update `CONTRIBUTING.md` with actual setup experience and troubleshooting
+- [X] T073 [P] Verify all success criteria from spec.md are met (SC-001 through SC-008)
+- [X] T074 [P] Test complete setup flow: fresh clone → `just install` → verify under 3 minutes
+- [X] T075 [P] Test developer workflow: create feature branch → make change → commit → hooks run
+- [X] T076 [P] Document any deviations from plan.md in implementation notes
 - [ ] T077 Create quickstart video or animated GIF showing setup process (optional)
-- [ ] T078 Final review: all constitutional requirements (CAR-001 through CAR-012) satisfied
+- [X] T078 Final review: all constitutional requirements (CAR-001 through CAR-012) satisfied
 
 **Final Checkpoint**: Monorepo infrastructure complete and documented
 
