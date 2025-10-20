@@ -1,0 +1,17 @@
+{
+  "name": "nexus-monorepo",
+  "version": "0.1.0",
+  "description": "Nexus AI Pipeline - Polyglot monorepo for Réfugiés.info content processing",
+  "private": true,
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  }
+}

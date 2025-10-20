@@ -29,13 +29,13 @@
 
 ### Tasks
 
-- [ ] T001 Create root directory structure: `libs/`, `packages/`, `notebooks/`, `docs/`
-- [ ] T002 Create `.gitignore` with Python cache, Node.js, notebook outputs, and env file exclusions
-- [ ] T003 [P] Create root `pyproject.toml` with uv workspace configuration for all 8 libs
-- [ ] T004 [P] Create root `package.json` with pnpm workspace configuration
-- [ ] T005 [P] Create `pnpm-workspace.yaml` defining packages/* workspace
-- [ ] T006 [P] Create `README.md` updates (already done, verify completeness)
-- [ ] T007 [P] Create `CONTRIBUTING.md` with developer setup instructions per FR-042 through FR-047
+- [X] T001 Create root directory structure: `libs/`, `packages/`, `notebooks/`, `docs/`
+- [X] T002 Create `.gitignore` with Python cache, Node.js, notebook outputs, and env file exclusions
+- [X] T003 [P] Create root `pyproject.toml` with uv workspace configuration for all 8 libs
+- [X] T004 [P] Create root `package.json` with pnpm workspace configuration
+- [X] T005 [P] Create `pnpm-workspace.yaml` defining packages/* workspace
+- [X] T006 [P] Create `README.md` updates (already done, verify completeness)
+- [X] T007 [P] Create `CONTRIBUTING.md` with developer setup instructions per FR-042 through FR-047
 
 **Checkpoint**: Root structure ready - can now create individual libraries
 
