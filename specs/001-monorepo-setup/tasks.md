@@ -113,7 +113,9 @@
 - [ ] T046 [P] [DS2] Add `format` recipe to `justfile` running ruff format and biome format
 - [ ] T047 [P] [DS2] Add `test` recipe to `justfile` running pytest
 - [ ] T048 [P] [DS2] Add `test-lib` recipe to `justfile` for running tests on specific library
-- [ ] T049 [DS2] Implement fail-fast error handling in `justfile` for missing prerequisites (uv, pnpm)
+- [ ] T049 [DS2] Implement fail-fast error handling in `justfile` for missing prerequisites with specific error messages:
+  - Check uv: "Error: uv not found. Install: curl -LsSf https://astral.sh/uv/install.sh | sh"
+  - Check pnpm: "Error: pnpm not found. Install: npm install -g pnpm"
 - [ ] T050 [DS2] Run `pnpm install` to verify Node.js workspace setup
 - [ ] T051 [DS2] Test `just` command lists all available recipes
 - [ ] T052 [DS2] Test `just lint` runs successfully (may have no violations yet)

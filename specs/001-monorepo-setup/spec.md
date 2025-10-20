@@ -95,11 +95,13 @@ As a developer, I need pre-commit hooks and testing infrastructure so that code 
 
 ### Edge Cases
 
-- **Empty repository**: What happens when setting up the monorepo structure in a repository that only has README and constitution?
-- **Existing files**: How does the setup handle existing files that might conflict with the new structure?
-- **Missing tools**: What happens if uv or pnpm are not installed on the developer's machine?
-- **Python version mismatch**: How does the system handle if the developer has Python < 3.12?
-- **Notebook outputs**: What happens if a developer commits a notebook with outputs before pre-commit hooks are installed?
+**Note**: Edge cases are handled by justfile fail-fast error messages (FR-041) and task execution validation.
+
+- **Empty repository**: Setup creates all necessary directories and files - no conflicts
+- **Existing files**: Manual review required if conflicts detected (not automated)
+- **Missing tools**: justfile fails immediately with installation instructions (FR-041)
+- **Python version mismatch**: uv will report version mismatch during `uv sync`
+- **Notebook outputs**: Pre-commit hooks strip outputs automatically once installed; manual cleanup needed for commits before hook installation
 
 ## Requirements *(mandatory)*
 
@@ -158,7 +160,7 @@ As a developer, I need pre-commit hooks and testing infrastructure so that code 
 - **FR-035**: `justfile` MUST include commands for installing dependencies (e.g., `just install`)
 - **FR-036**: `justfile` MUST include commands for running linters and formatters (e.g., `just lint`, `just format`)
 - **FR-037**: `justfile` MUST include commands for running tests (e.g., `just test`)
-- **FR-038**: `justfile` MUST include commands for setting up pre-commit hooks (e.g., `just setup`)
+- **FR-038**: `justfile` MUST include pre-commit hook installation as part of `just install` command
 - **FR-039**: `justfile` MUST include a default recipe that lists all available commands
 - **FR-040**: `justfile` MUST support both Python and Node.js tooling commands
 - **FR-041**: `justfile` MUST fail fast with clear error messages and installation instructions when prerequisites (uv, pnpm, just) are missing
