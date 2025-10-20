@@ -1,7 +1,7 @@
 # Research: Polyglot Monorepo Setup
 
-**Feature**: 001-monorepo-setup  
-**Date**: 2025-10-20  
+**Feature**: 001-monorepo-setup
+**Date**: 2025-10-20
 **Purpose**: Research tool configurations and best practices for Python/Node.js monorepo infrastructure
 
 ## Research Topics

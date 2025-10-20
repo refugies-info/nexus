@@ -17,27 +17,27 @@ Establish the foundational monorepo infrastructure for the Nexus AI pipeline pro
   the iteration process.
 -->
 
-**Language/Version**: Python 3.12+, Node.js 22+  
-**Primary Dependencies**: 
+**Language/Version**: Python 3.12+, Node.js 22+
+**Primary Dependencies**:
 - Python: uv (package manager), ruff (linting/formatting), pytest (testing), mypy (type checking), pre-commit (git hooks), nbstripout (notebook cleaning)
 - Node.js: pnpm (package manager), biome (linting/formatting), just (command runner)
 
-**Storage**: N/A (infrastructure setup only)  
-**Testing**: pytest with contract/integration/unit test organization per library  
-**Target Platform**: Development environment (macOS, Linux, Windows with WSL)  
-**Project Type**: Polyglot monorepo (Python libraries + Node.js tooling)  
-**Performance Goals**: 
+**Storage**: N/A (infrastructure setup only)
+**Testing**: pytest with contract/integration/unit test organization per library
+**Target Platform**: Development environment (macOS, Linux, Windows with WSL)
+**Project Type**: Polyglot monorepo (Python libraries + Node.js tooling)
+**Performance Goals**:
 - `just install` completes in under 3 minutes
 - `just lint` completes with zero configuration errors
 - Pre-commit hooks execute without blocking developer workflow
 
-**Constraints**: 
+**Constraints**:
 - Must support Python 3.12+ and Node.js 22+
 - Must work on developer machines without Docker (local development first)
 - justfile must fail fast with clear error messages for missing prerequisites
 - Each pipeline stage library must be independently testable
 
-**Scale/Scope**: 
+**Scale/Scope**:
 - 8 independent Python libraries (7 pipeline stages + 1 common)
 - Minimal initial dependencies (ruff, pytest, mypy, pre-commit, nbstripout)
 - Foundation for future pipeline implementation (not included in this phase)
@@ -179,4 +179,3 @@ notebooks/                 # Jupyter notebooks (exploratory work)
 *Fill ONLY if Constitution Check has violations that must be justified*
 
 **No violations** - All applicable constitutional principles are satisfied for this infrastructure setup feature.
-

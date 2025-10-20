@@ -1,6 +1,6 @@
 # Quickstart: Nexus Monorepo Development
 
-**Last Updated**: 2025-10-20  
+**Last Updated**: 2025-10-20
 **For**: Developers setting up the Nexus monorepo for the first time
 
 ## Prerequisites

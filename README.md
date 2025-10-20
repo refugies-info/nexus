@@ -14,7 +14,7 @@ Nexus is an AI-powered data pipeline that processes integration services data an
 Information about integration services (French language learning, employment support, housing assistance) exists across fragmented sources but often fails to meet the needs of vulnerable populations:
 
 - **Language barriers**: Content rarely available in the 8+ languages refugees speak
-- **Quality inconsistency**: Information sheets vary wildly in clarity and completeness  
+- **Quality inconsistency**: Information sheets vary wildly in clarity and completeness
 - **Manual overhead**: Creating and maintaining multilingual content is time-intensive
 - **Accessibility gaps**: Content not optimized for low-literacy or mobile-first users
 

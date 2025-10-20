@@ -1,9 +1,9 @@
 # Feature Specification: Polyglot Monorepo Setup
 
-**Feature Branch**: `001-monorepo-setup`  
-**Created**: 2025-10-20  
-**Status**: Draft  
-**Input**: User description: "Setup polyglot monorepo structure with Python (libs/) and Node.js (packages/) following constitutional principles"  
+**Feature Branch**: `001-monorepo-setup`
+**Created**: 2025-10-20
+**Status**: Draft
+**Input**: User description: "Setup polyglot monorepo structure with Python (libs/) and Node.js (packages/) following constitutional principles"
 **Linear Issue**: [RI-909](https://linear.app/refugiesinfo/issue/RI-909/setup-polyglot-monorepo-structure)
 
 ## Clarifications
@@ -32,7 +32,7 @@
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
   Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
   you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
+
   Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
   Think of each story as a standalone slice of functionality that can be:
   - Developed independently
@@ -231,4 +231,3 @@ As a developer, I need pre-commit hooks and testing infrastructure so that code 
 - API implementation
 - Docker or containerization setup
 - Production environment configuration
-

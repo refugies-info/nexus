@@ -47,7 +47,7 @@
 
 **Why P1**: Foundation for all Python development - absolute minimum to start development
 
-**Independent Test**: 
+**Independent Test**:
 - `uv sync` installs all dependencies successfully
 - `uv run python -c "import nexus.common"` resolves imports
 - All 8 libraries are recognized by uv workspace
@@ -139,23 +139,23 @@
 
 ### DS3 Tasks
 
-- [ ] T055 [DS3] Create `.pre-commit-config.yaml` at root
-- [ ] T056 [P] [DS3] Add ruff hook to `.pre-commit-config.yaml` with --fix argument
-- [ ] T057 [P] [DS3] Add ruff-format hook to `.pre-commit-config.yaml`
-- [ ] T058 [P] [DS3] Add nbstripout hook to `.pre-commit-config.yaml` for notebook output removal
-- [ ] T059 [P] [DS3] Add trailing-whitespace hook to `.pre-commit-config.yaml`
-- [ ] T060 [P] [DS3] Add end-of-file-fixer hook to `.pre-commit-config.yaml`
-- [ ] T061 [P] [DS3] Add check-yaml hook to `.pre-commit-config.yaml`
-- [ ] T062 [P] [DS3] Add check-added-large-files hook to `.pre-commit-config.yaml`
-- [ ] T063 [DS3] Run `uv run pre-commit install` to install hooks
-- [ ] T064 [DS3] Test pre-commit hooks by running `uv run pre-commit run --all-files`
-- [ ] T065 [DS3] Create sample test file `libs/common/tests/unit/test_sample.py` with passing test
-- [ ] T066 [DS3] Run `just test` and verify pytest discovers and runs the sample test
-- [ ] T067 [DS3] Test pytest markers: `uv run pytest -m unit` runs only unit tests
-- [ ] T068 [DS3] Create sample notebook in `notebooks/` directory
-- [ ] T069 [DS3] Add outputs to sample notebook and commit - verify nbstripout removes outputs
-- [ ] T070 [DS3] Test commit with Python code - verify ruff runs automatically
-- [ ] T071 [DS3] Remove sample test and notebook (cleanup)
+- [X] T055 [DS3] Create `.pre-commit-config.yaml` at root
+- [X] T056 [P] [DS3] Add ruff hook to `.pre-commit-config.yaml` with --fix argument
+- [X] T057 [P] [DS3] Add ruff-format hook to `.pre-commit-config.yaml`
+- [X] T058 [P] [DS3] Add nbstripout hook to `.pre-commit-config.yaml` for notebook output removal
+- [X] T059 [P] [DS3] Add trailing-whitespace hook to `.pre-commit-config.yaml`
+- [X] T060 [P] [DS3] Add end-of-file-fixer hook to `.pre-commit-config.yaml`
+- [X] T061 [P] [DS3] Add check-yaml hook to `.pre-commit-config.yaml`
+- [X] T062 [P] [DS3] Add check-added-large-files hook to `.pre-commit-config.yaml`
+- [X] T063 [DS3] Run `uv run pre-commit install` to install hooks
+- [X] T064 [DS3] Test pre-commit hooks by running `uv run pre-commit run --all-files`
+- [X] T065 [DS3] Create sample test file `libs/common/tests/unit/test_sample.py` with passing test
+- [X] T066 [DS3] Run `just test` and verify pytest discovers and runs the sample test
+- [X] T067 [DS3] Test pytest markers: `uv run pytest -m unit` runs only unit tests
+- [X] T068 [DS3] Create sample notebook in `notebooks/` directory
+- [X] T069 [DS3] Add outputs to sample notebook and commit - verify nbstripout removes outputs
+- [X] T070 [DS3] Test commit with Python code - verify ruff runs automatically
+- [X] T071 [DS3] Remove sample test and notebook (cleanup)
 
 **DS3 Checkpoint**: Automation complete - quality enforced automatically, TDD infrastructure ready
 
@@ -199,7 +199,7 @@ Phase 5 (Polish)
 
 **Phase 1**: T003, T004, T005, T006, T007 can run in parallel after T001-T002
 
-**Phase 2 (DS1)**: 
+**Phase 2 (DS1)**:
 - T009-T031 (all library creation) can run in parallel after T008
 - T032-T034 (config files) can run in parallel
 - T035-T037 must run sequentially at end
