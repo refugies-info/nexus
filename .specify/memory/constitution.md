@@ -15,7 +15,7 @@ Sync Impact Report:
   ✅ spec-template.md (Added Cultural Translation to Constitution-Aligned Requirements)
   ✅ tasks-template.md (No changes needed - cultural glossary tasks added per feature as needed)
   ✅ README.md (Updated principles list to 12 principles including Culturally-Aware Translation)
-- Follow-up: 
+- Follow-up:
   * Acquire or develop bilingual glossaries for 8 target languages
   * Partner with Maisons de la sagesse-Traduire or similar organizations
   * Recruit cultural mediators for each target language/culture

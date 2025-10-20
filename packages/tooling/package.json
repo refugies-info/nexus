@@ -1,0 +1,14 @@
+{
+  "name": "@nexus/tooling",
+  "version": "0.1.0",
+  "description": "Build scripts and development tools for Nexus monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0"
+  }
+}

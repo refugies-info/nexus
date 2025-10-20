@@ -1,0 +1,13 @@
+[project]
+name = "nexus-common"
+version = "0.1.0"
+description = "Common utilities and types for Nexus AI Pipeline"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexus"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

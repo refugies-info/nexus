@@ -14,7 +14,7 @@ Nexus is an AI-powered data pipeline that processes integration services data an
 Information about integration services (French language learning, employment support, housing assistance) exists across fragmented sources but often fails to meet the needs of vulnerable populations:
 
 - **Language barriers**: Content rarely available in the 8+ languages refugees speak
-- **Quality inconsistency**: Information sheets vary wildly in clarity and completeness  
+- **Quality inconsistency**: Information sheets vary wildly in clarity and completeness
 - **Manual overhead**: Creating and maintaining multilingual content is time-intensive
 - **Accessibility gaps**: Content not optimized for low-literacy or mobile-first users
 
@@ -58,18 +58,34 @@ Following [dsfr-kit](https://github.com/betagouv/dsfr-kit) convention: Python pa
 
 ```
 nexus/
-├── libs/                  # Python packages
-│   ├── pipeline/          # Data pipeline stages
+├── libs/                  # Python packages (independent libraries)
+│   ├── common/            # Shared utilities and types
 │   │   ├── src/
-│   │   │   ├── ingestion/
-│   │   │   ├── reconciliation/
-│   │   │   ├── enrichment/
-│   │   │   ├── langage_clair/     # ⭐ AI plain language transformation
-│   │   │   ├── translation/
-│   │   │   ├── validation/
-│   │   │   └── publication/
 │   │   └── tests/
-│   └── api/               # REST API (if needed)
+│   ├── ingestion/         # Data ingestion stage
+│   │   ├── src/
+│   │   └── tests/
+│   │       ├── contract/
+│   │       ├── integration/
+│   │       └── unit/
+│   ├── reconciliation/    # Data reconciliation stage
+│   │   ├── src/
+│   │   └── tests/
+│   ├── enrichment/        # Data enrichment stage
+│   │   ├── src/
+│   │   └── tests/
+│   ├── langage_clair/     # ⭐ AI plain language transformation
+│   │   ├── src/
+│   │   └── tests/
+│   ├── translation/       # Multilingual translation stage
+│   │   ├── src/
+│   │   └── tests/
+│   ├── validation/        # Quality validation stage
+│   │   ├── src/
+│   │   └── tests/
+│   └── publication/       # Publication to Réfugiés.info
+│       ├── src/
+│       └── tests/
 ├── packages/              # Node.js packages
 │   └── tooling/           # Build scripts, dev tools
 ├── notebooks/             # Jupyter: Exploratory analysis
@@ -77,29 +93,38 @@ nexus/
 ```
 
 **Core Technologies**:
-- **Python**: Pipeline implementation (data processing, AI/ML)
-- **uv**: Fast Python package management
-- **ruff**: Linting and formatting
+- **Python 3.12+**: Pipeline implementation (data processing, AI/ML)
+- **uv**: Fast Python package management and workspace configuration
+- **ruff**: Python linting and formatting
+- **Node.js 22+**: Developer tooling
 - **pnpm**: Node.js package management
 - **biome**: JavaScript/TypeScript linting
-- **pytest**: Testing framework
+- **pytest**: Testing framework (contract, integration, unit tests)
+- **just**: Command runner for common development tasks
 
 ### Pipeline Stages
 
-1. **Ingestion**: Fetch data from Data Inclusion API (includes Carif Oref data)
-2. **Reconciliation**: Merge and deduplicate data from multiple sources
-3. **Enrichment**: Fill gaps via Carif Oref API and web scraping
-4. **Langage Clair** ⭐: AI-assisted transformation of bureaucratic/technical text into clear, accessible French (reifying Réfugiés.info editorial expertise)
-5. **Translation**: Generate multilingual content (8 languages) from the plain language French
-6. **Validation**: Ensure editorial charter compliance and quality standards
-7. **Publication**: Push to Réfugiés.info via API (to be designed)
+Each stage is implemented as an independent Python library in `libs/`, enabling:
+- **Independent development**: Teams can work on different stages simultaneously
+- **Independent testing**: Each stage has its own test suite (contract, integration, unit)
+- **Independent deployment**: Stages can be deployed and scaled separately
+- **Clear dependencies**: Shared code lives in `libs/common/`
+
+1. **Ingestion** (`libs/ingestion/`): Fetch data from Data Inclusion API (includes Carif Oref data)
+2. **Reconciliation** (`libs/reconciliation/`): Merge and deduplicate data from multiple sources
+3. **Enrichment** (`libs/enrichment/`): Fill gaps via Carif Oref API and web scraping
+4. **Langage Clair** (`libs/langage_clair/`) ⭐: AI-assisted transformation of bureaucratic/technical text into clear, accessible French (reifying Réfugiés.info editorial expertise)
+5. **Translation** (`libs/translation/`): Generate multilingual content (8 languages) from the plain language French
+6. **Validation** (`libs/validation/`): Ensure editorial charter compliance and quality standards
+7. **Publication** (`libs/publication/`): Push to Réfugiés.info via API (to be designed)
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- **Python 3.11+** with [uv](https://github.com/astral-sh/uv) installed
-- **Node.js 18+** with [pnpm](https://pnpm.io/) installed
+- **Python 3.12+** with [uv](https://github.com/astral-sh/uv) installed
+- **Node.js 22+** with [pnpm](https://pnpm.io/) installed
+- **just** command runner ([installation](https://github.com/casey/just#installation))
 - **Git** for version control
 
 ### Installation
@@ -109,44 +134,50 @@ nexus/
 git clone git@github.com:refugies-info/nexus.git
 cd nexus
 
-# Install Python dependencies
-uv sync
+# Install all dependencies (Python + Node.js + pre-commit hooks)
+just install
 
-# Install Node.js dependencies
-pnpm install
-
-# Setup pre-commit hooks (includes nbstripout for notebooks)
-uv run pre-commit install
+# Or install manually:
+uv sync                      # Install Python dependencies
+pnpm install                 # Install Node.js dependencies
+uv run pre-commit install    # Setup pre-commit hooks (includes nbstripout)
 ```
 
-### Running the Pipeline
+### Common Development Tasks
 
 ```bash
-# Run full pipeline (development)
-uv run python -m pipeline.main
+# List all available commands
+just
 
-# Run specific stage
-uv run python -m pipeline.ingestion
+# Run linting (Python + Node.js)
+just lint
 
-# Run with configuration
-uv run python -m pipeline.main --config config/dev.yaml
-```
+# Format code (Python + Node.js)
+just format
 
-### Development
+# Run tests (all libraries)
+just test
 
-```bash
-# Run tests
-uv run pytest
-
-# Run linting
-uv run ruff check .
-uv run ruff format .
+# Run tests for specific library
+uv run pytest libs/ingestion/tests/
 
 # Type checking
-uv run mypy libs/pipeline
+uv run mypy libs/
 
 # Run notebooks (exploratory work)
 jupyter lab notebooks/
+```
+
+### Running Pipeline Stages
+
+Each pipeline stage is an independent library that can be developed and tested separately:
+
+```bash
+# Example: Run ingestion stage (once implemented)
+uv run python -m libs.ingestion
+
+# Example: Import shared utilities
+uv run python -c "from libs.common import utils"
 ```
 
 ## 📋 Development Workflow
