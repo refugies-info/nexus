@@ -1,25 +1,22 @@
 <!--
 Sync Impact Report:
-- Version: 1.1.0 → 1.2.0 (MINOR: Added user-centered development principle + expanded privacy)
-- New Principle IX: User-Centered Development (NON-NEGOTIABLE)
-  * Mandatory user research with Réfugiés.info end users
-  * Iterative development with alpha/beta/production progression
-  * Continuous validation via analytics and usability testing
-  * Data-driven decisions based on usage patterns
-  * AI transparency requirements (formulation via user research)
-- Expanded: Data Retention & Privacy section
-  * GDPR Compliance elevated to NON-NEGOTIABLE with explicit requirements
-  * Added: data minimization, legal basis, user rights, privacy notices, DPIA
-  * Added: AI-specific privacy (data leakage prevention, translation API validation)
-  * Added: Security requirements (encryption, access controls, incident response)
+- Version: 1.2.0 → 1.3.0 (MINOR: Added notebook governance principle)
+- New Principle X: Notebook Governance
+  * Notebook organization in top-level notebooks/ directory
+  * Categories: exploratory, production-informing, learning materials, archive
+  * Security requirements (NON-NEGOTIABLE): no credentials, nbstripout, GDPR compliance
+  * Quality standards: reproducibility, documentation, version control, code quality
+  * Integration with SpecKit workflow (exploratory vs. production-informing)
+  * Tooling: nbstripout, nbconvert, papermill (optional), ruff via nbqa
 - Modified principles: None
 - Templates requiring updates:
-  ✅ plan-template.md (Added User-Centered Development + GDPR to Constitution Check)
-  ✅ spec-template.md (Added User Research section, expanded Constitution-Aligned Requirements)
-  ✅ tasks-template.md (Added Phase 2.5 User Research, GDPR foundational tasks)
+  ✅ plan-template.md (Added Notebook Governance to Constitution Check)
+  ✅ spec-template.md (No changes needed - notebooks referenced in research if used)
+  ✅ tasks-template.md (No changes needed - notebook tasks added per feature as needed)
 - Follow-up: 
-  * Next amendment (v1.3.0): Add Notebook Governance principle
   * User research needed to determine AI transparency disclosure formulation
+  * Consider adding .gitignore patterns for notebook outputs
+  * Consider adding nbstripout pre-commit hook to project setup
 -->
 
 # Nexus Constitution
@@ -157,6 +154,51 @@ Sync Impact Report:
 
 **Rationale**: Information sheets directly impact vulnerable populations making critical decisions about integration services. User-centered practices ensure content is comprehensible, culturally appropriate, and actionable. This is especially critical for refugees and immigrants who may be under stress, have varying tech literacy, or be accessing services in non-native languages. AI transparency builds trust while user research ensures disclosure doesn't create adoption barriers.
 
+### X. Notebook Governance
+
+**MUST** maintain Jupyter notebooks and exploratory tools in a structured manner with clear governance:
+
+**Notebook Organization**:
+- Notebooks MUST be organized in a top-level `notebooks/` directory
+- Notebooks MUST be categorized by purpose to clarify their role:
+  - **Exploratory**: Rapid experimentation, data quality analysis, hypothesis testing
+  - **Production-Informing**: Model evaluation, translation quality benchmarks, performance analysis
+  - **Learning Materials**: Tutorials, examples, documentation of complex workflows
+  - **Archive**: Completed work preserved for audit trail and historical reference
+
+**Security Requirements (NON-NEGOTIABLE)**:
+- Notebooks MUST NOT contain hardcoded credentials, API keys, or sensitive personal data
+- Use environment variables or secure configuration management for secrets
+- Implement `nbstripout` or equivalent to remove notebook outputs before commit
+- Add notebook output patterns to `.gitignore` (keep source, ignore execution artifacts)
+- Conduct security review before publishing notebooks to public repositories
+- Ensure compliance with GDPR when processing personal data in notebooks
+
+**Quality Standards**:
+- **Reproducibility**: Notebooks MUST include dependency specifications (uv workspace via pyproject.toml)
+- **Documentation**: Each notebook MUST include:
+  - Purpose and context (what question does this answer?)
+  - Author and date
+  - Data sources and versions
+  - Expected runtime and resource requirements
+  - Known limitations or assumptions
+- **Version Control**: Notebooks MUST be committed with outputs stripped (use `nbstripout` pre-commit hook)
+- **Code Quality**: Notebook code SHOULD follow Python standards (ruff linting where practical)
+- **Cell Organization**: Use markdown cells to structure narrative, avoid monolithic code cells
+
+**Integration with Development Workflow**:
+- **Exploratory work**: Not required to follow SpecKit workflow, but insights MUST be captured in specifications when productionized
+- **Learning materials**: Should be referenced in feature specifications (spec.md) and quickstart guides
+- **Production-informing work**: MUST be documented in `plan.md` research section and referenced in quality metrics
+
+**Tooling Standards**:
+- **nbstripout**: Pre-commit hook to remove outputs before commit
+- **nbconvert**: Convert notebooks to scripts or documentation formats
+- **papermill**: Parameterize and execute notebooks programmatically for reproducible reporting (optional)
+- **ruff**: Lint notebook code cells via `nbqa` or similar tools
+
+**Rationale**: AI pipeline work involves exploratory data analysis, translation quality assessment, and model evaluation. Structured notebook governance balances rapid experimentation with security, reproducibility, and compliance. Unlike high-risk AI systems, Nexus doesn't require extensive regulatory documentation, but notebooks still need discipline to prevent credential leaks and ensure insights are captured for production use.
+
 ## Data Sources & Integration
 
 ### Primary Data Sources
@@ -289,4 +331,4 @@ This constitution supersedes all other development practices and guidelines. Whe
 
 The constitution is a living document. As the project evolves and new patterns emerge, principles should be refined to reflect learned best practices. Amendments should be proposed proactively when gaps or conflicts are identified.
 
-**Version**: 1.2.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
+**Version**: 1.3.0 | **Ratified**: 2025-10-20 | **Last Amended**: 2025-10-20
