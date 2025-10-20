@@ -1,21 +1,13 @@
-# Implementation Plan: Pipeline Orchestration & Update Handling
+# Implementation Plan: [FEATURE]
 
-**Branch**: `002-orchestration-decision` | **Date**: 2025-10-20 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/002-orchestration-decision/spec.md`
-**Linear**: [RI-910](https://linear.app/refugiesinfo/issue/RI-910)
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Implement hybrid orchestration infrastructure using n8n for workflow orchestration + Python services for complex business logic. The system processes French learning programs through a 7-stage pipeline (ingestion → reconciliation → enrichment → langage clair → translation → validation → publication) with smart update handling that preserves human-in-the-loop work through AI-accelerated catch-up and diff review.
-
-**Key Technical Decisions**:
-- **Orchestration**: n8n workflows (leverage existing prototype)
-- **Business Logic**: Python FastAPI services (TDD-compliant, testable)
-- **State Management**: Supabase (PostgreSQL + real-time + auth)
-- **Update Strategy**: Smart catch-up with risk-based sampling (~100 updates/week)
-- **Diff Review**: Streamlit UI with Supabase Auth + RBAC
+[Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
 
@@ -25,26 +17,15 @@ Implement hybrid orchestration infrastructure using n8n for workflow orchestrati
   the iteration process.
 -->
 
-**Language/Version**: Python 3.11+ (pipeline services), n8n (workflow orchestration)
-**Primary Dependencies**: FastAPI, Supabase (supabase-py), n8n, Streamlit, pydantic, mypy, pytest
-**Storage**: Supabase (managed PostgreSQL) for state management (workflow_runs, stage_executions, information_sheets, update_events, update_diffs)
-**Testing**: pytest (unit, integration, contract tests), TDD approach (tests-first)
-**Target Platform**: Linux server (Docker containers), n8n self-hosted or cloud
-**Project Type**: Hybrid (n8n workflows + Python microservices)
-**Performance Goals**:
-  - Process 100 concurrent programs without degradation
-  - End-to-end pipeline completion within 24 hours
-  - Smart catch-up processes updates in <5 minutes
-  - Detect 100% of updates within 1 hour
-**Constraints**:
-  - 99% uptime for pipeline processing
-  - Retry failed stages with exponential backoff (up to 24 hours for API failures)
-  - Editorial review workload <1 hour/week (risk-based sampling)
-**Scale/Scope**:
-  - ~Hundreds of French learning programs
-  - ~100 source data updates per week
-  - 7 pipeline stages per program
-  - 8 target languages for translation
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Project Type**: [single/web/mobile - determines source structure]
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
@@ -52,20 +33,20 @@ Implement hybrid orchestration infrastructure using n8n for workflow orchestrati
 
 Validate compliance with Nexus Constitution (`.specify/memory/constitution.md`):
 
-- [X] **Data Quality First**: State management schema tracks data quality at each stage; validation hooks planned for stage transitions
-- [X] **Pipeline Modularity**: n8n workflows call independent Python services; each service has clear input/output contracts; stages are independently testable
-- [N/A] **Multilingual by Design**: Not applicable - orchestration infrastructure only; translation stage will be implemented separately
-- [X] **Editorial Compliance**: Diff review interface with manual approval workflow; editorial team controls high-risk updates
-- [N/A] **Integration Independence**: Not applicable - orchestration infrastructure only; integration contracts defined in separate stage features
-- [X] **Observability & Traceability**: Supabase tracks complete workflow state; n8n provides execution logs; Python services emit structured logs; data lineage tracked via workflow_runs and stage_executions tables
-- [X] **Incremental Delivery**: 4 prioritized user stories (P1-P4); Phase 1 (basic orchestration), Phase 2 (update handling), Phase 3 (diff review), Phase 4 (monitoring)
-- [X] **Technology Foundation**: Monorepo structure already established (spec 001); Python services in libs/, n8n workflows exported to version control
-- [X] **User-Centered Development (NON-NEGOTIABLE)**: Diff review UI validated with editorial team (CAR-013); risk scoring thresholds iteratively adjusted based on feedback (CAR-014); metrics tracked for optimization (CAR-015)
-- [N/A] **Notebook Governance**: Not applicable - no notebooks in orchestration infrastructure
-- [N/A] **Langage Clair (NON-NEGOTIABLE)**: Not applicable - orchestration infrastructure only; langage clair stage will be implemented separately
-- [N/A] **Culturally-Aware Translation (NON-NEGOTIABLE)**: Not applicable - orchestration infrastructure only; translation stage will be implemented separately
-- [X] **TDD Compliance (NON-NEGOTIABLE)**: All Python services developed test-first (CAR-016); unit tests for isolated behavior (CAR-017); integration tests for end-to-end pipeline (CAR-018); contract tests for diff generation (CAR-019)
-- [X] **GDPR Compliance (NON-NEGOTIABLE)**: Supabase Auth for editorial team access; RBAC restricts access; audit trail tracks who reviewed what; no PII in orchestration layer (program IDs only)
+- [ ] **Data Quality First**: Data validation and reconciliation strategy defined for all pipeline stages
+- [ ] **Pipeline Modularity**: Each stage designed as independent, testable component with clear contracts
+- [ ] **Multilingual by Design**: 8-language support planned with translation quality validation
+- [ ] **Editorial Compliance**: Réfugiés.info editorial charter compliance checks integrated
+- [ ] **Integration Independence**: Clean API contracts with Réfugiés.info (reference: karfur repo)
+- [ ] **Observability & Traceability**: Structured logging, metrics, and data lineage tracking planned
+- [ ] **Incremental Delivery**: MVP scope clearly defined, user stories prioritized for value delivery
+- [ ] **Technology Foundation**: Monorepo structure defined; Python for pipeline, Node.js for tooling; dependency management specified
+- [ ] **User-Centered Development (NON-NEGOTIABLE)**: User research plan with Réfugiés.info end users; iterative testing strategy; analytics implementation; AI transparency disclosure approach
+- [ ] **Notebook Governance**: Notebooks organized in notebooks/ directory; categories defined; nbstripout configured; security review for credentials
+- [ ] **Langage Clair (NON-NEGOTIABLE)**: AI model training on Réfugiés.info corpus; readability validation; editorial review workflow; feedback loop for model improvement
+- [ ] **Culturally-Aware Translation (NON-NEGOTIABLE)**: Bilingual glossaries with cultural annotations; cultural mediator review; community co-development; reciprocal understanding approach
+- [ ] **TDD Compliance (NON-NEGOTIABLE)**: Test-first approach planned; red-green-refactor cycle enforced; test coverage strategy defined
+- [ ] **GDPR Compliance (NON-NEGOTIABLE)**: Data minimization strategy; legal basis documented; user rights mechanisms; DPIA conducted if needed; DPAs with third parties
 
 *If any principle cannot be satisfied, document justification in Complexity Tracking section.*
 
@@ -92,126 +73,84 @@ specs/[###-feature]/
 -->
 
 ```
-# Polyglot Monorepo (established in spec 001-monorepo-setup)
-# This feature adds orchestration infrastructure to existing monorepo
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
 
-libs/                           # Python packages
-├── orchestration/              # ⭐ NEW: Orchestration library (this feature)
-│   ├── src/
-│   │   └── orchestration/
-│   │       ├── __init__.py
-│   │       ├── models/         # Pydantic models for state management
-│   │       │   ├── workflow.py
-│   │       │   ├── stage.py
-│   │       │   ├── update.py
-│   │       │   └── diff.py
-│   │       ├── services/       # Business logic services
-│   │       │   ├── update_detector.py
-│   │       │   ├── smart_catchup.py
-│   │       │   ├── diff_generator.py
-│   │       │   └── risk_scorer.py
-│   │       ├── db/             # Supabase client and queries
-│   │       │   ├── client.py
-│   │       │   ├── workflow_repo.py
-│   │       │   ├── update_repo.py
-│   │       │   └── diff_repo.py
-│   │       └── config.py       # Configuration management
-│   ├── tests/
-│   │   ├── integration/        # End-to-end pipeline tests
-│   │   │   ├── test_pipeline_execution.py
-│   │   │   ├── test_update_handling.py
-│   │   │   └── test_diff_review.py
-│   │   └── unit/               # Unit tests for services
-│   │       ├── test_update_detector.py
-│   │       ├── test_smart_catchup.py
-│   │       ├── test_diff_generator.py
-│   │       └── test_risk_scorer.py
-│   ├── pyproject.toml          # uv dependency management
-│   ├── pytest.ini
-│   └── README.md
-│
-├── pipeline/                   # Pipeline stages (separate features)
-│   └── [to be implemented in separate specs]
-│
-└── shared/                     # Shared utilities
-    └── [existing from spec 001]
+tests/
+├── contract/
+├── integration/
+└── unit/
 
-apps/                           # Python applications
-├── orchestration-api/          # ⭐ NEW: FastAPI service for n8n integration (this feature)
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
+
+# [REMOVE IF UNUSED] Option 4: Polyglot Monorepo (Nexus: Python libs/ + Node.js packages/)
+# Constitution Principles VIII (Technology Foundation) + XI (Langage Clair)
+# Following dsfr-kit convention: Python in libs/, Node.js in packages/
+
+libs/                      # Python packages
+├── pipeline/              # Data pipeline stages
 │   ├── src/
-│   │   └── orchestration_api/
-│   │       ├── __init__.py
-│   │       ├── main.py         # FastAPI app entry point
-│   │       ├── routers/        # API route handlers
-│   │       │   ├── workflows.py
-│   │       │   ├── updates.py
-│   │       │   └── diffs.py
-│   │       ├── dependencies.py # FastAPI dependencies (auth, db)
-│   │       └── config.py       # App-specific configuration
+│   │   ├── ingestion/
+│   │   ├── reconciliation/
+│   │   ├── enrichment/
+│   │   ├── langage_clair/     # ⭐ AI-assisted plain language transformation
+│   │   ├── translation/
+│   │   ├── validation/
+│   │   └── publication/
 │   ├── tests/
-│   │   └── contract/           # Contract tests for n8n ↔ Python integration
-│   │       ├── test_workflow_api.py
-│   │       ├── test_update_api.py
-│   │       └── test_diff_api.py
-│   ├── pyproject.toml          # Dependencies: orchestration lib, FastAPI
-│   ├── Dockerfile              # Container for deployment
-│   └── README.md
+│   │   ├── contract/
+│   │   ├── integration/
+│   │   └── unit/
+│   ├── pyproject.toml     # uv dependency management
+│   └── pytest.ini
 │
-└── diff-review-ui/             # ⭐ NEW: Streamlit diff review interface (this feature)
+└── api/                   # REST API (if needed)
     ├── src/
-    │   └── diff_review_ui/
-    │       ├── app.py          # Streamlit app entry point
-    │       ├── components/
-    │       │   ├── diff_viewer.py
-    │       │   └── approval_controls.py
-    │       └── auth.py         # Supabase Auth integration
     ├── tests/
-    │   └── test_ui_components.py
-    ├── pyproject.toml          # Dependencies: orchestration lib, Streamlit
-    ├── Dockerfile              # Container for deployment
-    └── README.md
+    └── pyproject.toml
 
-workflows/                      # ⭐ NEW: n8n workflow exports (this feature)
-├── pipeline-orchestration.json # Main 7-stage pipeline workflow
-├── update-detection.json       # Update detection and routing
-├── smart-catchup.json          # AI-accelerated catch-up workflow
-└── README.md                   # n8n workflow documentation
+packages/                  # Node.js packages
+└── tooling/               # Build scripts, dev tools
+    ├── src/
+    ├── package.json
+    └── tsconfig.json
 
-supabase/                       # ⭐ NEW: Supabase schema (this feature)
-├── migrations/
-│   ├── 001_create_workflow_tables.sql
-│   ├── 002_create_update_tables.sql
-│   └── 003_create_diff_tables.sql
-├── seed.sql                    # Test data for development
-└── README.md
+notebooks/                 # Jupyter notebooks (exploratory work)
 
-# Monorepo root files (existing)
-├── pyproject.toml              # Root Python workspace config
-├── package.json                # Root Node.js workspace config
+# Monorepo root files
+├── pyproject.toml         # Root Python workspace config (uv workspaces)
+├── package.json           # Root Node.js workspace config (pnpm workspaces)
 ├── .github/
-│   └── workflows/              # CI/CD pipelines
-└── docs/                       # Shared documentation
+│   └── workflows/         # CI/CD pipelines
+└── docs/                  # Shared documentation
 ```
 
-**Structure Decision**: Hybrid architecture with four components:
-
-1. **Orchestration Library** (`libs/orchestration/`): Shared Python library with business logic (update detection, smart catch-up, diff generation, risk scoring), data models, and database repositories. Follows monorepo convention established in spec 001.
-
-2. **FastAPI Service** (`apps/orchestration-api/`): REST API for n8n integration. Exposes endpoints for workflow execution, update handling, and diff management. Depends on `libs/orchestration/`.
-
-3. **Streamlit UI** (`apps/diff-review-ui/`): Web interface for editorial team to review and approve diffs. Depends on `libs/orchestration/`.
-
-4. **n8n Workflows** (`workflows/`): Visual workflow definitions exported as JSON for version control. n8n orchestrates the 7-stage pipeline by calling FastAPI endpoints.
-
-5. **Supabase Schema** (`supabase/`): PostgreSQL migrations for state management tables (workflow_runs, stage_executions, information_sheets, update_events, update_diffs).
-
-This structure enables:
-- **Separation of concerns**: Library (business logic) vs Apps (API/UI)
-- **TDD compliance**: Library code is unit-testable, apps have contract tests
-- **Reusability**: Both FastAPI and Streamlit apps depend on shared library
-- **Visual workflows**: n8n provides editorial team visibility
-- **Portability**: Library can work with any orchestrator
-- **Version control**: n8n workflows tracked as JSON in Git
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 

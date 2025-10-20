@@ -1,0 +1,715 @@
+openapi: 3.0.3
+info:
+  title: Nexus Orchestration API
+  description: |
+    REST API for n8n workflow integration with Nexus pipeline orchestration.
+
+    This API provides endpoints for:
+    - Workflow execution and state management
+    - Update detection and smart catch-up processing
+    - Diff generation and review management
+
+    **Authentication**: All endpoints require Supabase JWT token in Authorization header.
+
+    **Integration Pattern**: n8n workflows call these endpoints via HTTP Request nodes.
+  version: 1.0.0
+  contact:
+    name: Nexus Team
+    url: https://github.com/refugies-info/nexus
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.nexus.refugies.info
+    description: Production
+
+tags:
+  - name: workflows
+    description: Pipeline workflow execution
+  - name: updates
+    description: Update detection and smart catch-up
+  - name: diffs
+    description: Diff generation and review
+
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Check if the API is running and healthy
+      operationId: health_check
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  version:
+                    type: string
+                    example: "1.0.0"
+
+  /workflows:
+    post:
+      summary: Start workflow execution
+      description: |
+        Start a new workflow execution for a program.
+        Creates a workflow_run record and initializes the first stage.
+      operationId: start_workflow
+      tags:
+        - workflows
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartWorkflowRequest'
+      responses:
+        '201':
+          description: Workflow started successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Workflow already exists for this program
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /workflows/{workflow_run_id}:
+    get:
+      summary: Get workflow status
+      description: Retrieve current status and details of a workflow run
+      operationId: get_workflow
+      tags:
+        - workflows
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/WorkflowRunId'
+      responses:
+        '200':
+          description: Workflow details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /workflows/{workflow_run_id}/stages/{stage_name}:
+    post:
+      summary: Execute pipeline stage
+      description: |
+        Execute a specific pipeline stage for a workflow.
+        Creates a stage_execution record and processes the stage logic.
+      operationId: execute_stage
+      tags:
+        - workflows
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/WorkflowRunId'
+        - $ref: '#/components/parameters/StageName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecuteStageRequest'
+      responses:
+        '200':
+          description: Stage executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageExecutionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Stage execution failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageExecutionError'
+
+  /updates/detect:
+    post:
+      summary: Detect updates
+      description: |
+        Check for updates by comparing checksums of fetched data with stored data.
+        Creates update_event records for detected changes.
+      operationId: detect_updates
+      tags:
+        - updates
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetectUpdatesRequest'
+      responses:
+        '200':
+          description: Update detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectUpdatesResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /updates/{update_event_id}/smart-catchup:
+    post:
+      summary: Execute smart catch-up
+      description: |
+        Process an update using smart catch-up strategy.
+        AI processes the update through pipeline stages until reaching the original stage.
+      operationId: smart_catchup
+      tags:
+        - updates
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: update_event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Update event ID
+      responses:
+        '200':
+          description: Smart catch-up completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartCatchupResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: Smart catch-up failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /diffs/generate:
+    post:
+      summary: Generate diff
+      description: |
+        Generate a structured diff comparing original and updated program data.
+        Calculates risk score and creates update_diff record.
+      operationId: generate_diff
+      tags:
+        - diffs
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateDiffRequest'
+      responses:
+        '201':
+          description: Diff generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiffResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /diffs/{diff_id}:
+    get:
+      summary: Get diff details
+      description: Retrieve diff details for editorial review
+      operationId: get_diff
+      tags:
+        - diffs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: diff_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Diff ID
+      responses:
+        '200':
+          description: Diff retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiffResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /diffs/{diff_id}/review:
+    post:
+      summary: Submit diff review
+      description: |
+        Editorial team submits review decision (approve/reject/edit).
+        Updates review_status, reviewed_by, and reviewed_at fields.
+      operationId: review_diff
+      tags:
+        - diffs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: diff_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Diff ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewDiffRequest'
+      responses:
+        '200':
+          description: Review submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiffResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Diff already reviewed (optimistic locking conflict)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /diffs/pending:
+    get:
+      summary: List pending diffs
+      description: |
+        Retrieve list of diffs awaiting editorial review.
+        Results sorted by priority (high-risk first).
+      operationId: list_pending_diffs
+      tags:
+        - diffs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high]
+          description: Filter by priority
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+          description: Maximum number of results
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Pagination offset
+      responses:
+        '200':
+          description: Pending diffs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PendingDiffsResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token
+
+  parameters:
+    WorkflowRunId:
+      name: workflow_run_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Workflow run ID
+
+    StageName:
+      name: stage_name
+      in: path
+      required: true
+      schema:
+        type: string
+        enum:
+          - ingestion
+          - reconciliation
+          - enrichment
+          - langage_clair
+          - translation
+          - validation
+          - publication
+      description: Pipeline stage name
+
+  schemas:
+    StartWorkflowRequest:
+      type: object
+      required:
+        - program_id
+        - source_data
+      properties:
+        program_id:
+          type: string
+          description: Data Inclusion unique ID
+          example: "emplois-de-linclusion--17"
+        source_data:
+          type: object
+          description: Raw data from Data Inclusion API
+          additionalProperties: true
+
+    WorkflowResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Workflow run ID
+        program_id:
+          type: string
+          description: Data Inclusion unique ID
+        current_stage:
+          type: string
+          enum:
+            - ingestion
+            - reconciliation
+            - enrichment
+            - langage_clair
+            - translation
+            - validation
+            - publication
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+
+    ExecuteStageRequest:
+      type: object
+      required:
+        - input_data
+      properties:
+        input_data:
+          type: object
+          description: Input data for the stage
+          additionalProperties: true
+        retry_count:
+          type: integer
+          default: 0
+          description: Current retry attempt number
+
+    StageExecutionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workflow_run_id:
+          type: string
+          format: uuid
+        stage_name:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        retry_count:
+          type: integer
+        output_data:
+          type: object
+          nullable: true
+          additionalProperties: true
+        execution_metadata:
+          type: object
+          additionalProperties: true
+          description: Processing time, AI model used, etc.
+        created_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    StageExecutionError:
+      type: object
+      properties:
+        error:
+          type: string
+        stage_name:
+          type: string
+        retry_count:
+          type: integer
+        max_retries:
+          type: integer
+        will_retry:
+          type: boolean
+        retry_after_seconds:
+          type: integer
+          nullable: true
+
+    DetectUpdatesRequest:
+      type: object
+      required:
+        - programs
+      properties:
+        programs:
+          type: array
+          items:
+            type: object
+            required:
+              - program_id
+              - fetched_data
+            properties:
+              program_id:
+                type: string
+              fetched_data:
+                type: object
+                additionalProperties: true
+
+    DetectUpdatesResponse:
+      type: object
+      properties:
+        total_checked:
+          type: integer
+        updates_detected:
+          type: integer
+        update_events:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              program_id:
+                type: string
+              original_stage:
+                type: string
+              update_strategy:
+                type: string
+                enum: [full_reprocess, smart_catchup]
+
+    SmartCatchupResponse:
+      type: object
+      properties:
+        update_event_id:
+          type: string
+          format: uuid
+        program_id:
+          type: string
+        stages_processed:
+          type: array
+          items:
+            type: string
+        processing_time_ms:
+          type: integer
+        diff_generated:
+          type: boolean
+        diff_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    GenerateDiffRequest:
+      type: object
+      required:
+        - update_event_id
+        - original_data
+        - updated_data
+        - stage
+      properties:
+        update_event_id:
+          type: string
+          format: uuid
+        original_data:
+          type: object
+          additionalProperties: true
+        updated_data:
+          type: object
+          additionalProperties: true
+        stage:
+          type: string
+          enum: [enrichment, langage_clair, translation, validation]
+
+    DiffResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        program_id:
+          type: string
+        update_event_id:
+          type: string
+          format: uuid
+        stage:
+          type: string
+        original_data:
+          type: object
+          additionalProperties: true
+        updated_data:
+          type: object
+          additionalProperties: true
+        changes:
+          type: object
+          properties:
+            additions:
+              type: array
+              items:
+                type: object
+            deletions:
+              type: array
+              items:
+                type: object
+            minor_edits:
+              type: array
+              items:
+                type: object
+            major_edits:
+              type: array
+              items:
+                type: object
+        risk_score:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+        priority:
+          type: string
+          enum: [low, medium, high]
+        review_status:
+          type: string
+          enum: [pending, approved, rejected, edited]
+        reviewed_by:
+          type: string
+          format: uuid
+          nullable: true
+        reviewed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    ReviewDiffRequest:
+      type: object
+      required:
+        - decision
+      properties:
+        decision:
+          type: string
+          enum: [approve, reject, edit]
+        edited_data:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Required if decision is 'edit'
+        comment:
+          type: string
+          nullable: true
+          description: Optional review comment
+
+    PendingDiffsResponse:
+      type: object
+      properties:
+        total:
+          type: integer
+        diffs:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiffResponse'
+        pagination:
+          type: object
+          properties:
+            limit:
+              type: integer
+            offset:
+              type: integer
+            has_more:
+              type: boolean
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        detail:
+          type: string
+          nullable: true
+          description: Additional error details
+        correlation_id:
+          type: string
+          description: Request correlation ID for debugging
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
