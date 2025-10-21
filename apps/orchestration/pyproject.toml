@@ -120,5 +120,5 @@ ignore = [
     "W191",  # indentation contains tabs
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["nexus_orchestration"]
