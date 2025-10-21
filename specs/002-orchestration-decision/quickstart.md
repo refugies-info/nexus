@@ -79,20 +79,37 @@ psql -h localhost -p 54322 -U postgres -d postgres -f scripts/init-schema.sql
 
 ### 4. Configure Environment
 
-Create `.env` file in repository root:
+Create `.env` file in repository root with all required variables:
 
 ```bash
 # Supabase
 SUPABASE_URL=http://localhost:54321
 SUPABASE_KEY=<your-anon-key>
 
-# Vercel AI SDK Gateway (for enrichment, langage clair, translation)
-VERCEL_AI_GATEWAY_URL=<your-vercel-gateway-url>
+# Vercel AI Gateway (for enrichment, langage clair, translation)
+VERCEL_AI_GATEWAY_URL=https://api.vercel.ai/v1
 VERCEL_AI_GATEWAY_TOKEN=<your-vercel-gateway-token>
 
 # Data Inclusion API (staging - no API key required)
 DATA_INCLUSION_API_URL=https://staging.api.data.inclusion.beta.gouv.fr
+
+# Application Configuration
+ENVIRONMENT=development
+LOG_LEVEL=DEBUG
+API_PORT=8000
+
+# AI Processing
+AI_ENRICHMENT_MODEL=gpt-4
+AI_LANGAGE_CLAIR_MODEL=gpt-4
+AI_TRANSLATION_MODEL=gpt-4
+AI_FAST_MODE_MODEL=gpt-3.5-turbo
+
+# n8n
+N8N_URL=http://localhost:5678
+N8N_WEBHOOK_URL=http://localhost:5678
 ```
+
+**For complete environment variable reference**, see [ENVIRONMENT-VARIABLES.md](./ENVIRONMENT-VARIABLES.md)
 
 ### 5. Start Orchestration Service
 
@@ -313,6 +330,9 @@ specs/002-orchestration-decision/
 - **API Documentation**: http://localhost:8000/docs
 - **n8n Documentation**: https://docs.n8n.io
 - **Supabase Documentation**: https://supabase.com/docs
+- **Environment Variables**: `specs/002-orchestration-decision/ENVIRONMENT-VARIABLES.md`
 - **Feature Spec**: `specs/002-orchestration-decision/spec.md`
 - **Data Model**: `specs/002-orchestration-decision/data-model.md`
 - **Research**: `specs/002-orchestration-decision/research.md`
+- **AI Prompts Strategy**: `specs/002-orchestration-decision/AI-PROMPTS-STRATEGY.md`
+- **Rollback Strategy**: `specs/002-orchestration-decision/ROLLBACK-STRATEGY.md`
