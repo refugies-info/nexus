@@ -5,6 +5,7 @@ from typing import Any
 
 import httpx
 
+from config import get_settings
 from utils.errors import PipelineError
 
 
@@ -20,7 +21,6 @@ FilterParams = dict[str, Any]
 
 
 # Constants
-BASE_URL = "https://api.data.inclusion.gouv.fr"
 API_VERSION = "v1"
 DEFAULT_PAGE_SIZE = 5000
 MAX_PAGE_SIZE = 10000
@@ -48,11 +48,12 @@ async def fetch_structure(
             extra={"structure_id": structure_id},
         )
 
+        settings = get_settings()
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{BASE_URL}/api/{API_VERSION}/structures/{structure_id}",
+                f"{settings.data_inclusion_api_url}/api/{API_VERSION}/structures/{structure_id}",
                 headers={"Authorization": f"Bearer {token}"},
-                timeout=30.0,
+                timeout=settings.data_inclusion_api_timeout,
             )
             response.raise_for_status()
 
@@ -100,11 +101,12 @@ async def fetch_service(
             extra={"service_id": service_id},
         )
 
+        settings = get_settings()
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{BASE_URL}/api/{API_VERSION}/services/{service_id}",
+                f"{settings.data_inclusion_api_url}/api/{API_VERSION}/services/{service_id}",
                 headers={"Authorization": f"Bearer {token}"},
-                timeout=30.0,
+                timeout=settings.data_inclusion_api_timeout,
             )
             response.raise_for_status()
 
@@ -142,7 +144,8 @@ async def list_structures(
         token: Bearer token for API authentication
         page: Page number (default: 1)
         size: Page size (default: 5000, max: 10000)
-        filters: Optional filter parameters (sources, code_region, code_departement, etc.)
+        filters: Optional filter parameters (sources, code_region,
+            code_departement, etc.)
 
     Returns:
         Paginated response with structures
@@ -163,12 +166,13 @@ async def list_structures(
         if filters:
             params.update(filters)
 
+        settings = get_settings()
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{BASE_URL}/api/{API_VERSION}/structures",
+                f"{settings.data_inclusion_api_url}/api/{API_VERSION}/structures",
                 headers={"Authorization": f"Bearer {token}"},
                 params=params,
-                timeout=30.0,
+                timeout=settings.data_inclusion_api_timeout,
             )
             response.raise_for_status()
 
@@ -206,7 +210,8 @@ async def list_services(
         token: Bearer token for API authentication
         page: Page number (default: 1)
         size: Page size (default: 5000, max: 10000)
-        filters: Optional filter parameters (thematiques, frais, publics, modes_accueil, types, etc.)
+        filters: Optional filter parameters (thematiques, frais, publics,
+            modes_accueil, types, etc.)
 
     Returns:
         Paginated response with services
@@ -227,12 +232,13 @@ async def list_services(
         if filters:
             params.update(filters)
 
+        settings = get_settings()
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{BASE_URL}/api/{API_VERSION}/services",
+                f"{settings.data_inclusion_api_url}/api/{API_VERSION}/services",
                 headers={"Authorization": f"Bearer {token}"},
                 params=params,
-                timeout=30.0,
+                timeout=settings.data_inclusion_api_timeout,
             )
             response.raise_for_status()
 
@@ -307,12 +313,13 @@ async def search_services(
         if filters:
             params.update(filters)
 
+        settings = get_settings()
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                f"{BASE_URL}/api/{API_VERSION}/search/services",
+                f"{settings.data_inclusion_api_url}/api/{API_VERSION}/search/services",
                 headers={"Authorization": f"Bearer {token}"},
                 params=params,
-                timeout=30.0,
+                timeout=settings.data_inclusion_api_timeout,
             )
             response.raise_for_status()
 
