@@ -278,6 +278,23 @@ Are there any underspecified areas that could cause implementation confusion?
 
 ---
 
+### CHK020: AI Prompts Strategy [Completeness]
+Are LLM prompts and quality thresholds fully specified for each stage?
+- [x] Enrichment stage prompt documented with quality thresholds
+- [x] Langage Clair stage prompt documented with readability thresholds
+- [x] Translation stage prompt documented with confidence thresholds
+- [x] Fast mode vs normal mode quality differences specified
+- [x] Model selection strategy (GPT-4 vs GPT-3.5-turbo) documented
+- [x] Cost optimization strategies documented (batching, caching, model selection)
+- [x] Error handling for API failures and quality failures specified
+- [x] Monitoring metrics and feedback loop defined
+
+**Reference**: [AI Prompts Strategy](../AI-PROMPTS-STRATEGY.md)
+
+**Implementation Tasks**: T050-T063 (Phases 1-3)
+
+---
+
 ## Summary
 
 **Total Items**: 20 (CHK001-CHK020)
@@ -287,7 +304,7 @@ Are there any underspecified areas that could cause implementation confusion?
 - Data Model Validation: 3 items
 - API & Contract Specifications: 2 items
 - Implementation Readiness: 4 items
-- Ambiguities & Gaps: 1 item
+- AI Processing Strategy: 1 item
 
 **Next Steps**:
 1. Address any gaps identified in CHK020

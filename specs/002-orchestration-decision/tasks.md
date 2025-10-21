@@ -271,6 +271,35 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [ ] T107 Create Streamlit deployment guide at `docs/streamlit-deployment.md` for diff review and monitoring UIs
 - [ ] T108 Update main README.md with orchestration feature overview and quick links to documentation
 
+### Phase 1 (Weeks 9-11): AI Prompts - Enrichment, Langage Clair, Translation
+
+**User Story**: Implement LLM-based processing for service data enrichment, language simplification, and translation
+
+**Acceptance Criteria**:
+- [ ] Enrichment stage processes services with confidence > 0.5 (fast mode) or > 0.7 (normal mode)
+- [ ] Langage Clair stage simplifies text to readability > 0.4 (fast mode) or > 0.6 (normal mode)
+- [ ] Translation stage produces translations with confidence > 0.5 (fast mode) or > 0.8 (normal mode)
+- [ ] Cost tracking shows monthly spend within budget ($5-15/month for 100 services)
+- [ ] Monitoring dashboard displays AI processing metrics
+- [ ] Unit tests validate prompt execution and quality thresholds
+- [ ] Integration tests validate end-to-end AI processing pipeline
+
+**Tasks**:
+
+- [ ] T109 Create OpenAI integration service at `apps/orchestration/src/services/openai_service.py` with methods: call_gpt, handle_rate_limits, track_costs
+- [ ] T110 [P] Create unit tests for OpenAI service at `apps/orchestration/tests/unit/services/test_openai_service.py` with mocked API calls
+- [ ] T111 Create enrichment service at `apps/orchestration/src/services/enrichment_service.py` implementing enrichment prompt with GPT-3.5-turbo (fast mode) and GPT-4 (normal mode)
+- [ ] T112 [P] Create unit tests for enrichment at `apps/orchestration/tests/unit/services/test_enrichment_service.py` validating confidence thresholds and output format
+- [ ] T113 Create langage_clair service at `apps/orchestration/src/services/langage_clair_service.py` implementing simplification prompt with readability scoring
+- [ ] T114 [P] Create unit tests for langage_clair at `apps/orchestration/tests/unit/services/test_langage_clair_service.py` validating readability thresholds
+- [ ] T115 Create translation service at `apps/orchestration/src/services/translation_service.py` supporting English, Arabic, Spanish with confidence scoring
+- [ ] T116 [P] Create unit tests for translation at `apps/orchestration/tests/unit/services/test_translation_service.py` validating language support and confidence thresholds
+- [ ] T117 Create AI processing orchestrator at `apps/orchestration/src/services/ai_orchestrator.py` coordinating enrichment → langage_clair → translation
+- [ ] T118 [P] Create integration tests for AI pipeline at `apps/orchestration/tests/integration/test_ai_pipeline.py` validating end-to-end processing
+- [ ] T119 Add AI metrics tracking to metrics service: cost per service, confidence scores, processing time
+- [ ] T120 Create AI processing documentation at `apps/orchestration/docs/ai-processing.md` with prompt templates and troubleshooting
+- [ ] T121 Create AI cost monitoring dashboard in Streamlit at `apps/orchestration/ui/ai_monitoring.py` displaying costs and quality metrics
+
 ---
 
 ## Dependency Graph
@@ -316,6 +345,10 @@ Phase 7 (Polish) ← Depends on all previous phases
 **Within Phase 7**:
 - T090-T092: Create middleware (independent)
 - T097-T098: Create CI/CD workflows (independent)
+
+**Within AI Prompts Phase**:
+- T110, T112, T114, T116, T118: Create tests (independent, can parallelize)
+- T111, T113, T115: Create services (can parallelize after T109)
 
 ## MVP Scope Recommendation
 
