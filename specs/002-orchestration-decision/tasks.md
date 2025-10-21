@@ -68,12 +68,12 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 ### Tasks
 
 - [X] T013 Create Supabase client wrapper at `apps/orchestration/src/db/client.py` with connection pooling and error handling
-- [ ] T014 Create base repository class at `apps/orchestration/src/db/repositories/base_repository.py` with common CRUD operations
-- [ ] T015 [P] Create workflow repository at `apps/orchestration/src/db/repositories/workflow_repository.py` with methods: create_workflow_run, get_workflow_run, update_workflow_status, list_workflow_runs
-- [ ] T016 [P] Create stage execution repository at `apps/orchestration/src/db/repositories/stage_repository.py` with methods: create_stage_execution, get_stage_execution, update_stage_status, list_stage_executions
-- [ ] T017 [P] Create information sheet repository at `apps/orchestration/src/db/repositories/information_sheet_repository.py` with methods: create_information_sheet, get_information_sheet, update_information_sheet, get_by_program_id
-- [ ] T018 [P] Create update event repository at `apps/orchestration/src/db/repositories/update_repository.py` with methods: create_update_event, get_update_event, update_processing_status, list_pending_updates
-- [ ] T019 [P] Create update diff repository at `apps/orchestration/src/db/repositories/diff_repository.py` with methods: create_diff, get_diff, update_review_status, list_pending_diffs
+- [X] T014 Create base repository class at `apps/orchestration/src/db/repositories/base.py` with common CRUD operations
+- [X] T015 [P] Create workflow repository at `apps/orchestration/src/db/repositories/workflow.py` with methods: create_workflow_run, get_workflow_run, update_workflow_status, list_workflow_runs
+- [X] T016 [P] Create stage execution repository at `apps/orchestration/src/db/repositories/stage.py` with methods: create_stage_execution, get_stage_execution, update_stage_status, list_stage_executions
+- [X] T017 [P] Create information sheet repository at `apps/orchestration/src/db/repositories/information_sheet.py` with methods: create_information_sheet, get_information_sheet, update_information_sheet, get_by_program_id
+- [X] T018 [P] Create update event repository at `apps/orchestration/src/db/repositories/update.py` with methods: create_update_event, get_update_event, update_processing_status, list_pending_updates
+- [X] T019 [P] Create update diff repository at `apps/orchestration/src/db/repositories/diff.py` with methods: create_diff, get_diff, update_review_status, list_pending_diffs
 - [ ] T020 Create Pydantic models at `apps/orchestration/src/models/workflow.py`: WorkflowRunRequest, WorkflowRunResponse, WorkflowStatus
 - [ ] T021 [P] Create Pydantic models at `apps/orchestration/src/models/stage.py`: StageExecutionRequest, StageExecutionResponse, StageStatus
 - [ ] T022 [P] Create Pydantic models at `apps/orchestration/src/models/update.py`: UpdateEventRequest, UpdateEventResponse, UpdateStrategy
