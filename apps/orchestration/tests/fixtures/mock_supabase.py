@@ -2,26 +2,34 @@
 
 from typing import Any
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 
 class MockSupabaseQueryBuilder:
     """Mock Supabase query builder for method chaining."""
 
-    def __init__(self, data: dict[str, Any] | None = None):
+    def __init__(self, session: AsyncSession | None = None, table_name: str | None = None):
         """Initialize query builder.
 
         Args:
-            data: Data to return from execute()
+            session: SQLAlchemy async session
+            table_name: Name of the table
         """
-        self.data = data or {}
+        self.session = session
+        self.table_name = table_name
+        self.data = {}
         self.filters = {}
+        self._operation = None
 
     def insert(self, data: dict[str, Any]) -> "MockSupabaseQueryBuilder":
         """Mock insert operation."""
+        self._operation = "insert"
         self.data = data
         return self
 
     def select(self, *args: str, **kwargs: Any) -> "MockSupabaseQueryBuilder":
         """Mock select operation."""
+        self._operation = "select"
         return self
 
     def eq(self, field: str, value: Any) -> "MockSupabaseQueryBuilder":
@@ -31,24 +39,42 @@ class MockSupabaseQueryBuilder:
 
     def update(self, data: dict[str, Any]) -> "MockSupabaseQueryBuilder":
         """Mock update operation."""
+        self._operation = "update"
         self.data = data
         return self
 
     def delete(self) -> "MockSupabaseQueryBuilder":
         """Mock delete operation."""
+        self._operation = "delete"
         return self
 
     def range(self, start: int, end: int) -> "MockSupabaseQueryBuilder":
         """Mock range operation."""
+        self._range_start = start
+        self._range_end = end
         return self
 
     def limit(self, count: int) -> "MockSupabaseQueryBuilder":
         """Mock limit operation."""
+        self._limit = count
         return self
 
-    async def execute(self) -> "MockSupabaseResponse":
-        """Mock execute operation."""
-        return MockSupabaseResponse([self.data] if self.data else [])
+    def execute(self) -> "MockSupabaseResponse":
+        """Mock execute operation - returns mock response with data.
+
+        Note: This is a simplified mock that returns the input data.
+        For real database operations, use the session directly.
+        """
+        if self._operation == "insert":
+            return MockSupabaseResponse([self.data])
+        elif self._operation == "select":
+            # For select, return empty list (mock doesn't store data)
+            return MockSupabaseResponse([])
+        elif self._operation == "update":
+            return MockSupabaseResponse([self.data])
+        elif self._operation == "delete":
+            return MockSupabaseResponse([])
+        return MockSupabaseResponse([])
 
 
 class MockSupabaseResponse:
@@ -84,4 +110,4 @@ class MockSupabaseClient:
         Returns:
             Query builder for method chaining
         """
-        return MockSupabaseQueryBuilder()
+        return MockSupabaseQueryBuilder(self.session, table_name)
