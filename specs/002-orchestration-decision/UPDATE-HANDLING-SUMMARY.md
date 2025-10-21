@@ -23,7 +23,7 @@ When raw data is updated from Data Inclusion/Carif Oref:
 ### Two-Track Strategy
 
 #### Track 1: Early Stage Updates (Auto-Only Stages)
-**Stages**: Ingestion, Reconciliation
+**Stages**: Ingestion, Editorial Policy Validation, Reconciliation
 **Strategy**: Full reprocessing (no human work to preserve)
 
 ```
@@ -32,7 +32,7 @@ Full pipeline reprocessing
 ```
 
 #### Track 2: Late Stage Updates (Human-in-Loop Stages)
-**Stages**: Enrichment, Langage Clair, Translation, Validation
+**Stages**: Enrichment, Langage Clair, Translation, Validation, Publication
 **Strategy**: Smart catch-up + diff review
 
 ```

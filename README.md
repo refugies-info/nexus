@@ -23,12 +23,12 @@ Information about integration services (French language learning, employment sup
 Nexus automates the pipeline from raw data to publication-ready information sheets:
 
 ```
-Data Sources → Ingestion → Reconciliation → Enrichment → Langage Clair → Translation → Validation → Publication
-   (Carif Oref,      ↓            ↓              ↓            ↓              ↓            ↓            ↓
-   Data Inclusion)  Clean      Merge data    Fill gaps   AI-assisted    8 languages  Editorial    Réfugiés.info
-                    & validate  from APIs    via web      transformation + quality    charter      API
-                                             scraping     to plain       checks       compliance
-                                                          language
+Data Sources → Ingestion → Policy Validation → Reconciliation → Enrichment → Langage Clair → Translation → Validation → Publication
+   (Carif Oref,      ↓            ↓                  ↓              ↓            ↓              ↓            ↓            ↓
+   Data Inclusion)  Fetch      Reject non-      Merge data    Fill gaps   AI-assisted    8 languages  Editorial    Réfugiés.info
+                    & clean    compliant       from Carif-   via web      transformation + quality    charter      API
+                    data       programs        Oref CSV      scraping     to plain       checks       compliance
+                                              (hourly)      language
 ```
 
 **Key Innovation**: The **Langage Clair** stage uses AI to transform bureaucratic/technical source text into clear, accessible French—reifying the expertise of Réfugiés.info's editorial team. This AI-assisted process dramatically increases throughput compared to purely manual editorial work while maintaining quality standards.
@@ -111,12 +111,13 @@ Each stage is implemented as an independent Python library in `libs/`, enabling:
 - **Clear dependencies**: Shared code lives in `libs/common/`
 
 1. **Ingestion** (`libs/ingestion/`): Fetch data from Data Inclusion API (includes Carif Oref data)
-2. **Reconciliation** (`libs/reconciliation/`): Merge and deduplicate data from multiple sources
-3. **Enrichment** (`libs/enrichment/`): Fill gaps via Carif Oref API and web scraping
-4. **Langage Clair** (`libs/langage_clair/`) ⭐: AI-assisted transformation of bureaucratic/technical text into clear, accessible French (reifying Réfugiés.info editorial expertise)
-5. **Translation** (`libs/translation/`): Generate multilingual content (8 languages) from the plain language French
-6. **Validation** (`libs/validation/`): Ensure editorial charter compliance and quality standards
-7. **Publication** (`libs/publication/`): Push to Réfugiés.info via API (to be designed)
+2. **Editorial Policy Validation** (`libs/editorial_policy_validation/`): Reject non-compliant programs early (15+ policy categories) with audit trail
+3. **Reconciliation** (`libs/reconciliation/`): Merge data with Carif-Oref CSV (hourly fetch), deterministic conflict resolution
+4. **Enrichment** (`libs/enrichment/`): Fill gaps via web scraping and metadata enrichment
+5. **Langage Clair** (`libs/langage_clair/`) ⭐: AI-assisted transformation of bureaucratic/technical text into clear, accessible French (reifying Réfugiés.info editorial expertise)
+6. **Translation** (`libs/translation/`): Generate multilingual content (8 languages) from the plain language French
+7. **Validation** (`libs/validation/`): Ensure editorial charter compliance and quality standards
+8. **Publication** (`libs/publication/`): Push to Réfugiés.info via API (to be designed)
 
 ## 🚀 Getting Started
 
@@ -298,9 +299,13 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - [x] Constitution ratified (v1.5.0)
 - [x] Project structure defined
 - [x] Development templates created
+- [x] Pipeline orchestration architecture (n8n + FastAPI + Supabase)
+- [x] Editorial policy validation stage designed
+- [x] Carif-Oref reconciliation with hourly CSV fetch designed
 - [ ] Data ingestion implementation
+- [ ] Editorial policy validation implementation
+- [ ] Carif-Oref reconciliation implementation
 - [ ] Translation pipeline
-- [ ] Editorial validation
 - [ ] Réfugiés.info API design
 - [ ] User research for AI transparency
 

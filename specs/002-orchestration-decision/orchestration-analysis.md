@@ -15,7 +15,7 @@
 **Key Decision Factors**:
 - **Existing Prototype**: Team already prototyping with n8n → leverage that investment
 - **Scale**: Processing ~hundreds of French learning programs, not millions of records
-- **Complexity**: 7-stage linear pipeline with well-defined dependencies
+- **Complexity**: 8-stage linear pipeline with well-defined dependencies (including editorial policy validation)
 - **Team**: Small team prioritizing velocity and simplicity over enterprise features
 - **Infrastructure**: Supabase provides managed PostgreSQL + real-time + auth out of the box
 - **Code Quality**: Complex logic (smart catch-up, diff generation, AI) requires testable Python services
@@ -34,17 +34,19 @@ Data Inclusion / Carif Oref API
     ↓
 [1. Ingestion] → Raw data validation & storage
     ↓
-[2. Reconciliation] → Cross-reference with Carif Oref, resolve conflicts
+[2. Editorial Policy Validation] → Reject non-compliant programs early (15+ categories) with audit trail
     ↓
-[3. Enrichment] → Web scraping for missing data, add metadata
+[3. Reconciliation] → Merge with Carif-Oref CSV (hourly fetch), deterministic conflict resolution
     ↓
-[4. Langage Clair] → AI transformation to plain French (Principle XI)
+[4. Enrichment] → Web scraping for missing data, add metadata
     ↓
-[5. Translation] → Multilingual translation with cultural mediation (Principles III, XII)
+[5. Langage Clair] → AI transformation to plain French (Principle XI)
     ↓
-[6. Validation] → Quality checks, editorial compliance (Principle IV)
+[6. Translation] → Multilingual translation with cultural mediation (Principles III, XII)
     ↓
-[7. Publication] → Push to Réfugiés.info API (Principle V)
+[7. Validation] → Quality checks, editorial compliance (Principle IV)
+    ↓
+[8. Publication] → Push to Réfugiés.info API (Principle V)
 ```
 
 ### Orchestration Requirements
