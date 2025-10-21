@@ -42,7 +42,8 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T004 [P] Configure `package.json` with Node.js dependencies: n8n CLI tools, TypeScript, testing framework
 - [X] T005 Install Supabase CLI following https://supabase.com/docs/guides/local-development/cli/getting-started (macOS: `brew install supabase/tap/supabase`)
 - [X] T005b Create Supabase account at https://supabase.com if not already created (required for production deployment)
-- [ ] T005c Initialize Supabase project locally with `supabase init` and configure connection string in `.env`
+- [X] T005c Initialize Supabase project locally with `supabase init` and configure connection string in `.env`
+- [ ] T005d Add Supabase CLI as workspace dev dependency (npm/pnpm) for consistent versioning across team
 - [X] T006 Create `.env.example` file documenting required environment variables (Supabase URL/key, Data Inclusion API URL, Vercel AI Gateway credentials)
 - [X] T007 Create database migration script at `supabase/migrations/001_init_schema.sql` with all tables from data-model.md (workflow_runs, stage_executions, information_sheets, update_events, update_diffs, policy_validation_decisions, carif_oref_reconciliation_status)
 - [X] T008 [P] Create Supabase initialization script at `scripts/init-supabase.sh` to apply migrations and seed test data
