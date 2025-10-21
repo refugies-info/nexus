@@ -74,10 +74,10 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T017 [P] Create information sheet repository at `apps/orchestration/src/db/repositories/information_sheet.py` with methods: create_information_sheet, get_information_sheet, update_information_sheet, get_by_program_id
 - [X] T018 [P] Create update event repository at `apps/orchestration/src/db/repositories/update.py` with methods: create_update_event, get_update_event, update_processing_status, list_pending_updates
 - [X] T019 [P] Create update diff repository at `apps/orchestration/src/db/repositories/diff.py` with methods: create_diff, get_diff, update_review_status, list_pending_diffs
-- [ ] T020 Create Pydantic models at `apps/orchestration/src/models/workflow.py`: WorkflowRunRequest, WorkflowRunResponse, WorkflowStatus
-- [ ] T021 [P] Create Pydantic models at `apps/orchestration/src/models/stage.py`: StageExecutionRequest, StageExecutionResponse, StageStatus
-- [ ] T022 [P] Create Pydantic models at `apps/orchestration/src/models/update.py`: UpdateEventRequest, UpdateEventResponse, UpdateStrategy
-- [ ] T023 [P] Create Pydantic models at `apps/orchestration/src/models/diff.py`: DiffRequest, DiffResponse, RiskScore, ReviewStatus
+- [X] T020 Create Pydantic models at `apps/orchestration/src/models/workflow.py`: WorkflowRunRequest, WorkflowRunResponse, WorkflowStatus
+- [X] T021 [P] Create Pydantic models at `apps/orchestration/src/models/stage.py`: StageExecutionRequest, StageExecutionResponse, StageStatus
+- [X] T022 [P] Create Pydantic models at `apps/orchestration/src/models/update.py`: UpdateEventRequest, UpdateEventResponse, UpdateStrategy
+- [X] T023 [P] Create Pydantic models at `apps/orchestration/src/models/diff.py`: DiffRequest, DiffResponse, RiskScore, ReviewStatus
 - [ ] T024 Create configuration management at `apps/orchestration/src/config.py` using Pydantic BaseSettings for environment variables
 - [ ] T025 Create structured logging setup at `apps/orchestration/src/utils/logging.py` with structlog configuration and correlation ID middleware
 - [ ] T026 Create error handling utilities at `apps/orchestration/src/utils/errors.py` with custom exception classes and error response formatting
