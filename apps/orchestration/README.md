@@ -101,6 +101,32 @@ The orchestration service uses a functional programming paradigm for better:
 - `stage_functions.py`: Stage execution management
 - `stage_executor_functions.py`: Pipeline stage coordination
 - `reconciliation_functions.py`: Data reconciliation logic
+- `scheduler_functions.py`: Scheduled tasks management
+
+### Scheduler Functions
+
+The `scheduler_functions.py` module handles scheduled tasks like:
+- Hourly Carif-Oref CSV fetches
+- Scheduled reconciliation
+
+**Key Functions**:
+- `create_scheduler()`: Initialize and start scheduler
+- `shutdown_scheduler()`: Gracefully stop scheduler
+- `fetch_csv_job()`: Scheduled CSV fetch implementation
+- `trigger_immediate_fetch()`: Manual trigger for testing
+
+**Usage Example**:
+```python
+from services.scheduler_functions import create_scheduler, shutdown_scheduler
+from db.repositories.reconciliation import get_reconciliation_repository
+
+# Initialize
+repo = get_reconciliation_repository()
+scheduler = await create_scheduler(repo)
+
+# Shutdown when done
+await shutdown_scheduler(scheduler)
+```
 
 ### Usage Example
 ```python

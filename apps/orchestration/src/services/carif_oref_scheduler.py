@@ -1,6 +1,11 @@
-"""Carif-Oref CSV fetch scheduler using APScheduler."""
+"""DEPRECATED: CarifOrefScheduler class - Use scheduler_functions.py instead.
+
+This module is kept for backwards compatibility but will be removed in a future version.
+All new code should use the functional versions in scheduler_functions.py.
+"""
 
 import logging
+import warnings
 from datetime import datetime
 from typing import Any
 
@@ -10,6 +15,12 @@ from apscheduler.triggers.cron import CronTrigger
 from db.repositories.reconciliation import ReconciliationRepository
 from utils.errors import PipelineError
 
+
+warnings.warn(
+    "CarifOrefScheduler is deprecated. Use scheduler_functions.py instead",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 logger = logging.getLogger(__name__)
 
