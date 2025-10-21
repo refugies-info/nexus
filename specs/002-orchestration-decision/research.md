@@ -187,6 +187,22 @@ def calculate_service_checksum(service_data: dict) -> str:
 - **SHA-256**: Cryptographically secure, collision-resistant, 64-character hex string
 - **UTF-8 encoding**: Handles French characters and special characters correctly
 
+**Collision Resistance Details**:
+- **SHA-256 properties**: Produces 256-bit (64-character hex) output with cryptographic guarantees
+  - Collision resistance: Computationally infeasible to find two inputs with same hash
+  - Avalanche effect: Single bit change in input produces completely different hash
+  - One-way function: Cannot reverse-engineer input from hash
+- **For Nexus**: Two different service updates will always have different checksums (no false negatives); extremely unlikely two different services produce same checksum (no false positives)
+
+**UTF-8 Encoding Details**:
+- **Why UTF-8**: Handles French characters (é, è, ê, ë, à, ç) and special characters (€, •, —) consistently
+- **Implementation**: Line 177 uses `ensure_ascii=False` to preserve Unicode; Line 180 uses `.encode('utf-8')` for consistent byte representation
+- **For Nexus**: Service names like "Cours de français" and descriptions with accents hash consistently every time, preventing false update detection due to encoding differences
+- **Examples**:
+  - `"Cours de français"` (with é) ≠ `"Cours de francais"` (without é) → Different checksums ✓
+  - `{"nom": "Cours", "type": "formation"}` = `{"type": "formation", "nom": "Cours"}` → Same checksum ✓ (due to key sorting)
+  - `"Éligibilité"` always encodes to same bytes → Consistent hash ✓
+
 **Update Detection Flow**:
 When fetching from Data Inclusion API:
 1. Calculate checksum of fetched service JSON
@@ -359,12 +375,22 @@ risk_score = (
 ) / total_fields
 ```
 
-**Critical Fields** (higher risk weight):
-- Program title
-- Provider name
-- Location/address
-- Contact information
-- Eligibility criteria
+**Critical Fields** (higher risk weight, based on Data Inclusion schema):
+- `nom` * (Service name/title) - Required, 3-150 chars
+- `description` * (Service description) - Required, 50-2000 chars, impacts quality score
+- `publics` * (Target audiences) - Required, eligibility criteria
+- `date_maj` * (Last modification date) - Required, indicates source data update timing
+- `conditions_acces` (Access conditions) - Eligibility requirements
+- `adresse` (Address) - Location information
+- `commune` (City) - Location information
+- `code_postal` (Postal code) - Location information
+- `telephone` (Phone) - Contact information
+- `courriel` (Email) - Contact information
+- `contact_nom_prenom` (Contact name) - Contact information
+- `frais` (Cost: free/paid) - Service accessibility
+- `zone_eligibilite` (Eligibility zone) - Geographic scope
+
+**Rationale**: Fields marked with `*` are required in the schema. Changes to these fields have higher impact on service discoverability and user eligibility. Location and contact fields are critical for users to access the service.
 
 **Alternatives Considered**:
 
@@ -505,6 +531,8 @@ Consider:
 - Levenshtein distance: https://en.wikipedia.org/wiki/Levenshtein_distance
 - LLM-as-Judge pattern: https://arxiv.org/abs/2306.05685
 - OpenAI Pricing: https://openai.com/pricing
+- Data Inclusion Service Schema (HTML): https://gip-inclusion.github.io/data-inclusion-schema/latest/service/
+- Data Inclusion Service Schema (JSON): https://raw.githubusercontent.com/gip-inclusion/data-inclusion-schema/main/schemas/v1/service.json
 
 ---
 
