@@ -1,8 +1,9 @@
 """Functional policy validation service for program compliance checking."""
 
 import logging
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable
+from typing import Any
 
 from db.repositories.policy import PolicyRepository
 from utils.errors import PipelineError
