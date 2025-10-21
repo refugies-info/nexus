@@ -108,31 +108,31 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 ### Tasks
 
-- [X] T029 [US1] Create workflow service at `apps/orchestration/src/services/workflow_service.py` with methods: start_workflow, get_workflow_status, update_workflow_stage, handle_stage_completion
-- [X] T030 [US1] Create stage execution service at `apps/orchestration/src/services/stage_service.py` with methods: execute_stage, retry_stage, mark_stage_complete, handle_stage_failure
+- [X] T029 [US1] Create workflow service at `apps/orchestration/src/services/workflow.py` with pure functions: start_workflow, get_workflow_status, update_workflow_stage, handle_stage_completion
+- [X] T030 [US1] Create stage execution service at `apps/orchestration/src/services/stage.py` with pure functions: execute_stage, retry_stage, mark_stage_complete, handle_stage_failure
 - [X] T031 [US1] Implement retry logic with exponential backoff at `apps/orchestration/src/utils/retry.py` using tenacity library (initial delay 1s, max delay 5min, max retries 10)
 - [X] T032 [US1] Create workflow API endpoints at `apps/orchestration/src/api/workflows.py`: POST /workflows (start), GET /workflows/{id} (status), POST /workflows/{id}/status (update)
-- [X] T033 [US1] Implement workflow state machine at `apps/orchestration/src/services/state_machine.py` enforcing stage sequence: ingestion → editorial_policy_validation → reconciliation → enrichment → langage_clair → translation → validation → publication
-- [X] T034 [US1] Create stage executor at `apps/orchestration/src/services/stage_executor.py` that calls external stage services (placeholder for actual stage implementations)
+- [X] T033 [US1] Implement workflow state machine at `apps/orchestration/src/services/state_machine.py` with pure functions enforcing stage sequence: ingestion → editorial_policy_validation → reconciliation → enrichment → langage_clair → translation → validation → publication
+- [X] T034 [US1] Create stage orchestrator at `apps/orchestration/src/services/orchestrator.py` with pure functions that call external stage services (placeholder for actual stage implementations)
 - [X] T035 [US1] Implement error handling for stage failures at `apps/orchestration/src/services/error_handler.py` with retry logic and manual review routing
 - [X] T036 [US1] Create unit tests for workflow service at `apps/orchestration/tests/unit/services/test_workflow_service.py` with mocked repositories
 - [X] T037 [US1] Create unit tests for stage service at `apps/orchestration/tests/unit/services/test_stage_service.py` validating retry logic and state transitions
 - [X] T038 [US1] Create integration tests for complete pipeline at `apps/orchestration/tests/integration/test_pipeline_execution.py` using test Supabase instance
 - [X] T039 [US1] Create contract tests for workflow API at `apps/orchestration/tests/contract/test_workflow_api.py` validating request/response schemas
-- [X] T040 [US1] Create editorial policy validator service at `apps/orchestration/src/services/policy_validator.py` with methods: validate_program, check_policy_rules, generate_audit_trail, reject_program
-- [X] T040b [US1] Create policy rule repository at `apps/orchestration/src/db/repositories/policy.py` with methods: get_policy_rules, get_rule_by_id, create_policy_decision, get_policy_decision
-- [X] T040c [US1] Create Carif-Oref reconciliation service at `apps/orchestration/src/services/reconciliation_service.py` with methods: fetch_carif_oref_csv, match_programs, merge_data, detect_conflicts, resolve_conflicts
-- [X] T040d [US1] Implement hourly CSV fetch scheduler at `apps/orchestration/src/services/carif_oref_scheduler.py` using APScheduler for hourly Carif-Oref CSV updates
-- [ ] T040e [US1] Create conflict resolution logic at `apps/orchestration/src/services/conflict_resolver.py` implementing deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete)
+- [X] T040 [US1] Create editorial policy validator service at `apps/orchestration/src/services/policy.py` with pure functions: validate_program, check_policy_rules, generate_audit_trail, reject_program
+- [X] T040b [US1] Create policy rule repository at `apps/orchestration/src/db/repositories/policy.py` with functions: get_policy_rules, get_rule_by_id, create_policy_decision, get_policy_decision
+- [X] T040c [US1] Create Carif-Oref reconciliation service at `apps/orchestration/src/services/reconciliation.py` with pure functions: fetch_carif_oref_csv, match_programs, merge_data, detect_conflicts, resolve_conflicts
+- [X] T040d [US1] Implement hourly CSV fetch scheduler at `apps/orchestration/src/services/scheduling.py` using APScheduler for hourly Carif-Oref CSV updates
+- [ ] T040e [US1] Create conflict resolution logic in `apps/orchestration/src/services/reconciliation.py` with pure functions implementing deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete)
 - [ ] T040f [US1] Create policy validation API endpoint at `apps/orchestration/src/api/policies.py`: POST /policies/validate (validate program), GET /policies/decisions/{program_id} (get decision)
 - [ ] T040g [US1] Create reconciliation API endpoint at `apps/orchestration/src/api/reconciliation.py`: POST /reconciliation/process (reconcile), GET /reconciliation/status/{program_id} (status)
-- [ ] T040h [US1] Create unit tests for policy validator at `apps/orchestration/tests/unit/services/test_policy_validator.py` with various policy scenarios
-- [ ] T040i [US1] Create unit tests for reconciliation service at `apps/orchestration/tests/unit/services/test_reconciliation_service.py` validating data merging and conflict detection
-- [ ] T040j [US1] Create unit tests for conflict resolver at `apps/orchestration/tests/unit/services/test_conflict_resolver.py` validating deterministic resolution
-- [ ] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy_validation.py` with real policy scenarios
-- [ ] T040l [US1] Create integration tests for Carif-Oref reconciliation at `apps/orchestration/tests/integration/test_carif_oref_reconciliation.py` with CSV data
+- [ ] T040h [US1] Create unit tests for policy service at `apps/orchestration/tests/unit/services/test_policy.py` with various policy scenarios
+- [ ] T040i [US1] Create unit tests for reconciliation service at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating data merging and conflict detection
+- [ ] T040j [US1] Create unit tests for reconciliation conflict resolution at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating deterministic resolution
+- [ ] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy.py` with real policy scenarios
+- [ ] T040l [US1] Create integration tests for Carif-Oref reconciliation at `apps/orchestration/tests/integration/test_reconciliation.py` with CSV data
 - [ ] T040m [US1] Create n8n workflow at `specs/002-orchestration-decision/workflows/pipeline-orchestration.json` that orchestrates 8-stage pipeline (including policy validation and reconciliation) with error handling and retry logic
-- [ ] T040n [US1] Create policy rule versioning at `apps/orchestration/src/db/repositories/policy_repository.py` with methods: get_rule_version, create_rule_version, track_applied_version, get_rules_by_version
+- [ ] T040n [US1] Create policy rule versioning at `apps/orchestration/src/db/repositories/policy.py` with functions: get_rule_version, create_rule_version, track_applied_version, get_rules_by_version
 - [ ] T041 [US1] Create n8n workflow documentation at `specs/002-orchestration-decision/workflows/README.md` explaining 8-stage pipeline flow (including policy validation and Carif-Oref reconciliation), error handling, and manual review routing
 - [ ] T042 [US1] Create test data fixtures at `apps/orchestration/tests/fixtures/test_programs.json` with sample programs for testing
 - [ ] T046 [US1] Create quickstart guide section in `specs/002-orchestration-decision/quickstart.md` for testing pipeline execution with curl examples
@@ -358,7 +358,7 @@ Phase 7 (Polish) ← Depends on all previous phases
 - Phase 2: Foundational Services (1 week)
 - Phase 3: User Story 1 - Process new programs (2 weeks)
 
-**Result**: System can process new programs through all 7 pipeline stages with state tracking and error handling.
+**Result**: System can process new programs through all 8 pipeline stages (ingestion → editorial policy validation → reconciliation → enrichment → langage clair → translation → validation → publication) with state tracking and error handling.
 
 **Phase 2 MVP** (Weeks 5-8):
 - Phase 4: User Story 2 - Handle updates (2 weeks)
