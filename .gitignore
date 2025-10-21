@@ -26,6 +26,7 @@ MANIFEST
 .ruff_cache/
 .coverage
 .coverage.*
+coverage.xml
 htmlcov/
 *.cover
 *.log
