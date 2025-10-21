@@ -108,7 +108,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 ### Tasks
 
-- [ ] T029 [US1] Create workflow service at `apps/orchestration/src/services/workflow_service.py` with methods: start_workflow, get_workflow_status, update_workflow_stage, handle_stage_completion
+- [X] T029 [US1] Create workflow service at `apps/orchestration/src/services/workflow_service.py` with methods: start_workflow, get_workflow_status, update_workflow_stage, handle_stage_completion
 - [ ] T030 [US1] Create stage execution service at `apps/orchestration/src/services/stage_service.py` with methods: execute_stage, retry_stage, mark_stage_complete, handle_stage_failure
 - [ ] T031 [US1] Implement retry logic with exponential backoff at `apps/orchestration/src/utils/retry.py` using tenacity library (initial delay 1s, max delay 5min, max retries 10)
 - [ ] T032 [US1] Create workflow API endpoints at `apps/orchestration/src/api/workflows.py`: POST /workflows (start), GET /workflows/{id} (status), POST /workflows/{id}/stages/{stage} (execute)
