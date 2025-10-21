@@ -1,4 +1,4 @@
-"""Functional Carif-Oref reconciliation service for data merging and conflict detection."""
+"""Functional reconciliation service for data merging and conflict detection."""
 
 import logging
 from typing import Any
@@ -11,14 +11,17 @@ logger = logging.getLogger(__name__)
 
 
 # Type aliases
-CarifOrefRecord = dict[str, Any]
-ProgramData = dict[str, Any]
-ReconciliationResult = dict[str, Any]
 ConflictRecord = dict[str, Any]
+ReconciliationResult = dict[str, Any]
 
 
-async def fetch_carif_oref_csv() -> list[CarifOrefRecord]:
+async def fetch_carif_oref_csv(
+    reconciliation_repo: ReconciliationRepository,
+) -> list[dict[str, Any]]:
     """Fetch latest Carif-Oref CSV data.
+
+    Args:
+        reconciliation_repo: Reconciliation repository instance
 
     Returns:
         List of Carif-Oref program records
@@ -31,14 +34,15 @@ async def fetch_carif_oref_csv() -> list[CarifOrefRecord]:
 
         # In production, this would fetch from:
         # https://www.intercariforef.org/dian/?...&excsv=1
-        csv_data = []
+        # For now, return empty list (would be populated by scheduler)
+        csv_data = await reconciliation_repo.get_latest_csv()
 
         logger.info(
             "Carif-Oref CSV fetched",
-            extra={"record_count": len(csv_data)},
+            extra={"record_count": len(csv_data) if csv_data else 0},
         )
 
-        return csv_data
+        return csv_data or []
     except Exception as e:
         logger.error(
             "Failed to fetch Carif-Oref CSV",
@@ -47,53 +51,69 @@ async def fetch_carif_oref_csv() -> list[CarifOrefRecord]:
         raise PipelineError(f"Failed to fetch Carif-Oref CSV: {str(e)}") from e
 
 
-def match_programs(
-    program_data: ProgramData,
-    csv_data: list[CarifOrefRecord],
-) -> CarifOrefRecord | None:
+async def match_programs(
+    reconciliation_repo: ReconciliationRepository,
+    program_data: dict[str, Any],
+    csv_data: list[dict[str, Any]],
+) -> dict[str, Any] | None:
     """Match a program with Carif-Oref data.
 
     Args:
+        reconciliation_repo: Reconciliation repository instance
         program_data: Program data from Data Inclusion
         csv_data: Carif-Oref CSV records
 
     Returns:
         Matching Carif-Oref record or None if no match
+
+    Raises:
+        PipelineError: If matching fails
     """
-    logger.debug(
-        "Matching program with Carif-Oref data",
-        extra={"program_id": program_data.get("id")},
-    )
-
-    structure_id = program_data.get("structure_id")
-    service_id = program_data.get("service_id")
-
-    if not structure_id or not service_id:
+    try:
         logger.debug(
-            "Missing structure_id or service_id for matching",
+            "Matching program with Carif-Oref data",
+            extra={"program_id": program_data.get("id")},
+        )
+
+        # Try to match by structure_id and service_id
+        structure_id = program_data.get("structure_id")
+        service_id = program_data.get("service_id")
+
+        if not structure_id or not service_id:
+            logger.debug(
+                "Missing structure_id or service_id for matching",
+                extra={"program_id": program_data.get("id")},
+            )
+            return None
+
+        for record in csv_data:
+            if (
+                record.get("structure_id") == structure_id
+                and record.get("service_id") == service_id
+            ):
+                logger.debug(
+                    "Carif-Oref match found",
+                    extra={"program_id": program_data.get("id")},
+                )
+                return record
+
+        logger.debug(
+            "No Carif-Oref match found",
             extra={"program_id": program_data.get("id")},
         )
         return None
-
-    for record in csv_data:
-        if record.get("structure_id") == structure_id and record.get("service_id") == service_id:
-            logger.debug(
-                "Carif-Oref match found",
-                extra={"program_id": program_data.get("id")},
-            )
-            return record
-
-    logger.debug(
-        "No Carif-Oref match found",
-        extra={"program_id": program_data.get("id")},
-    )
-    return None
+    except Exception as e:
+        logger.error(
+            "Failed to match programs",
+            extra={"error": str(e)},
+        )
+        raise PipelineError(f"Failed to match programs: {str(e)}") from e
 
 
-def merge_data(
-    program_data: ProgramData,
-    carif_oref_data: CarifOrefRecord | None,
-) -> ProgramData:
+async def merge_data(
+    program_data: dict[str, Any],
+    carif_oref_data: dict[str, Any] | None,
+) -> dict[str, Any]:
     """Merge program data with Carif-Oref data.
 
     Args:
@@ -102,49 +122,60 @@ def merge_data(
 
     Returns:
         Merged program data
+
+    Raises:
+        PipelineError: If merge fails
     """
-    logger.info(
-        "Merging program data with Carif-Oref",
-        extra={"program_id": program_data.get("id")},
-    )
-
-    merged_data = dict(program_data)
-
-    if not carif_oref_data:
-        logger.debug(
-            "No Carif-Oref data to merge",
+    try:
+        logger.info(
+            "Merging program data with Carif-Oref",
             extra={"program_id": program_data.get("id")},
         )
+
+        merged_data = dict(program_data)
+
+        if not carif_oref_data:
+            logger.debug(
+                "No Carif-Oref data to merge",
+                extra={"program_id": program_data.get("id")},
+            )
+            return merged_data
+
+        # Merge Carif-Oref data (takes precedence for overlapping fields)
+        carif_oref_fields = [
+            "name",
+            "description",
+            "address",
+            "phone",
+            "email",
+            "website",
+            "opening_hours",
+        ]
+
+        for field in carif_oref_fields:
+            if field in carif_oref_data and carif_oref_data[field]:
+                merged_data[f"carif_oref_{field}"] = carif_oref_data[field]
+
+        # Add Carif-Oref URL
+        merged_data["carif_oref_url"] = _build_carif_oref_url(carif_oref_data)
+
+        logger.info(
+            "Data merged successfully",
+            extra={"program_id": program_data.get("id")},
+        )
+
         return merged_data
-
-    # Merge Carif-Oref data (takes precedence for overlapping fields)
-    carif_oref_fields = [
-        "name",
-        "description",
-        "address",
-        "phone",
-        "email",
-        "website",
-        "opening_hours",
-    ]
-
-    for field in carif_oref_fields:
-        if field in carif_oref_data and carif_oref_data[field]:
-            merged_data[f"carif_oref_{field}"] = carif_oref_data[field]
-
-    merged_data["carif_oref_url"] = _build_carif_oref_url(carif_oref_data)
-
-    logger.info(
-        "Data merged successfully",
-        extra={"program_id": program_data.get("id")},
-    )
-
-    return merged_data
+    except Exception as e:
+        logger.error(
+            "Failed to merge data",
+            extra={"error": str(e), "program_id": program_data.get("id")},
+        )
+        raise PipelineError(f"Failed to merge data: {str(e)}") from e
 
 
-def detect_conflicts(
-    program_data: ProgramData,
-    carif_oref_data: CarifOrefRecord | None,
+async def detect_conflicts(
+    program_data: dict[str, Any],
+    carif_oref_data: dict[str, Any] | None,
 ) -> list[ConflictRecord]:
     """Detect conflicts between program data and Carif-Oref data.
 
@@ -154,59 +185,74 @@ def detect_conflicts(
 
     Returns:
         List of detected conflicts
+
+    Raises:
+        PipelineError: If detection fails
     """
-    logger.info(
-        "Detecting conflicts",
-        extra={"program_id": program_data.get("id")},
-    )
-
-    conflicts = []
-
-    if not carif_oref_data:
-        logger.debug(
-            "No Carif-Oref data for conflict detection",
+    try:
+        logger.info(
+            "Detecting conflicts",
             extra={"program_id": program_data.get("id")},
         )
-        return conflicts
 
-    conflict_fields = [
-        "name",
-        "description",
-        "address",
-        "phone",
-        "email",
-    ]
+        conflicts = []
 
-    for field in conflict_fields:
-        data_inclusion_value = program_data.get(field, "").strip().lower()
-        carif_oref_value = carif_oref_data.get(field, "").strip().lower()
-
-        if data_inclusion_value and carif_oref_value and data_inclusion_value != carif_oref_value:
-            conflicts.append(
-                {
-                    "field": field,
-                    "data_inclusion_value": program_data.get(field),
-                    "carif_oref_value": carif_oref_data.get(field),
-                    "severity": _calculate_conflict_severity(field),
-                }
+        if not carif_oref_data:
+            logger.debug(
+                "No Carif-Oref data for conflict detection",
+                extra={"program_id": program_data.get("id")},
             )
+            return conflicts
 
-    logger.info(
-        "Conflict detection completed",
-        extra={
-            "program_id": program_data.get("id"),
-            "conflict_count": len(conflicts),
-        },
-    )
+        # Check for conflicts in key fields
+        conflict_fields = [
+            "name",
+            "description",
+            "address",
+            "phone",
+            "email",
+        ]
 
-    return conflicts
+        for field in conflict_fields:
+            data_inclusion_value = program_data.get(field, "").strip().lower()
+            carif_oref_value = carif_oref_data.get(field, "").strip().lower()
+
+            if (
+                data_inclusion_value
+                and carif_oref_value
+                and data_inclusion_value != carif_oref_value
+            ):
+                conflicts.append(
+                    {
+                        "field": field,
+                        "data_inclusion_value": program_data.get(field),
+                        "carif_oref_value": carif_oref_data.get(field),
+                        "severity": _calculate_conflict_severity(field),
+                    }
+                )
+
+        logger.info(
+            "Conflict detection completed",
+            extra={
+                "program_id": program_data.get("id"),
+                "conflict_count": len(conflicts),
+            },
+        )
+
+        return conflicts
+    except Exception as e:
+        logger.error(
+            "Failed to detect conflicts",
+            extra={"error": str(e), "program_id": program_data.get("id")},
+        )
+        raise PipelineError(f"Failed to detect conflicts: {str(e)}") from e
 
 
-def resolve_conflicts(
-    program_data: ProgramData,
-    carif_oref_data: CarifOrefRecord | None,
+async def resolve_conflicts(
+    program_data: dict[str, Any],
+    carif_oref_data: dict[str, Any] | None,
     conflicts: list[ConflictRecord],
-) -> ProgramData:
+) -> dict[str, Any]:
     """Resolve conflicts using deterministic rules.
 
     Args:
@@ -216,77 +262,89 @@ def resolve_conflicts(
 
     Returns:
         Resolved program data
+
+    Raises:
+        PipelineError: If resolution fails
     """
-    logger.info(
-        "Resolving conflicts",
-        extra={
-            "program_id": program_data.get("id"),
-            "conflict_count": len(conflicts),
-        },
-    )
+    try:
+        logger.info(
+            "Resolving conflicts",
+            extra={
+                "program_id": program_data.get("id"),
+                "conflict_count": len(conflicts),
+            },
+        )
 
-    resolved_data = dict(program_data)
+        resolved_data = dict(program_data)
 
-    if not carif_oref_data or not conflicts:
-        return resolved_data
+        if not carif_oref_data or not conflicts:
+            return resolved_data
 
-    for conflict in conflicts:
-        field = conflict["field"]
+        # Apply deterministic conflict resolution rules
+        for conflict in conflicts:
+            field = conflict["field"]
 
-        # Rule 1: Prefer Carif-Oref if more recent
-        carif_oref_updated = carif_oref_data.get("updated_at")
-        data_inclusion_updated = program_data.get("updated_at")
+            # Rule 1: Prefer Carif-Oref if more recent
+            carif_oref_updated = carif_oref_data.get("updated_at")
+            data_inclusion_updated = program_data.get("updated_at")
 
-        if carif_oref_updated and data_inclusion_updated:
-            if carif_oref_updated > data_inclusion_updated:
-                resolved_data[field] = carif_oref_data[field]
+            if carif_oref_updated and data_inclusion_updated:
+                if carif_oref_updated > data_inclusion_updated:
+                    resolved_data[field] = carif_oref_data[field]
+                    logger.debug(
+                        "Conflict resolved: Carif-Oref is more recent",
+                        extra={"field": field},
+                    )
+                    continue
+
+            # Rule 2: Prefer Data Inclusion if more complete
+            data_inclusion_completeness = _calculate_completeness(program_data)
+            carif_oref_completeness = _calculate_completeness(carif_oref_data)
+
+            if data_inclusion_completeness > carif_oref_completeness:
+                # Keep Data Inclusion value
                 logger.debug(
-                    "Conflict resolved: Carif-Oref is more recent",
+                    "Conflict resolved: Data Inclusion is more complete",
                     extra={"field": field},
                 )
                 continue
 
-        # Rule 2: Prefer Data Inclusion if more complete
-        data_inclusion_completeness = _calculate_completeness(program_data)
-        carif_oref_completeness = _calculate_completeness(carif_oref_data)
-
-        if data_inclusion_completeness > carif_oref_completeness:
+            # Default: Prefer Carif-Oref
+            resolved_data[field] = carif_oref_data[field]
             logger.debug(
-                "Conflict resolved: Data Inclusion is more complete",
+                "Conflict resolved: Using Carif-Oref (default)",
                 extra={"field": field},
             )
-            continue
 
-        # Default: Prefer Carif-Oref
-        resolved_data[field] = carif_oref_data[field]
-        logger.debug(
-            "Conflict resolved: Using Carif-Oref (default)",
-            extra={"field": field},
+        logger.info(
+            "Conflicts resolved",
+            extra={"program_id": program_data.get("id")},
         )
 
-    logger.info(
-        "Conflicts resolved",
-        extra={"program_id": program_data.get("id")},
-    )
-
-    return resolved_data
+        return resolved_data
+    except Exception as e:
+        logger.error(
+            "Failed to resolve conflicts",
+            extra={"error": str(e), "program_id": program_data.get("id")},
+        )
+        raise PipelineError(f"Failed to resolve conflicts: {str(e)}") from e
 
 
 async def create_reconciliation_status(
+    reconciliation_repo: ReconciliationRepository,
     program_id: str,
     status: str,
-    carif_oref_data: CarifOrefRecord | None,
-    conflicts: list[ConflictRecord] | None,
-    repo: ReconciliationRepository,
-) -> dict[str, Any]:
+    carif_oref_data: dict[str, Any] | None = None,
+    conflicts: list[ConflictRecord] | None = None,
+) -> ReconciliationResult:
     """Create a reconciliation status record.
 
     Args:
+        reconciliation_repo: Reconciliation repository instance
         program_id: ID of the program
-        status: Reconciliation status
+        status: Reconciliation status (fully_reconciled, partially_reconciled, data_conflict, reconciliation_failed)
         carif_oref_data: Carif-Oref data used
         conflicts: Detected conflicts
-        repo: Reconciliation repository
 
     Returns:
         Reconciliation status record
@@ -300,7 +358,7 @@ async def create_reconciliation_status(
             extra={"program_id": program_id, "status": status},
         )
 
-        record = await repo.create_reconciliation_status(
+        record = await reconciliation_repo.create_reconciliation_status(
             program_id=program_id,
             status=status,
             carif_oref_data=carif_oref_data,
@@ -321,11 +379,18 @@ async def create_reconciliation_status(
         raise PipelineError(f"Failed to create reconciliation status: {str(e)}") from e
 
 
-# Pure helper functions
+# Helper functions
 
 
-def _build_carif_oref_url(carif_oref_data: CarifOrefRecord) -> str:
-    """Build Carif-Oref website URL from data."""
+def _build_carif_oref_url(carif_oref_data: dict[str, Any]) -> str:
+    """Build Carif-Oref website URL from data.
+
+    Args:
+        carif_oref_data: Carif-Oref record
+
+    Returns:
+        Carif-Oref URL
+    """
     base_url = "https://www.intercariforef.org/dian"
     dept = carif_oref_data.get("department", "")
     structure_id = carif_oref_data.get("structure_id", "")
@@ -333,14 +398,21 @@ def _build_carif_oref_url(carif_oref_data: CarifOrefRecord) -> str:
     name = carif_oref_data.get("name", "").replace(" ", "-").lower()
 
     if dept and structure_id and service_id:
-        url = f"{base_url}/{dept}_{structure_id}/" f"{dept}_{service_id}/{name}"
+        url = f"{base_url}/{dept}_{structure_id}/{dept}_{service_id}/{name}"
         return url
 
     return base_url
 
 
 def _calculate_conflict_severity(field: str) -> str:
-    """Calculate severity of a conflict based on field."""
+    """Calculate severity of a conflict based on field.
+
+    Args:
+        field: Field name
+
+    Returns:
+        Severity level (critical, high, medium, low)
+    """
     critical_fields = ["name", "description"]
     high_fields = ["address", "phone", "email"]
 
@@ -353,7 +425,14 @@ def _calculate_conflict_severity(field: str) -> str:
 
 
 def _calculate_completeness(data: dict[str, Any]) -> float:
-    """Calculate data completeness score."""
+    """Calculate data completeness score.
+
+    Args:
+        data: Data dictionary
+
+    Returns:
+        Completeness score (0.0-1.0)
+    """
     if not data:
         return 0.0
 

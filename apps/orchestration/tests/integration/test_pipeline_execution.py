@@ -10,8 +10,8 @@ from db.repositories.workflow import WorkflowRepository
 from models.stage import StageExecutionRequest, StageStatus
 from models.workflow import WorkflowRunRequest, WorkflowStatus
 from services.stage import execute_stage, mark_stage_complete
-from services.state_machine_functions import get_next_stage
-from services.workflow_functions import start_workflow, update_workflow_stage
+from services.state_machine import get_next_stage
+from services.workflow import start_workflow, update_workflow_stage
 from utils.errors import PipelineError
 
 

@@ -4,7 +4,7 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from services.state_machine_functions import (
+from services.state_machine import (
     get_all_stages,
     get_next_stage,
     is_final_stage,

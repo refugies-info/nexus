@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from models.workflow import WorkflowRunRequest, WorkflowStatus
-from services.workflow_functions import (
+from services.workflow import (
     get_workflow_status,
     handle_stage_completion,
     list_workflows,

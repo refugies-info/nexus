@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from db.repositories.workflow import WorkflowRepository, get_workflow_repository
 from models.workflow import WorkflowRunRequest, WorkflowRunResponse, WorkflowStatusUpdate
-from services.workflow_functions import (
+from services.workflow import (
     get_workflow_status,
     list_workflows,
     mark_workflow_completed,
