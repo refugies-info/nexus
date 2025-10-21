@@ -1,0 +1,210 @@
+{
+  "carif_oref_samples": [
+    {
+      "structure_id": "struct-paris-001",
+      "service_id": "svc-paris-001",
+      "department": "75",
+      "name": "Accueil et Orientation des Réfugiés",
+      "description": "Service d'accueil, d'orientation et d'accompagnement des demandeurs d'asile et réfugiés",
+      "address": "12 Rue de Rivoli, 75004 Paris",
+      "phone": "01 42 71 28 28",
+      "email": "contact@accueil-refugies.org",
+      "website": "https://www.accueil-refugies.org",
+      "opening_hours": "Lundi-Vendredi 9h-17h",
+      "updated_at": "2025-10-21T10:30:00Z",
+      "carif_oref_url": "https://www.intercariforef.org/dian/75_struct-paris-001/75_svc-paris-001/accueil-et-orientation-des-refugies"
+    },
+    {
+      "structure_id": "struct-lyon-001",
+      "service_id": "svc-lyon-001",
+      "department": "69",
+      "name": "Formation Professionnelle pour Migrants",
+      "description": "Formations professionnelles adaptées aux migrants et réfugiés en recherche d'emploi",
+      "address": "45 Avenue de la République, 69000 Lyon",
+      "phone": "04 72 10 20 30",
+      "email": "formation@migrants-lyon.fr",
+      "website": "https://www.migrants-lyon.fr",
+      "opening_hours": "Lundi-Samedi 8h-18h",
+      "updated_at": "2025-10-21T11:15:00Z",
+      "carif_oref_url": "https://www.intercariforef.org/dian/69_struct-lyon-001/69_svc-lyon-001/formation-professionnelle-pour-migrants"
+    },
+    {
+      "structure_id": "struct-marseille-001",
+      "service_id": "svc-marseille-001",
+      "department": "13",
+      "name": "Cours de Français Intensif",
+      "description": "Cours intensifs de français langue étrangère pour adultes réfugiés",
+      "address": "100 Rue Paradis, 13006 Marseille",
+      "phone": "04 91 37 50 60",
+      "email": "cours@francais-marseille.org",
+      "website": "https://www.francais-marseille.org",
+      "opening_hours": "Lundi-Vendredi 9h-12h et 14h-17h",
+      "updated_at": "2025-10-21T09:45:00Z",
+      "carif_oref_url": "https://www.intercariforef.org/dian/13_struct-marseille-001/13_svc-marseille-001/cours-de-francais-intensif"
+    },
+    {
+      "structure_id": "struct-toulouse-001",
+      "service_id": "svc-toulouse-001",
+      "department": "31",
+      "name": "Aide à l'Intégration Sociale",
+      "description": "Accompagnement social et aide à l'intégration pour réfugiés et demandeurs d'asile",
+      "address": "78 Boulevard de Strasbourg, 31000 Toulouse",
+      "phone": "05 61 21 30 40",
+      "email": "aide@integration-toulouse.org",
+      "website": "https://www.integration-toulouse.org",
+      "opening_hours": "Lundi-Vendredi 10h-16h",
+      "updated_at": "2025-10-21T14:20:00Z",
+      "carif_oref_url": "https://www.intercariforef.org/dian/31_struct-toulouse-001/31_svc-toulouse-001/aide-a-lintegration-sociale"
+    },
+    {
+      "structure_id": "struct-bordeaux-001",
+      "service_id": "svc-bordeaux-001",
+      "department": "33",
+      "name": "Accompagnement Juridique des Réfugiés",
+      "description": "Assistance juridique et administrative pour les demandeurs d'asile et réfugiés",
+      "address": "25 Rue Fondaudège, 33000 Bordeaux",
+      "phone": "05 56 48 50 60",
+      "email": "juridique@refugies-bordeaux.org",
+      "website": "https://www.refugies-bordeaux.org",
+      "opening_hours": "Lundi-Jeudi 9h-17h, Vendredi 9h-16h",
+      "updated_at": "2025-10-21T13:00:00Z",
+      "carif_oref_url": "https://www.intercariforef.org/dian/33_struct-bordeaux-001/33_svc-bordeaux-001/accompagnement-juridique-des-refugies"
+    }
+  ],
+  "data_inclusion_samples": [
+    {
+      "id": "prog-di-001",
+      "structure_id": "struct-paris-001",
+      "service_id": "svc-paris-001",
+      "name": "Accueil et Orientation des Réfugiés",
+      "description": "Service d'accueil et orientation pour demandeurs d'asile",
+      "address": "12 Rue de Rivoli, 75004 Paris",
+      "phone": "01 42 71 28 28",
+      "email": "contact@accueil-refugies.org",
+      "website": "https://www.accueil-refugies.org",
+      "is_for_profit": false,
+      "is_temporary": false,
+      "is_subsidized": true,
+      "target_publics": ["adults", "families", "youth"],
+      "structure_type": "association",
+      "location": "Paris",
+      "updated_at": "2025-10-20T15:30:00Z"
+    },
+    {
+      "id": "prog-di-002",
+      "structure_id": "struct-lyon-001",
+      "service_id": "svc-lyon-001",
+      "name": "Formations Professionnelles",
+      "description": "Formations adaptées aux migrants",
+      "address": "45 Avenue de la République, 69000 Lyon",
+      "phone": "04 72 10 20 30",
+      "email": "formation@migrants-lyon.fr",
+      "is_for_profit": false,
+      "is_temporary": false,
+      "is_subsidized": true,
+      "target_publics": ["adults"],
+      "structure_type": "association",
+      "location": "Lyon",
+      "updated_at": "2025-10-19T10:00:00Z"
+    },
+    {
+      "id": "prog-di-003",
+      "structure_id": "struct-marseille-001",
+      "service_id": "svc-marseille-001",
+      "name": "Cours de Français",
+      "description": "Cours intensifs de français",
+      "address": "100 Rue Paradis, 13006 Marseille",
+      "phone": "04 91 37 50 60",
+      "email": "cours@francais-marseille.org",
+      "is_for_profit": false,
+      "is_temporary": false,
+      "is_subsidized": true,
+      "target_publics": ["adults"],
+      "structure_type": "association",
+      "location": "Marseille",
+      "updated_at": "2025-10-18T09:00:00Z"
+    }
+  ],
+  "reconciliation_scenarios": [
+    {
+      "scenario": "Perfect Match",
+      "description": "Program exists in both Data Inclusion and Carif-Oref with same IDs",
+      "data_inclusion_id": "prog-di-001",
+      "carif_oref_structure_id": "struct-paris-001",
+      "carif_oref_service_id": "svc-paris-001",
+      "expected_conflicts": 0,
+      "expected_status": "fully_reconciled"
+    },
+    {
+      "scenario": "Minor Conflicts",
+      "description": "Same program but with minor field differences",
+      "data_inclusion_id": "prog-di-002",
+      "carif_oref_structure_id": "struct-lyon-001",
+      "carif_oref_service_id": "svc-lyon-001",
+      "expected_conflicts": 1,
+      "expected_status": "data_conflict",
+      "conflict_fields": ["description"]
+    },
+    {
+      "scenario": "No Match",
+      "description": "Program in Data Inclusion not found in Carif-Oref",
+      "data_inclusion_id": "prog-di-999",
+      "carif_oref_structure_id": null,
+      "carif_oref_service_id": null,
+      "expected_conflicts": 0,
+      "expected_status": "partially_reconciled"
+    }
+  ],
+  "policy_validation_scenarios": [
+    {
+      "scenario": "Compliant NGO",
+      "program": {
+        "id": "prog-compliant-001",
+        "name": "Accueil et Orientation des Réfugiés",
+        "is_for_profit": false,
+        "is_temporary": false,
+        "is_subsidized": true,
+        "target_publics": ["adults", "families"],
+        "structure_type": "association"
+      },
+      "expected_compliant": true,
+      "expected_violations": 0
+    },
+    {
+      "scenario": "For-Profit Without Exception",
+      "program": {
+        "id": "prog-forprofit-001",
+        "name": "Commercial Training Center",
+        "is_for_profit": true,
+        "is_subsidized": false,
+        "is_certified": false
+      },
+      "expected_compliant": false,
+      "expected_violations": 1,
+      "violation_categories": ["for_profit"]
+    },
+    {
+      "scenario": "Temporary Initiative",
+      "program": {
+        "id": "prog-temp-001",
+        "name": "One-Day Workshop",
+        "is_temporary": true,
+        "is_one_time": true
+      },
+      "expected_compliant": false,
+      "expected_violations": 1,
+      "violation_categories": ["temporary"]
+    },
+    {
+      "scenario": "Specialized Structure",
+      "program": {
+        "id": "prog-special-001",
+        "name": "France Services",
+        "structure_type": "france_services"
+      },
+      "expected_compliant": false,
+      "expected_violations": 1,
+      "violation_categories": ["specialized_structure"]
+    }
+  ]
+}
