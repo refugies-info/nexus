@@ -1,5 +1,22 @@
-"""Functional Carif-Oref CSV fetch scheduler using APScheduler."""
+"""Functional Carif-Oref CSV fetch scheduler using APScheduler.
 
+Carif-Oref CSV Structure (from intercariforef.org DIAN export):
+- ID formation: Unique formation identifier
+- Intitule: Program title/name
+- Debut: Start date (DD/MM/YYYY)
+- Fin: End date (DD/MM/YYYY)
+- Adressse de la formation: Training address
+- Region: French region name
+- Code Postal: Postal code
+- Ville: City name
+- Organisme responsable: Responsible organization
+- Organisme formateur: Training organization
+- Financeurs: Funding sources
+- Tel: Contact phone number
+"""
+
+import csv
+import io
 import logging
 from collections.abc import Callable
 from datetime import datetime
@@ -202,7 +219,7 @@ async def _fetch_carif_oref_csv() -> list[dict[str, Any]]:
     """Fetch Carif-Oref CSV data from remote source.
 
     Returns:
-        List of Carif-Oref records
+        List of Carif-Oref records normalized to standard format
 
     Raises:
         PipelineError: If fetch fails
@@ -212,6 +229,7 @@ async def _fetch_carif_oref_csv() -> list[dict[str, Any]]:
 
         # In production, this would fetch from:
         # https://www.intercariforef.org/dian/?...&excsv=1
+        # For now, return empty list
         csv_data = []
 
         logger.debug(
@@ -226,3 +244,65 @@ async def _fetch_carif_oref_csv() -> list[dict[str, Any]]:
             extra={"error": str(e)},
         )
         raise PipelineError(f"Failed to fetch Carif-Oref CSV: {str(e)}") from e
+
+
+def parse_carif_oref_csv(csv_content: str) -> list[dict[str, Any]]:
+    """Parse Carif-Oref CSV content into normalized records.
+
+    Handles the DIAN export format from intercariforef.org with columns:
+    ID formation, Intitule, Debut, Fin, Adressse de la formation,
+    Region, Code Postal, Ville, Organisme responsable, Organisme formateur,
+    Financeurs, Tel
+
+    Args:
+        csv_content: Raw CSV content as string
+
+    Returns:
+        List of normalized Carif-Oref records
+
+    Raises:
+        PipelineError: If parsing fails
+    """
+    try:
+        records = []
+        csv_file = io.StringIO(csv_content)
+        reader = csv.DictReader(csv_file, delimiter=";")
+
+        if not reader.fieldnames:
+            logger.warning("Empty CSV file provided")
+            return []
+
+        for row in reader:
+            # Normalize field names and values
+            record = {
+                "id_formation": row.get("ID formation", "").strip(),
+                "name": row.get("Intitule", "").strip(),
+                "start_date": row.get("Debut", "").strip(),
+                "end_date": row.get("Fin", "").strip(),
+                "address": row.get("Adressse de la formation", "").strip(),
+                "region": row.get("Region", "").strip(),
+                "postal_code": row.get("Code Postal", "").strip(),
+                "city": row.get("Ville", "").strip(),
+                "responsible_org": row.get("Organisme responsable", "").strip(),
+                "training_org": row.get("Organisme formateur", "").strip(),
+                "funders": row.get("Financeurs", "").strip(),
+                "phone": row.get("Tel", "").strip(),
+                "updated_at": datetime.utcnow().isoformat(),
+            }
+
+            # Only include records with essential fields
+            if record["id_formation"] and record["name"]:
+                records.append(record)
+
+        logger.debug(
+            "Carif-Oref CSV parsed successfully",
+            extra={"record_count": len(records)},
+        )
+
+        return records
+    except Exception as e:
+        logger.error(
+            "Failed to parse Carif-Oref CSV",
+            extra={"error": str(e)},
+        )
+        raise PipelineError(f"Failed to parse Carif-Oref CSV: {str(e)}") from e
