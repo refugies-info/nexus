@@ -1,13 +1,22 @@
-"""Carif-Oref reconciliation service for data merging and conflict detection."""
+"""DEPRECATED: ReconciliationService class - Use reconciliation_functions.py instead."""
 
 import logging
+import warnings
 from typing import Any
 
 from db.repositories.reconciliation import ReconciliationRepository
 from utils.errors import PipelineError
 
 
+warnings.warn(
+    "ReconciliationService is deprecated. Use reconciliation_functions.py instead",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
 logger = logging.getLogger(__name__)
+
+"""Carif-Oref reconciliation service for data merging and conflict detection."""
 
 
 class ReconciliationService:

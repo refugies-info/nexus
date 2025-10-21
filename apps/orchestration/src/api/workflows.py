@@ -4,29 +4,25 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from db.repositories.workflow import WorkflowRepository
+from db.repositories.workflow import WorkflowRepository, get_workflow_repository
 from models.workflow import WorkflowRunRequest, WorkflowRunResponse, WorkflowStatusUpdate
-from services.workflow_service import WorkflowService
+from services.workflow_functions import (
+    get_workflow_status,
+    list_workflows,
+    mark_workflow_completed,
+    mark_workflow_failed,
+    start_workflow,
+    update_workflow_stage,
+)
 from utils.errors import ApplicationError, RecordNotFoundError
 
 
 logger = logging.getLogger(__name__)
 
+# Module-level dependency
+workflow_repo_dependency = Depends(get_workflow_repository)
+
 router = APIRouter(prefix="/api/v1/workflows", tags=["workflows"])
-
-
-def get_workflow_service() -> WorkflowService:
-    """Dependency injection for workflow service.
-
-    Returns:
-        WorkflowService instance
-    """
-    # In production, this would use the real Supabase client
-    from db.client import get_supabase_client
-
-    client = get_supabase_client()
-    repo = WorkflowRepository(client)
-    return WorkflowService(repo)
 
 
 @router.post(
@@ -36,29 +32,18 @@ def get_workflow_service() -> WorkflowService:
     summary="Start a new workflow",
     description="Create and start a new workflow run for processing a program",
 )
-async def start_workflow(
+async def create_workflow(
     request: WorkflowRunRequest,
-    workflow_service: WorkflowService = Depends(get_workflow_service),  # noqa: B008
+    repo: WorkflowRepository = workflow_repo_dependency,
 ) -> WorkflowRunResponse:
-    """Start a new workflow run.
-
-    Args:
-        request: WorkflowRunRequest with program_id, source, initial_stage
-        workflow_service: WorkflowService instance (injected)
-
-    Returns:
-        WorkflowRunResponse with workflow details
-
-    Raises:
-        HTTPException: If workflow creation fails
-    """
+    """Create a new workflow."""
     try:
         logger.info(
             "API: Starting workflow",
             extra={"program_id": request.program_id, "source": request.source},
         )
 
-        workflow = await workflow_service.start_workflow(request)
+        workflow = await start_workflow(repo, request)
 
         logger.info(
             "API: Workflow started successfully",
@@ -72,8 +57,8 @@ async def start_workflow(
             extra={"error": str(e), "program_id": request.program_id},
         )
         raise HTTPException(
-            status_code=e.status_code,
-            detail=e.message,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     except Exception as e:
         logger.error(
@@ -92,26 +77,15 @@ async def start_workflow(
     summary="Get workflow status",
     description="Retrieve the current status of a workflow run",
 )
-async def get_workflow_status(
+async def read_workflow(
     workflow_id: str,
-    workflow_service: WorkflowService = Depends(get_workflow_service),  # noqa: B008
+    repo: WorkflowRepository = workflow_repo_dependency,
 ) -> WorkflowRunResponse:
-    """Get the current status of a workflow.
-
-    Args:
-        workflow_id: ID of the workflow
-        workflow_service: WorkflowService instance (injected)
-
-    Returns:
-        WorkflowRunResponse with current workflow state
-
-    Raises:
-        HTTPException: If workflow not found or retrieval fails
-    """
+    """Get workflow by ID."""
     try:
         logger.debug("API: Getting workflow status", extra={"workflow_id": workflow_id})
 
-        workflow = await workflow_service.get_workflow_status(workflow_id)
+        workflow = await get_workflow_status(repo, workflow_id)
 
         logger.debug(
             "API: Workflow status retrieved",
@@ -126,7 +100,7 @@ async def get_workflow_status(
         )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Workflow {workflow_id} not found",
+            detail=str(e),
         ) from e
     except ApplicationError as e:
         logger.error(
@@ -134,8 +108,8 @@ async def get_workflow_status(
             extra={"error": str(e), "workflow_id": workflow_id},
         )
         raise HTTPException(
-            status_code=e.status_code,
-            detail=e.message,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     except Exception as e:
         logger.error(
@@ -154,24 +128,12 @@ async def get_workflow_status(
     summary="Update workflow status",
     description="Update the status of a workflow run",
 )
-async def update_workflow_status(
+async def update_status(
     workflow_id: str,
     update: WorkflowStatusUpdate,
-    workflow_service: WorkflowService = Depends(get_workflow_service),  # noqa: B008
+    repo: WorkflowRepository = workflow_repo_dependency,
 ) -> WorkflowRunResponse:
-    """Update the status of a workflow.
-
-    Args:
-        workflow_id: ID of the workflow
-        update: WorkflowStatusUpdate with new status and optional stage
-        workflow_service: WorkflowService instance (injected)
-
-    Returns:
-        WorkflowRunResponse with updated workflow state
-
-    Raises:
-        HTTPException: If workflow not found or update fails
-    """
+    """Update workflow status."""
     try:
         logger.info(
             "API: Updating workflow status",
@@ -184,15 +146,15 @@ async def update_workflow_status(
 
         # Determine which method to call based on status
         if update.status.value == "completed":
-            workflow = await workflow_service.mark_workflow_completed(workflow_id)
+            workflow = await mark_workflow_completed(repo, workflow_id)
         elif update.status.value == "failed":
-            workflow = await workflow_service.mark_workflow_failed(
-                workflow_id, update.error_message or "Unknown error"
+            workflow = await mark_workflow_failed(
+                repo, workflow_id, update.error_message or "Unknown error"
             )
         else:
             # For running status, update the stage if provided
-            workflow = await workflow_service.update_workflow_stage(
-                workflow_id, update.current_stage or "ingestion"
+            workflow = await update_workflow_stage(
+                repo, workflow_id, update.current_stage or "ingestion"
             )
 
         logger.info(
@@ -208,7 +170,7 @@ async def update_workflow_status(
         )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Workflow {workflow_id} not found",
+            detail=str(e),
         ) from e
     except ApplicationError as e:
         logger.error(
@@ -216,8 +178,8 @@ async def update_workflow_status(
             extra={"error": str(e), "workflow_id": workflow_id},
         )
         raise HTTPException(
-            status_code=e.status_code,
-            detail=e.message,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     except Exception as e:
         logger.error(
@@ -230,41 +192,81 @@ async def update_workflow_status(
         ) from e
 
 
+@router.post(
+    "/{workflow_id}/stages/{stage}",
+    response_model=WorkflowRunResponse,
+    summary="Update workflow stage",
+    description="Update the stage of a workflow run",
+)
+async def update_stage(
+    workflow_id: str,
+    stage: str,
+    repo: WorkflowRepository = workflow_repo_dependency,
+) -> WorkflowRunResponse:
+    """Update workflow stage."""
+    try:
+        logger.info(
+            "API: Updating workflow stage",
+            extra={"workflow_id": workflow_id, "stage": stage},
+        )
+
+        workflow = await update_workflow_stage(repo, workflow_id, stage)
+
+        logger.info(
+            "API: Workflow stage updated",
+            extra={"workflow_id": workflow_id, "stage": workflow.current_stage},
+        )
+
+        return workflow
+    except RecordNotFoundError as e:
+        logger.warning(
+            "API: Workflow not found",
+            extra={"workflow_id": workflow_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except ApplicationError as e:
+        logger.error(
+            "API: Application error updating workflow stage",
+            extra={"error": str(e), "workflow_id": workflow_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+    except Exception as e:
+        logger.error(
+            "API: Unexpected error updating workflow stage",
+            extra={"error": str(e), "workflow_id": workflow_id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update workflow stage",
+        ) from e
+
+
 @router.get(
     "",
     response_model=list[WorkflowRunResponse],
     summary="List workflows",
     description="List workflows with optional filtering",
 )
-async def list_workflows(
+async def list_all_workflows(
     program_id: str | None = None,
     status: str | None = None,
     limit: int = 100,
-    workflow_service: WorkflowService = Depends(get_workflow_service),  # noqa: B008
+    repo: WorkflowRepository = workflow_repo_dependency,
 ) -> list[WorkflowRunResponse]:
-    """List workflows with optional filtering.
-
-    Args:
-        program_id: Optional program ID to filter by
-        status: Optional status to filter by
-        limit: Maximum number of workflows to return (default: 100)
-        workflow_service: WorkflowService instance (injected)
-
-    Returns:
-        List of WorkflowRunResponse objects
-
-    Raises:
-        HTTPException: If listing fails
-    """
+    """List workflows with optional filtering."""
     try:
         logger.debug(
             "API: Listing workflows",
             extra={"program_id": program_id, "status": status, "limit": limit},
         )
 
-        workflows = await workflow_service.list_workflows(
-            program_id=program_id, status=status, limit=limit
-        )
+        workflows = await list_workflows(repo, program_id, status, limit)
 
         logger.debug(
             "API: Workflows listed",
@@ -278,8 +280,8 @@ async def list_workflows(
             extra={"error": str(e)},
         )
         raise HTTPException(
-            status_code=e.status_code,
-            detail=e.message,
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         ) from e
     except Exception as e:
         logger.error(

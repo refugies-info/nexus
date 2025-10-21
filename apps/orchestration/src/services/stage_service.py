@@ -1,12 +1,21 @@
-"""Stage execution service for pipeline stage management."""
+"""DEPRECATED: Stage execution service for pipeline stage management.
+
+This module is kept for backwards compatibility but will be removed in a future version.
+All new code should use the functional versions in stage_functions.py.
+"""
 
 import logging
+import warnings
 from typing import Any
 
 from db.repositories.stage import StageRepository
 from models.stage import StageExecutionRequest, StageExecutionResponse, StageStatus
 from utils.errors import PipelineError, RecordNotFoundError
 
+
+warnings.warn(
+    "StageService is deprecated. Use stage_functions.py instead", DeprecationWarning, stacklevel=2
+)
 
 logger = logging.getLogger(__name__)
 

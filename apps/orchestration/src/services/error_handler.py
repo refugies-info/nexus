@@ -4,7 +4,9 @@ import logging
 from typing import Any
 
 from db.repositories.workflow import WorkflowRepository
-from services.stage_service import StageService
+from services.stage_functions import (
+    handle_stage_failure,
+)
 from utils.errors import PipelineError
 from utils.retry import async_retry_with_backoff
 
@@ -17,7 +19,6 @@ class ErrorHandler:
 
     def __init__(
         self,
-        stage_service: StageService,
         workflow_repo: WorkflowRepository,
         max_retries: int = 10,
         initial_delay: int = 1,
@@ -26,13 +27,11 @@ class ErrorHandler:
         """Initialize error handler.
 
         Args:
-            stage_service: StageService instance
             workflow_repo: WorkflowRepository instance
             max_retries: Maximum retry attempts (default: 10)
             initial_delay: Initial retry delay in seconds (default: 1)
             max_delay: Maximum retry delay in seconds (default: 300)
         """
-        self.stage_service = stage_service
         self.workflow_repo = workflow_repo
         self.max_retries = max_retries
         self.initial_delay = initial_delay
@@ -71,7 +70,7 @@ class ErrorHandler:
             )
 
             # Mark stage as failed
-            await self.stage_service.handle_stage_failure(stage_id, error_message)
+            await handle_stage_failure(stage_id, error_message)
 
             # Determine if we should retry
             should_retry = attempt < self.max_retries

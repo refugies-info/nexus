@@ -1,6 +1,11 @@
-"""Workflow service for orchestrating pipeline execution."""
+"""DEPRECATED: WorkflowService class - Use workflow_functions.py instead.
+
+This module is kept for backwards compatibility but will be removed in a future version.
+All new code should use the functional versions in workflow_functions.py.
+"""
 
 import logging
+import warnings
 from datetime import datetime
 from typing import Any
 
@@ -8,6 +13,12 @@ from db.repositories.workflow import WorkflowRepository
 from models.workflow import WorkflowRunRequest, WorkflowRunResponse, WorkflowStatus
 from utils.errors import PipelineError, RecordNotFoundError
 
+
+warnings.warn(
+    "WorkflowService is deprecated. Use workflow_functions.py instead",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 logger = logging.getLogger(__name__)
 

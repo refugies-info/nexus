@@ -1,4 +1,4 @@
-"""Unit tests for workflow service."""
+"""Unit tests for workflow functions."""
 
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
@@ -6,7 +6,15 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from models.workflow import WorkflowRunRequest, WorkflowStatus
-from services.workflow_service import WorkflowService
+from services.workflow_functions import (
+    get_workflow_status,
+    handle_stage_completion,
+    list_workflows,
+    mark_workflow_completed,
+    mark_workflow_failed,
+    start_workflow,
+    update_workflow_stage,
+)
 from utils.errors import PipelineError, RecordNotFoundError
 
 
@@ -16,18 +24,12 @@ def mock_workflow_repo():
     return MagicMock()
 
 
-@pytest.fixture
-def workflow_service(mock_workflow_repo):
-    """Create a workflow service with mocked repository."""
-    return WorkflowService(mock_workflow_repo)
-
-
 @pytest.mark.unit
-class TestWorkflowServiceStartWorkflow:
+class TestWorkflowFunctionsStartWorkflow:
     """Tests for starting workflows."""
 
     @pytest.mark.asyncio
-    async def test_start_workflow_success(self, workflow_service, mock_workflow_repo):
+    async def test_start_workflow_success(self, mock_workflow_repo):
         """Test successfully starting a workflow."""
         request = WorkflowRunRequest(
             program_id="prog_123",
@@ -48,7 +50,7 @@ class TestWorkflowServiceStartWorkflow:
             }
         )
 
-        result = await workflow_service.start_workflow(request)
+        result = await start_workflow(mock_workflow_repo, request)
 
         assert result.id == "wf_123"
         assert result.program_id == "prog_123"
@@ -56,7 +58,7 @@ class TestWorkflowServiceStartWorkflow:
         mock_workflow_repo.create_workflow_run.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_start_workflow_with_metadata(self, workflow_service, mock_workflow_repo):
+    async def test_start_workflow_with_metadata(self, mock_workflow_repo):
         """Test starting workflow with metadata."""
         request = WorkflowRunRequest(
             program_id="prog_123",
@@ -77,12 +79,12 @@ class TestWorkflowServiceStartWorkflow:
             }
         )
 
-        result = await workflow_service.start_workflow(request)
+        result = await start_workflow(mock_workflow_repo, request)
 
         assert result.metadata == {"batch_id": "batch_001"}
 
     @pytest.mark.asyncio
-    async def test_start_workflow_failure(self, workflow_service, mock_workflow_repo):
+    async def test_start_workflow_failure(self, mock_workflow_repo):
         """Test workflow start failure."""
         request = WorkflowRunRequest(
             program_id="prog_123",
@@ -92,15 +94,15 @@ class TestWorkflowServiceStartWorkflow:
         mock_workflow_repo.create_workflow_run = AsyncMock(side_effect=Exception("Database error"))
 
         with pytest.raises(PipelineError):
-            await workflow_service.start_workflow(request)
+            await start_workflow(mock_workflow_repo, request)
 
 
 @pytest.mark.unit
-class TestWorkflowServiceGetStatus:
+class TestWorkflowFunctionsGetStatus:
     """Tests for getting workflow status."""
 
     @pytest.mark.asyncio
-    async def test_get_workflow_status_success(self, workflow_service, mock_workflow_repo):
+    async def test_get_workflow_status_success(self, mock_workflow_repo):
         """Test successfully retrieving workflow status."""
         mock_workflow_repo.get_workflow_run = AsyncMock(
             return_value={
@@ -115,35 +117,35 @@ class TestWorkflowServiceGetStatus:
             }
         )
 
-        result = await workflow_service.get_workflow_status("wf_123")
+        result = await get_workflow_status(mock_workflow_repo, "wf_123")
 
         assert result.id == "wf_123"
         assert result.current_stage == "enrichment"
         mock_workflow_repo.get_workflow_run.assert_called_once_with("wf_123")
 
     @pytest.mark.asyncio
-    async def test_get_workflow_status_not_found(self, workflow_service, mock_workflow_repo):
+    async def test_get_workflow_status_not_found(self, mock_workflow_repo):
         """Test retrieving non-existent workflow."""
         mock_workflow_repo.get_workflow_run = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await workflow_service.get_workflow_status("wf_nonexistent")
+            await get_workflow_status(mock_workflow_repo, "wf_nonexistent")
 
     @pytest.mark.asyncio
-    async def test_get_workflow_status_failure(self, workflow_service, mock_workflow_repo):
+    async def test_get_workflow_status_failure(self, mock_workflow_repo):
         """Test workflow status retrieval failure."""
         mock_workflow_repo.get_workflow_run = AsyncMock(side_effect=Exception("Database error"))
 
         with pytest.raises(PipelineError):
-            await workflow_service.get_workflow_status("wf_123")
+            await get_workflow_status(mock_workflow_repo, "wf_123")
 
 
 @pytest.mark.unit
-class TestWorkflowServiceUpdateStage:
+class TestWorkflowFunctionsUpdateStage:
     """Tests for updating workflow stage."""
 
     @pytest.mark.asyncio
-    async def test_update_workflow_stage_success(self, workflow_service, mock_workflow_repo):
+    async def test_update_workflow_stage_success(self, mock_workflow_repo):
         """Test successfully updating workflow stage."""
         mock_workflow_repo.update_workflow_status = AsyncMock(
             return_value={
@@ -158,26 +160,26 @@ class TestWorkflowServiceUpdateStage:
             }
         )
 
-        result = await workflow_service.update_workflow_stage("wf_123", "enrichment")
+        result = await update_workflow_stage(mock_workflow_repo, "wf_123", "enrichment")
 
         assert result.current_stage == "enrichment"
         mock_workflow_repo.update_workflow_status.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_workflow_stage_not_found(self, workflow_service, mock_workflow_repo):
+    async def test_update_workflow_stage_not_found(self, mock_workflow_repo):
         """Test updating non-existent workflow."""
         mock_workflow_repo.update_workflow_status = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await workflow_service.update_workflow_stage("wf_nonexistent", "enrichment")
+            await update_workflow_stage(mock_workflow_repo, "wf_nonexistent", "enrichment")
 
 
 @pytest.mark.unit
-class TestWorkflowServiceHandleCompletion:
+class TestWorkflowFunctionsHandleCompletion:
     """Tests for handling stage completion."""
 
     @pytest.mark.asyncio
-    async def test_handle_stage_completion_success(self, workflow_service, mock_workflow_repo):
+    async def test_handle_stage_completion_success(self, mock_workflow_repo):
         """Test successfully handling stage completion."""
         mock_workflow_repo.get_workflow_run = AsyncMock(
             return_value={
@@ -205,8 +207,8 @@ class TestWorkflowServiceHandleCompletion:
             }
         )
 
-        result = await workflow_service.handle_stage_completion(
-            "wf_123", "enrichment", {"status": "success"}
+        result = await handle_stage_completion(
+            mock_workflow_repo, "wf_123", "enrichment", {"status": "success"}
         )
 
         assert result.id == "wf_123"
@@ -214,20 +216,22 @@ class TestWorkflowServiceHandleCompletion:
         mock_workflow_repo.update.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_handle_stage_completion_not_found(self, workflow_service, mock_workflow_repo):
+    async def test_handle_stage_completion_not_found(self, mock_workflow_repo):
         """Test handling completion for non-existent workflow."""
         mock_workflow_repo.get_workflow_run = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await workflow_service.handle_stage_completion("wf_nonexistent", "enrichment")
+            await handle_stage_completion(
+                mock_workflow_repo, "wf_nonexistent", "enrichment", {"status": "success"}
+            )
 
 
 @pytest.mark.unit
-class TestWorkflowServiceMarkCompleted:
+class TestWorkflowFunctionsMarkCompleted:
     """Tests for marking workflows as completed."""
 
     @pytest.mark.asyncio
-    async def test_mark_workflow_completed_success(self, workflow_service, mock_workflow_repo):
+    async def test_mark_workflow_completed_success(self, mock_workflow_repo):
         """Test successfully marking workflow as completed."""
         mock_workflow_repo.mark_workflow_completed = AsyncMock(
             return_value={
@@ -242,26 +246,26 @@ class TestWorkflowServiceMarkCompleted:
             }
         )
 
-        result = await workflow_service.mark_workflow_completed("wf_123")
+        result = await mark_workflow_completed(mock_workflow_repo, "wf_123")
 
         assert result.status == WorkflowStatus.COMPLETED
         mock_workflow_repo.mark_workflow_completed.assert_called_once_with("wf_123")
 
     @pytest.mark.asyncio
-    async def test_mark_workflow_completed_not_found(self, workflow_service, mock_workflow_repo):
+    async def test_mark_workflow_completed_not_found(self, mock_workflow_repo):
         """Test marking non-existent workflow as completed."""
         mock_workflow_repo.mark_workflow_completed = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await workflow_service.mark_workflow_completed("wf_nonexistent")
+            await mark_workflow_completed(mock_workflow_repo, "wf_nonexistent")
 
 
 @pytest.mark.unit
-class TestWorkflowServiceMarkFailed:
+class TestWorkflowFunctionsMarkFailed:
     """Tests for marking workflows as failed."""
 
     @pytest.mark.asyncio
-    async def test_mark_workflow_failed_success(self, workflow_service, mock_workflow_repo):
+    async def test_mark_workflow_failed_success(self, mock_workflow_repo):
         """Test successfully marking workflow as failed."""
         mock_workflow_repo.mark_workflow_failed = AsyncMock(
             return_value={
@@ -277,27 +281,27 @@ class TestWorkflowServiceMarkFailed:
             }
         )
 
-        result = await workflow_service.mark_workflow_failed("wf_123", "Stage timeout")
+        result = await mark_workflow_failed(mock_workflow_repo, "wf_123", "Stage timeout")
 
         assert result.status == WorkflowStatus.FAILED
         assert result.error_message == "Stage timeout"
         mock_workflow_repo.mark_workflow_failed.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_mark_workflow_failed_not_found(self, workflow_service, mock_workflow_repo):
+    async def test_mark_workflow_failed_not_found(self, mock_workflow_repo):
         """Test marking non-existent workflow as failed."""
         mock_workflow_repo.mark_workflow_failed = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await workflow_service.mark_workflow_failed("wf_nonexistent", "Error")
+            await mark_workflow_failed(mock_workflow_repo, "wf_nonexistent", "Error")
 
 
 @pytest.mark.unit
-class TestWorkflowServiceListWorkflows:
+class TestWorkflowFunctionsListWorkflows:
     """Tests for listing workflows."""
 
     @pytest.mark.asyncio
-    async def test_list_workflows_success(self, workflow_service, mock_workflow_repo):
+    async def test_list_workflows_success(self, mock_workflow_repo):
         """Test successfully listing workflows."""
         mock_workflow_repo.list_workflow_runs = AsyncMock(
             return_value=[
@@ -324,28 +328,28 @@ class TestWorkflowServiceListWorkflows:
             ]
         )
 
-        result = await workflow_service.list_workflows()
+        result = await list_workflows(mock_workflow_repo)
 
         assert len(result) == 2
         assert result[0].id == "wf_123"
         assert result[1].id == "wf_124"
 
     @pytest.mark.asyncio
-    async def test_list_workflows_with_filters(self, workflow_service, mock_workflow_repo):
+    async def test_list_workflows_with_filters(self, mock_workflow_repo):
         """Test listing workflows with filters."""
         mock_workflow_repo.list_workflow_runs = AsyncMock(return_value=[])
 
-        await workflow_service.list_workflows(program_id="prog_123", status="running", limit=50)
+        await list_workflows(mock_workflow_repo, program_id="prog_123", status="running", limit=50)
 
         mock_workflow_repo.list_workflow_runs.assert_called_once_with(
             program_id="prog_123", status="running", limit=50
         )
 
     @pytest.mark.asyncio
-    async def test_list_workflows_empty(self, workflow_service, mock_workflow_repo):
+    async def test_list_workflows_empty(self, mock_workflow_repo):
         """Test listing workflows when none exist."""
         mock_workflow_repo.list_workflow_runs = AsyncMock(return_value=[])
 
-        result = await workflow_service.list_workflows()
+        result = await list_workflows(mock_workflow_repo)
 
         assert result == []

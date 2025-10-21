@@ -1,4 +1,4 @@
-"""Unit tests for stage execution service."""
+"""Unit tests for stage functions."""
 
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
@@ -6,7 +6,16 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from models.stage import StageExecutionRequest, StageStatus
-from services.stage_service import StageService
+from services.stage_functions import (
+    count_stages_by_status,
+    execute_stage,
+    get_failed_stages,
+    get_stage_execution,
+    get_stages_for_workflow,
+    handle_stage_failure,
+    mark_stage_complete,
+    retry_stage,
+)
 from utils.errors import PipelineError, RecordNotFoundError
 
 
@@ -16,18 +25,12 @@ def mock_stage_repo():
     return MagicMock()
 
 
-@pytest.fixture
-def stage_service(mock_stage_repo):
-    """Create a stage service with mocked repository."""
-    return StageService(mock_stage_repo)
-
-
 @pytest.mark.unit
-class TestStageServiceExecute:
+class TestStageFunctionsExecute:
     """Tests for executing stages."""
 
     @pytest.mark.asyncio
-    async def test_execute_stage_success(self, stage_service, mock_stage_repo):
+    async def test_execute_stage_success(self, mock_stage_repo):
         """Test successfully executing a stage."""
         request = StageExecutionRequest(
             workflow_id="wf_123",
@@ -49,7 +52,7 @@ class TestStageServiceExecute:
             }
         )
 
-        result = await stage_service.execute_stage(request)
+        result = await execute_stage(mock_stage_repo, request)
 
         assert result.id == "stage_123"
         assert result.stage_name == "enrichment"
@@ -57,7 +60,7 @@ class TestStageServiceExecute:
         mock_stage_repo.create_stage_execution.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_execute_stage_with_metadata(self, stage_service, mock_stage_repo):
+    async def test_execute_stage_with_metadata(self, mock_stage_repo):
         """Test executing stage with metadata."""
         request = StageExecutionRequest(
             workflow_id="wf_123",
@@ -80,12 +83,12 @@ class TestStageServiceExecute:
             }
         )
 
-        result = await stage_service.execute_stage(request)
+        result = await execute_stage(mock_stage_repo, request)
 
         assert result.metadata == {"model": "v2.1"}
 
     @pytest.mark.asyncio
-    async def test_execute_stage_failure(self, stage_service, mock_stage_repo):
+    async def test_execute_stage_failure(self, mock_stage_repo):
         """Test stage execution failure."""
         request = StageExecutionRequest(
             workflow_id="wf_123",
@@ -96,15 +99,15 @@ class TestStageServiceExecute:
         mock_stage_repo.create_stage_execution = AsyncMock(side_effect=Exception("Database error"))
 
         with pytest.raises(PipelineError):
-            await stage_service.execute_stage(request)
+            await execute_stage(mock_stage_repo, request)
 
 
 @pytest.mark.unit
-class TestStageServiceRetry:
+class TestStageFunctionsRetry:
     """Tests for retry logic."""
 
     @pytest.mark.asyncio
-    async def test_retry_stage_success(self, stage_service, mock_stage_repo):
+    async def test_retry_stage_success(self, mock_stage_repo):
         """Test successfully retrying a stage."""
         mock_stage_repo.get_stage_execution = AsyncMock(
             return_value={
@@ -149,7 +152,7 @@ class TestStageServiceRetry:
             }
         )
 
-        result = await stage_service.retry_stage("stage_123")
+        result = await retry_stage(mock_stage_repo, "stage_123")
 
         assert result.attempt == 2
         assert result.status == StageStatus.PENDING
@@ -157,15 +160,15 @@ class TestStageServiceRetry:
         mock_stage_repo.update_stage_status.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_retry_stage_not_found(self, stage_service, mock_stage_repo):
+    async def test_retry_stage_not_found(self, mock_stage_repo):
         """Test retrying non-existent stage."""
         mock_stage_repo.get_stage_execution = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await stage_service.retry_stage("stage_nonexistent")
+            await retry_stage(mock_stage_repo, "stage_nonexistent")
 
     @pytest.mark.asyncio
-    async def test_retry_increments_attempt(self, stage_service, mock_stage_repo):
+    async def test_retry_increments_attempt(self, mock_stage_repo):
         """Test that retry increments attempt counter."""
         mock_stage_repo.get_stage_execution = AsyncMock(
             return_value={
@@ -209,17 +212,17 @@ class TestStageServiceRetry:
             }
         )
 
-        result = await stage_service.retry_stage("stage_123")
+        result = await retry_stage(mock_stage_repo, "stage_123")
 
         assert result.attempt == 4
 
 
 @pytest.mark.unit
-class TestStageServiceMarkComplete:
+class TestStageFunctionsMarkComplete:
     """Tests for marking stages as completed."""
 
     @pytest.mark.asyncio
-    async def test_mark_stage_completed_success(self, stage_service, mock_stage_repo):
+    async def test_mark_stage_completed_success(self, mock_stage_repo):
         """Test successfully marking stage as completed."""
         mock_stage_repo.mark_stage_completed = AsyncMock(
             return_value={
@@ -236,27 +239,27 @@ class TestStageServiceMarkComplete:
             }
         )
 
-        result = await stage_service.mark_stage_complete("stage_123", {"enriched_fields": 15})
+        result = await mark_stage_complete(mock_stage_repo, "stage_123", {"enriched_fields": 15})
 
         assert result.status == StageStatus.COMPLETED
         assert result.result == {"enriched_fields": 15}
         mock_stage_repo.mark_stage_completed.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_mark_stage_completed_not_found(self, stage_service, mock_stage_repo):
+    async def test_mark_stage_completed_not_found(self, mock_stage_repo):
         """Test marking non-existent stage as completed."""
         mock_stage_repo.mark_stage_completed = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await stage_service.mark_stage_complete("stage_nonexistent")
+            await mark_stage_complete(mock_stage_repo, "stage_nonexistent")
 
 
 @pytest.mark.unit
-class TestStageServiceHandleFailure:
+class TestStageFunctionsHandleFailure:
     """Tests for handling stage failures."""
 
     @pytest.mark.asyncio
-    async def test_handle_stage_failure_success(self, stage_service, mock_stage_repo):
+    async def test_handle_stage_failure_success(self, mock_stage_repo):
         """Test successfully handling stage failure."""
         mock_stage_repo.mark_stage_failed = AsyncMock(
             return_value={
@@ -273,23 +276,23 @@ class TestStageServiceHandleFailure:
             }
         )
 
-        result = await stage_service.handle_stage_failure("stage_123", "Timeout error")
+        result = await handle_stage_failure(mock_stage_repo, "stage_123", "Timeout error")
 
         assert result.status == StageStatus.FAILED
         assert result.error_message == "Timeout error"
         mock_stage_repo.mark_stage_failed.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_handle_stage_failure_not_found(self, stage_service, mock_stage_repo):
+    async def test_handle_stage_failure_not_found(self, mock_stage_repo):
         """Test handling failure for non-existent stage."""
         mock_stage_repo.mark_stage_failed = AsyncMock(return_value=None)
 
         with pytest.raises(RecordNotFoundError):
-            await stage_service.handle_stage_failure("stage_nonexistent", "Error")
+            await handle_stage_failure(mock_stage_repo, "stage_nonexistent", "Error")
 
 
 @pytest.mark.unit
-class TestStageServiceStateTransitions:
+class TestStageFunctionsStateTransitions:
     """Tests for state transitions."""
 
     @pytest.mark.asyncio
@@ -302,7 +305,7 @@ class TestStageServiceStateTransitions:
         assert StageStatus.SKIPPED.value == "skipped"
 
     @pytest.mark.asyncio
-    async def test_get_stages_for_workflow(self, stage_service, mock_stage_repo):
+    async def test_get_stages_for_workflow(self, mock_stage_repo):
         """Test getting all stages for a workflow."""
         mock_stage_repo.get_stages_for_workflow = AsyncMock(
             return_value=[
@@ -331,14 +334,14 @@ class TestStageServiceStateTransitions:
             ]
         )
 
-        result = await stage_service.get_stages_for_workflow("wf_123")
+        result = await get_stages_for_workflow(mock_stage_repo, "wf_123")
 
         assert len(result) == 2
         assert result[0].stage_name == "ingestion"
         assert result[1].stage_name == "enrichment"
 
     @pytest.mark.asyncio
-    async def test_get_failed_stages(self, stage_service, mock_stage_repo):
+    async def test_get_failed_stages(self, mock_stage_repo):
         """Test getting failed stages for a workflow."""
         mock_stage_repo.get_failed_stages = AsyncMock(
             return_value=[
@@ -357,29 +360,29 @@ class TestStageServiceStateTransitions:
             ]
         )
 
-        result = await stage_service.get_failed_stages("wf_123")
+        result = await get_failed_stages(mock_stage_repo, "wf_123")
 
         assert len(result) == 1
         assert result[0].status == StageStatus.FAILED
         assert result[0].error_message == "Timeout"
 
     @pytest.mark.asyncio
-    async def test_count_stages_by_status(self, stage_service, mock_stage_repo):
+    async def test_count_stages_by_status(self, mock_stage_repo):
         """Test counting stages by status."""
         mock_stage_repo.count_stages_by_status = AsyncMock(return_value=5)
 
-        result = await stage_service.count_stages_by_status("wf_123", "completed")
+        result = await count_stages_by_status(mock_stage_repo, "wf_123", "completed")
 
         assert result == 5
         mock_stage_repo.count_stages_by_status.assert_called_once_with("wf_123", "completed")
 
 
 @pytest.mark.unit
-class TestStageServiceRetryBackoff:
+class TestStageFunctionsRetryBackoff:
     """Tests for retry logic with exponential backoff."""
 
     @pytest.mark.asyncio
-    async def test_retry_respects_max_attempts(self, stage_service, mock_stage_repo):
+    async def test_retry_respects_max_attempts(self, mock_stage_repo):
         """Test that retry respects maximum attempt limit."""
         # Simulate a stage that has already been retried 10 times (max retries)
         mock_stage_repo.get_stage_execution = AsyncMock(
@@ -425,14 +428,14 @@ class TestStageServiceRetryBackoff:
             }
         )
 
-        result = await stage_service.retry_stage("stage_123")
+        result = await retry_stage(mock_stage_repo, "stage_123")
 
         # Should still allow retry but increment counter
         assert result.attempt == 11
         mock_stage_repo.increment_attempt.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_retry_multiple_times_increments_correctly(self, stage_service, mock_stage_repo):
+    async def test_retry_multiple_times_increments_correctly(self, mock_stage_repo):
         """Test that multiple retries increment attempt counter correctly."""
         attempts = [1, 2, 3, 4, 5]
 
@@ -480,11 +483,11 @@ class TestStageServiceRetryBackoff:
                 }
             )
 
-            result = await stage_service.retry_stage("stage_123")
+            result = await retry_stage(mock_stage_repo, "stage_123")
             assert result.attempt == attempt + 1
 
     @pytest.mark.asyncio
-    async def test_retry_resets_status_to_pending(self, stage_service, mock_stage_repo):
+    async def test_retry_resets_status_to_pending(self, mock_stage_repo):
         """Test that retry resets status to pending for re-execution."""
         mock_stage_repo.get_stage_execution = AsyncMock(
             return_value={
@@ -529,7 +532,7 @@ class TestStageServiceRetryBackoff:
             }
         )
 
-        result = await stage_service.retry_stage("stage_123")
+        result = await retry_stage(mock_stage_repo, "stage_123")
 
         # Verify status is reset to pending
         assert result.status == StageStatus.PENDING
@@ -539,7 +542,7 @@ class TestStageServiceRetryBackoff:
         )
 
     @pytest.mark.asyncio
-    async def test_retry_preserves_workflow_and_program_ids(self, stage_service, mock_stage_repo):
+    async def test_retry_preserves_workflow_and_program_ids(self, mock_stage_repo):
         """Test that retry preserves workflow and program IDs."""
         mock_stage_repo.get_stage_execution = AsyncMock(
             return_value={
@@ -584,7 +587,7 @@ class TestStageServiceRetryBackoff:
             }
         )
 
-        result = await stage_service.retry_stage("stage_123")
+        result = await retry_stage(mock_stage_repo, "stage_123")
 
         assert result.workflow_id == "wf_456"
         assert result.program_id == "prog_789"
@@ -592,11 +595,11 @@ class TestStageServiceRetryBackoff:
 
 
 @pytest.mark.unit
-class TestStageServiceErrorHandling:
-    """Tests for error handling in stage service."""
+class TestStageFunctionsErrorHandling:
+    """Tests for error handling in stage functions."""
 
     @pytest.mark.asyncio
-    async def test_execute_stage_wraps_database_error(self, stage_service, mock_stage_repo):
+    async def test_execute_stage_wraps_database_error(self, mock_stage_repo):
         """Test that database errors are wrapped in PipelineError."""
         request = StageExecutionRequest(
             workflow_id="wf_123",
@@ -609,47 +612,47 @@ class TestStageServiceErrorHandling:
         )
 
         with pytest.raises(PipelineError) as exc_info:
-            await stage_service.execute_stage(request)
+            await execute_stage(mock_stage_repo, request)
 
         assert "Failed to execute stage" in str(exc_info.value)
         assert "Database connection failed" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_get_stage_execution_wraps_database_error(self, stage_service, mock_stage_repo):
+    async def test_get_stage_execution_wraps_database_error(self, mock_stage_repo):
         """Test that database errors in get are wrapped in PipelineError."""
         mock_stage_repo.get_stage_execution = AsyncMock(side_effect=Exception("Connection timeout"))
 
         with pytest.raises(PipelineError) as exc_info:
-            await stage_service.get_stage_execution("stage_123")
+            await get_stage_execution(mock_stage_repo, "stage_123")
 
         assert "Failed to get stage execution" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_mark_stage_complete_wraps_error(self, stage_service, mock_stage_repo):
+    async def test_mark_stage_complete_wraps_error(self, mock_stage_repo):
         """Test that errors in mark_stage_complete are wrapped."""
         mock_stage_repo.mark_stage_completed = AsyncMock(side_effect=Exception("Update failed"))
 
         with pytest.raises(PipelineError) as exc_info:
-            await stage_service.mark_stage_complete("stage_123")
+            await mark_stage_complete(mock_stage_repo, "stage_123")
 
         assert "Failed to mark stage as completed" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_handle_stage_failure_wraps_error(self, stage_service, mock_stage_repo):
+    async def test_handle_stage_failure_wraps_error(self, mock_stage_repo):
         """Test that errors in handle_stage_failure are wrapped."""
         mock_stage_repo.mark_stage_failed = AsyncMock(side_effect=Exception("Update failed"))
 
         with pytest.raises(PipelineError) as exc_info:
-            await stage_service.handle_stage_failure("stage_123", "Original error")
+            await handle_stage_failure(mock_stage_repo, "stage_123", "Original error")
 
         assert "Failed to handle stage failure" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_retry_stage_wraps_error(self, stage_service, mock_stage_repo):
+    async def test_retry_stage_wraps_error(self, mock_stage_repo):
         """Test that errors in retry_stage are wrapped."""
         mock_stage_repo.get_stage_execution = AsyncMock(side_effect=Exception("Database error"))
 
         with pytest.raises(PipelineError) as exc_info:
-            await stage_service.retry_stage("stage_123")
+            await retry_stage(mock_stage_repo, "stage_123")
 
         assert "Failed to retry stage" in str(exc_info.value)

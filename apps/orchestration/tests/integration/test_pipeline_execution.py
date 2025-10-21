@@ -9,9 +9,9 @@ from db.repositories.stage import StageRepository
 from db.repositories.workflow import WorkflowRepository
 from models.stage import StageExecutionRequest, StageStatus
 from models.workflow import WorkflowRunRequest, WorkflowStatus
-from services.stage_service import StageService
-from services.state_machine import WorkflowStateMachine
-from services.workflow_service import WorkflowService
+from services.stage_functions import execute_stage, mark_stage_complete
+from services.state_machine_functions import get_next_stage
+from services.workflow_functions import start_workflow, update_workflow_stage
 from utils.errors import PipelineError
 
 
@@ -32,17 +32,17 @@ class TestPipelineExecution:
     @pytest.fixture
     def workflow_service(self, mock_workflow_repo):
         """Create workflow service with mocked repository."""
-        return WorkflowService(mock_workflow_repo)
+        return mock_workflow_repo
 
     @pytest.fixture
     def stage_service(self, mock_stage_repo):
         """Create stage service with mocked repository."""
-        return StageService(mock_stage_repo)
+        return mock_stage_repo
 
     @pytest.fixture
     def state_machine(self):
         """Create state machine instance."""
-        return WorkflowStateMachine()
+        return get_next_stage
 
     @pytest.mark.asyncio
     async def test_pipeline_start_to_ingestion_stage(
@@ -71,7 +71,7 @@ class TestPipelineExecution:
         )
 
         # Execute: Start workflow
-        workflow = await workflow_service.start_workflow(request)
+        workflow = await start_workflow(request, workflow_service)
 
         # Verify: Workflow created and in ingestion stage
         assert workflow.id == "wf_001"
@@ -116,7 +116,7 @@ class TestPipelineExecution:
             )
 
             # Execute: Execute stage
-            stage = await stage_service.execute_stage(request)
+            stage = await execute_stage(request, stage_service)
 
             # Verify: Stage created with correct name
             assert stage.stage_name == stage_name
@@ -147,7 +147,7 @@ class TestPipelineExecution:
             )
 
             # Execute: Mark stage complete
-            result = await stage_service.mark_stage_complete(stage_id, {"processed": True})
+            result = await mark_stage_complete(stage_id, {"processed": True}, stage_service)
 
             # Verify: Stage marked as completed
             assert result.status == StageStatus.COMPLETED
@@ -292,7 +292,7 @@ class TestPipelineExecution:
             )
 
             # Execute: Start workflow for each program
-            workflow = await workflow_service.start_workflow(request)
+            workflow = await start_workflow(request, workflow_service)
 
             # Verify: Each workflow created independently
             assert workflow.program_id == program_id
@@ -344,40 +344,38 @@ class TestPipelineExecution:
 
         # Verify: All stages are valid
         for stage in stages:
-            assert state_machine.is_valid_stage(stage)
+            assert state_machine(stage) is not None
 
         # Verify: Invalid stage is rejected
-        assert not state_machine.is_valid_stage("invalid_stage")
+        assert state_machine("invalid_stage") is None
 
         # Verify: Get all stages returns correct sequence
-        all_stages = state_machine.get_all_stages()
+        all_stages = [state_machine(stage) for stage in stages]
         assert all_stages == stages
 
     @pytest.mark.asyncio
     async def test_pipeline_stage_transition_validation(self, state_machine):
         """Test state machine validates stage transitions."""
         # Verify: Valid transitions
-        assert state_machine.validate_stage_transition("ingestion", "editorial_policy_validation")
-        assert state_machine.validate_stage_transition(
-            "editorial_policy_validation", "reconciliation"
-        )
-        assert state_machine.validate_stage_transition("reconciliation", "enrichment")
-        assert state_machine.validate_stage_transition("enrichment", "langage_clair")
-        assert state_machine.validate_stage_transition("langage_clair", "translation")
-        assert state_machine.validate_stage_transition("translation", "validation")
-        assert state_machine.validate_stage_transition("validation", "publication")
+        assert state_machine("ingestion") == "editorial_policy_validation"
+        assert state_machine("editorial_policy_validation") == "reconciliation"
+        assert state_machine("reconciliation") == "enrichment"
+        assert state_machine("enrichment") == "langage_clair"
+        assert state_machine("langage_clair") == "translation"
+        assert state_machine("translation") == "validation"
+        assert state_machine("validation") == "publication"
 
         # Verify: Invalid transitions (backwards) raise PipelineError
         with pytest.raises(PipelineError):
-            state_machine.validate_stage_transition("publication", "validation")
+            state_machine("publication", "validation")
         with pytest.raises(PipelineError):
-            state_machine.validate_stage_transition("enrichment", "ingestion")
+            state_machine("enrichment", "ingestion")
 
         # Verify: Invalid transitions (skipping stages) raise PipelineError
         with pytest.raises(PipelineError):
-            state_machine.validate_stage_transition("ingestion", "enrichment")
+            state_machine("ingestion", "enrichment")
         with pytest.raises(PipelineError):
-            state_machine.validate_stage_transition("reconciliation", "translation")
+            state_machine("reconciliation", "translation")
 
     @pytest.mark.asyncio
     async def test_pipeline_workflow_completion(self, workflow_service, mock_workflow_repo):
@@ -401,7 +399,7 @@ class TestPipelineExecution:
         )
 
         # Execute: Mark workflow complete
-        result = await workflow_service.mark_workflow_completed(workflow_id)
+        result = await update_workflow_stage(workflow_id, "publication", workflow_service)
 
         # Verify: Workflow marked as completed
         assert result.status == WorkflowStatus.COMPLETED
@@ -439,7 +437,7 @@ class TestPipelineExecution:
         )
 
         # Execute: Create stage with metadata
-        result = await stage_service.execute_stage(request)
+        result = await execute_stage(request, stage_service)
 
         # Verify: Metadata preserved
         assert result.metadata == metadata
