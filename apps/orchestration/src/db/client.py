@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from supabase import Client, create_client
 from supabase.lib.client_options import ClientOptions
 
+
 logger = logging.getLogger(__name__)
 
 
