@@ -130,13 +130,14 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **FR-009i**: System MUST version policy rules and track which rule version was applied to each program
 
 #### Enhanced Data Reconciliation with Carif-Oref
-- **FR-009j**: System MUST fetch Carif-Oref CSV export from https://www.intercariforef.org/dian/?...&excsv=1 on a configurable schedule (daily recommended)
+- **FR-009j**: System MUST fetch Carif-Oref CSV export from https://www.intercariforef.org/dian/?...&excsv=1 on a configurable schedule (hourly recommended to meet <1 hour latency target)
 - **FR-009k**: System MUST reconcile Data Inclusion records with Carif-Oref CSV data using structure_id and id fields as matching keys
 - **FR-009l**: System MUST merge Data Inclusion and Carif-Oref CSV data, with Carif-Oref data taking precedence for overlapping fields
 - **FR-009m**: System MUST handle programs with Data Inclusion source only (no Carif-Oref match) by proceeding with Data Inclusion data and recording reconciliation status
-- **FR-009n**: System MUST detect conflicts between Data Inclusion and Carif-Oref CSV data (e.g., different program names, different costs) and flag for editorial review
-- **FR-009o**: System MUST retry Carif-Oref CSV fetch with exponential backoff (up to 24 hours) on transient failures
-- **FR-009p**: System MUST record reconciliation status for each program: fully_reconciled, partially_reconciled (missing Carif-Oref data), data_conflict, or reconciliation_failed
+- **FR-009n**: System MUST detect conflicts between Data Inclusion and Carif-Oref CSV data (e.g., different program names, different costs), apply deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete), and flag for editorial review
+- **FR-009o**: System MUST NOT block pipeline on data conflicts; conflicts are flagged for asynchronous editorial review while program continues to next stage
+- **FR-009p**: System MUST retry Carif-Oref CSV fetch with exponential backoff (up to 24 hours) on transient failures
+- **FR-009q**: System MUST record reconciliation status for each program: fully_reconciled, partially_reconciled (missing Carif-Oref data), data_conflict, or reconciliation_failed
 
 #### Update Detection
 - **FR-009**: System MUST detect when source data has been updated by comparing checksums
@@ -243,8 +244,7 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - Réfugiés.info editorial team has capacity to review ~20 diffs per week (with risk-based sampling)
 - Pipeline stages (ingestion, editorial policy validation, reconciliation, enrichment, langage clair, translation, validation, publication) will be implemented as separate features following this orchestration infrastructure
 - Editorial policy rules are maintained in an official document and updated regularly by Réfugiés.info editorial team
-- Carif-Oref CSV export is available and updated regularly at https://www.intercariforef.org/dian/?...&excsv=1
-- Carif-Oref website is accessible for scraping additional program details
+- Carif-Oref CSV export is available and updated regularly at https://www.intercariforef.org/dian/?...&excsv=1 (fetched hourly to maintain <1 hour latency)
 - Managed database service (Supabase) is available and provides sufficient performance for state management
 - Network connectivity is generally reliable; transient failures are handled via retry logic
 - Editorial team has basic technical literacy to use web-based diff review interface
@@ -278,3 +278,6 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - Q: Should editorial policy validation be a separate stage or part of ingestion? → A: Separate stage. Semantically distinct from ingestion (which fetches data) and enables independent testing/deployment.
 - Q: How should the system handle Carif-Oref data? → A: Fetch CSV export daily from https://www.intercariforef.org/dian/?...&excsv=1, reconcile with Data Inclusion records using structure_id and id fields as matching keys, and merge data with Carif-Oref taking precedence for overlapping fields. CSV data is sufficient; no website scraping needed.
 - Q: Should reconciliation be enhanced to include Carif-Oref, or is it a separate stage? → A: Enhance the existing reconciliation stage to include Carif-Oref CSV data fetching, matching, and merging. This is part of the reconciliation responsibility.
+- Q: What should be the Carif-Oref CSV fetch frequency? → A: Hourly fetch (configurable). Balances SC-016's <1 hour latency requirement with operational efficiency. Daily is too infrequent; on-demand would create excessive API load.
+- Q: What level of detail should policy validation audit trail capture? → A: Final decision only (program ID, rule applied, decision, timestamp, editor). Provides sufficient audit trail for compliance without excessive storage. Full evaluation trace captured in structured logs (CAR-005/CAR-006) for debugging.
+- Q: When data conflicts are detected during reconciliation, should the pipeline pause or continue? → A: Continue with deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete). Flag conflicts for asynchronous editorial review. Prevents pipeline blocking while ensuring data quality and aligns with incremental delivery principle.
