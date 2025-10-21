@@ -15,6 +15,27 @@ The Nexus pipeline uses AI (LLM) processing in three stages:
 
 This document specifies prompts, quality thresholds, and model selection for each stage.
 
+### Infrastructure: Vercel AI Gateway
+
+All LLM requests route through **Vercel AI Gateway** for:
+- ✅ Centralized invoicing (single bill for all models)
+- ✅ Model abstraction (switch models without code changes)
+- ✅ Rate limiting and quota management
+- ✅ Fallback handling (automatic retry with alternative models)
+- ✅ Cost tracking and analytics
+
+**Gateway Configuration**:
+```bash
+VERCEL_AI_GATEWAY_URL=https://api.vercel.ai/v1
+VERCEL_AI_GATEWAY_TOKEN=<token>
+```
+
+**Supported Models** (via Vercel AI Gateway):
+- OpenAI: gpt-4, gpt-3.5-turbo
+- Anthropic: claude-3-opus, claude-3-sonnet
+- Google: gemini-pro
+- Others: Available through gateway
+
 ---
 
 ## Stage 1: Enrichment
@@ -73,15 +94,17 @@ Constraints:
 | **Description Length** | > 2000 chars | Truncate and flag |
 | **Language Quality** | Grammar errors | Flag for manual review |
 
-### Model Selection
-- **Primary**: GPT-4 (better quality, higher cost)
-- **Fallback**: GPT-3.5-turbo (faster, lower cost)
-- **Fast Mode** (catch-up): GPT-3.5-turbo (lower quality threshold acceptable)
+### Model Selection (via Vercel AI Gateway)
+- **Primary**: gpt-4 (better quality)
+- **Fallback**: gpt-3.5-turbo (faster, lower cost)
+- **Fast Mode** (catch-up): gpt-3.5-turbo (lower quality threshold acceptable)
+- **Alternative**: claude-3-sonnet (if OpenAI unavailable)
 
-### Cost Estimate
+### Cost Estimate (via Vercel AI Gateway)
 - **GPT-4**: ~$0.03-0.05 per enrichment
 - **GPT-3.5-turbo**: ~$0.01-0.02 per enrichment
 - **Monthly** (100 services): $1-5 (GPT-3.5) or $3-5 (GPT-4)
+- **Billing**: Centralized through Vercel AI Gateway (single invoice)
 
 ---
 
@@ -134,15 +157,16 @@ Readability Score:
 | **Text Length Change** | > 50% longer | Flag for review |
 | **Meaning Preservation** | Detected loss | Flag for manual review |
 
-### Model Selection
-- **Primary**: GPT-4 (better language understanding)
-- **Fallback**: GPT-3.5-turbo (acceptable for simple texts)
-- **Fast Mode** (catch-up): GPT-3.5-turbo
+### Model Selection (via Vercel AI Gateway)
+- **Primary**: gpt-4 (better language understanding)
+- **Fallback**: gpt-3.5-turbo (acceptable for simple texts)
+- **Fast Mode** (catch-up): gpt-3.5-turbo
 
-### Cost Estimate
+### Cost Estimate (via Vercel AI Gateway)
 - **GPT-4**: ~$0.02-0.04 per simplification
 - **GPT-3.5-turbo**: ~$0.01-0.02 per simplification
 - **Monthly** (100 services): $1-2 (GPT-3.5) or $2-4 (GPT-4)
+- **Billing**: Centralized through Vercel AI Gateway
 
 ---
 
@@ -212,15 +236,16 @@ Confidence Score:
 - Tigrinya
 - Ukrainian
 
-### Model Selection
-- **Primary**: GPT-4 (better translation quality)
-- **Fallback**: GPT-3.5-turbo (acceptable for simple texts)
-- **Fast Mode** (catch-up): GPT-3.5-turbo
+### Model Selection (via Vercel AI Gateway)
+- **Primary**: gpt-4 (better translation quality)
+- **Fallback**: gpt-3.5-turbo (acceptable for simple texts)
+- **Fast Mode** (catch-up): gpt-3.5-turbo
 
-### Cost Estimate
+### Cost Estimate (via Vercel AI Gateway)
 - **GPT-4**: ~$0.03-0.05 per translation
 - **GPT-3.5-turbo**: ~$0.01-0.02 per translation
 - **Monthly** (100 services × 3 languages): $3-15 (GPT-3.5) or $9-15 (GPT-4)
+- **Billing**: Centralized through Vercel AI Gateway
 
 ---
 
@@ -392,6 +417,8 @@ if monthly_cost > MONTHLY_BUDGET:
 
 ## References
 
+- [Vercel AI Gateway Documentation](https://vercel.com/docs/ai-gateway)
+- [Vercel AI Gateway Models](https://vercel.com/docs/ai-gateway/supported-models)
 - [OpenAI API Documentation](https://platform.openai.com/docs)
 - [GPT-4 vs GPT-3.5 Comparison](https://platform.openai.com/docs/models/gpt-4)
 - [Prompt Engineering Best Practices](https://platform.openai.com/docs/guides/prompt-engineering)

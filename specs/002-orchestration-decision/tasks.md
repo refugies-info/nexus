@@ -286,8 +286,8 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 **Tasks**:
 
-- [ ] T109 Create OpenAI integration service at `apps/orchestration/src/services/openai_service.py` with methods: call_gpt, handle_rate_limits, track_costs
-- [ ] T110 [P] Create unit tests for OpenAI service at `apps/orchestration/tests/unit/services/test_openai_service.py` with mocked API calls
+- [ ] T109 Create Vercel AI Gateway integration service at `apps/orchestration/src/services/ai_gateway_service.py` with methods: call_model, handle_rate_limits, track_costs, fallback_to_alternative_model
+- [ ] T110 [P] Create unit tests for AI Gateway service at `apps/orchestration/tests/unit/services/test_ai_gateway_service.py` with mocked API calls and fallback scenarios
 - [ ] T111 Create enrichment service at `apps/orchestration/src/services/enrichment_service.py` implementing enrichment prompt with GPT-3.5-turbo (fast mode) and GPT-4 (normal mode)
 - [ ] T112 [P] Create unit tests for enrichment at `apps/orchestration/tests/unit/services/test_enrichment_service.py` validating confidence thresholds and output format
 - [ ] T113 Create langage_clair service at `apps/orchestration/src/services/langage_clair_service.py` implementing simplification prompt with readability scoring
