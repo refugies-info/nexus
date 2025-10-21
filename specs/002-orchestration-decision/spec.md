@@ -102,7 +102,6 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **What happens when editorial policy rules conflict?** System applies rules in priority order (defined by editorial team) and records which rule triggered rejection
 - **What happens when a program matches multiple rejection criteria?** System records all matching criteria in audit trail and returns primary reason to user
 - **What happens when Carif-Oref CSV is unavailable?** System retries with exponential backoff (up to 24 hours); if unavailable, proceeds with Data Inclusion data only and flags for manual reconciliation
-- **What happens when Carif-Oref website URL scraping fails?** System records failure and proceeds with CSV data; flags for manual review if critical data is missing
 - **What happens when Data Inclusion and Carif-Oref have conflicting data on policy-relevant fields?** System flags conflict for editorial review and does not auto-proceed
 
 ## Requirements *(mandatory)*
@@ -133,13 +132,11 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 #### Enhanced Data Reconciliation with Carif-Oref
 - **FR-009j**: System MUST fetch Carif-Oref CSV export from https://www.intercariforef.org/dian/?...&excsv=1 on a configurable schedule (daily recommended)
 - **FR-009k**: System MUST reconcile Data Inclusion records with Carif-Oref CSV data using structure_id and id fields as matching keys
-- **FR-009l**: System MUST construct Carif-Oref website URLs from Data Inclusion structure_id and id fields following format: https://www.intercariforef.org/dian/[dept]_[structure_id]/[dept]_[service_id]/[...]/[encoded_name]
-- **FR-009m**: System MUST scrape additional program details from Carif-Oref website URLs (e.g., detailed descriptions, contact information, schedule)
-- **FR-009n**: System MUST merge Data Inclusion and Carif-Oref data, with Carif-Oref data taking precedence for overlapping fields
-- **FR-009o**: System MUST handle programs with Data Inclusion source only (no Carif-Oref match) by proceeding with Data Inclusion data and recording reconciliation status
-- **FR-009p**: System MUST detect conflicts between Data Inclusion and Carif-Oref data (e.g., different program names, different costs) and flag for editorial review
-- **FR-009q**: System MUST retry Carif-Oref CSV fetch and website scraping with exponential backoff (up to 24 hours) on transient failures
-- **FR-009r**: System MUST record reconciliation status for each program: fully_reconciled, partially_reconciled (missing Carif-Oref data), data_conflict, or reconciliation_failed
+- **FR-009l**: System MUST merge Data Inclusion and Carif-Oref CSV data, with Carif-Oref data taking precedence for overlapping fields
+- **FR-009m**: System MUST handle programs with Data Inclusion source only (no Carif-Oref match) by proceeding with Data Inclusion data and recording reconciliation status
+- **FR-009n**: System MUST detect conflicts between Data Inclusion and Carif-Oref CSV data (e.g., different program names, different costs) and flag for editorial review
+- **FR-009o**: System MUST retry Carif-Oref CSV fetch with exponential backoff (up to 24 hours) on transient failures
+- **FR-009p**: System MUST record reconciliation status for each program: fully_reconciled, partially_reconciled (missing Carif-Oref data), data_conflict, or reconciliation_failed
 
 #### Update Detection
 - **FR-009**: System MUST detect when source data has been updated by comparing checksums
@@ -279,6 +276,5 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 
 - Q: Where should editorial policy validation fit in the pipeline? → A: Immediately after ingestion, before reconciliation. This ensures non-compliant programs are rejected early without wasting processing resources.
 - Q: Should editorial policy validation be a separate stage or part of ingestion? → A: Separate stage. Semantically distinct from ingestion (which fetches data) and enables independent testing/deployment.
-- Q: How should the system handle Carif-Oref data? → A: Fetch CSV export daily, reconcile with Data Inclusion records using structure_id and id fields, scrape additional details from Carif-Oref website URLs, and merge data with Carif-Oref taking precedence for overlapping fields.
-- Q: What URL format should be used to construct Carif-Oref website links? → A: https://www.intercariforef.org/dian/[dept]_[structure_id]/[dept]_[service_id]/[...]/[encoded_name] (URL-encode the program name).
-- Q: Should reconciliation be enhanced to include Carif-Oref, or is it a separate stage? → A: Enhance the existing reconciliation stage to include Carif-Oref data fetching, matching, scraping, and merging. This is part of the reconciliation responsibility.
+- Q: How should the system handle Carif-Oref data? → A: Fetch CSV export daily from https://www.intercariforef.org/dian/?...&excsv=1, reconcile with Data Inclusion records using structure_id and id fields as matching keys, and merge data with Carif-Oref taking precedence for overlapping fields. CSV data is sufficient; no website scraping needed.
+- Q: Should reconciliation be enhanced to include Carif-Oref, or is it a separate stage? → A: Enhance the existing reconciliation stage to include Carif-Oref CSV data fetching, matching, and merging. This is part of the reconciliation responsibility.
