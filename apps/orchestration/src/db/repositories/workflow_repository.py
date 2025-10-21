@@ -1,10 +1,12 @@
 import logging
+import uuid
 from datetime import datetime
 from typing import Any
 
 from supabase import Client
 
 from .base_repository import BaseRepository
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,7 @@ class WorkflowRepository(BaseRepository):
             Created workflow run record
         """
         data = {
+            "id": str(uuid.uuid4()),
             "program_id": program_id,
             "source": source,
             "current_stage": initial_stage,
