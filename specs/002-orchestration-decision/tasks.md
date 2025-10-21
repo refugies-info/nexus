@@ -78,9 +78,9 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T021 [P] Create Pydantic models at `apps/orchestration/src/models/stage.py`: StageExecutionRequest, StageExecutionResponse, StageStatus
 - [X] T022 [P] Create Pydantic models at `apps/orchestration/src/models/update.py`: UpdateEventRequest, UpdateEventResponse, UpdateStrategy
 - [X] T023 [P] Create Pydantic models at `apps/orchestration/src/models/diff.py`: DiffRequest, DiffResponse, RiskScore, ReviewStatus
-- [ ] T024 Create configuration management at `apps/orchestration/src/config.py` using Pydantic BaseSettings for environment variables
-- [ ] T025 Create structured logging setup at `apps/orchestration/src/utils/logging.py` with structlog configuration and correlation ID middleware
-- [ ] T026 Create error handling utilities at `apps/orchestration/src/utils/errors.py` with custom exception classes and error response formatting
+- [X] T024 Create configuration management at `apps/orchestration/src/config.py` using Pydantic BaseSettings for environment variables
+- [X] T025 Create structured logging setup at `apps/orchestration/src/utils/logging.py` with structlog configuration and correlation ID middleware
+- [X] T026 Create error handling utilities at `apps/orchestration/src/utils/errors.py` with custom exception classes and error response formatting
 - [ ] T027 Create unit tests for repositories at `apps/orchestration/tests/unit/db/test_repositories.py` with mocked Supabase client
 - [ ] T028 Create unit tests for Pydantic models at `apps/orchestration/tests/unit/models/test_models.py` validating schema and constraints
 
