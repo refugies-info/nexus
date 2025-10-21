@@ -128,9 +128,9 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T040f [US1] Create policy validation API endpoint at `apps/orchestration/src/api/policies.py`: POST /policies/validate (validate program), GET /policies/decisions/{program_id} (get decision)
 - [X] T040g [US1] Create reconciliation API endpoint at `apps/orchestration/src/api/reconciliation.py`: POST /reconciliation/process (reconcile), GET /reconciliation/status/{program_id} (status)
 - [X] T040h [US1] Create unit tests for policy service at `apps/orchestration/tests/unit/services/test_policy.py` with various policy scenarios
-- [ ] T040i [US1] Create unit tests for reconciliation service at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating data merging and conflict detection
-- [ ] T040j [US1] Create unit tests for reconciliation conflict resolution at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating deterministic resolution
-- [ ] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy.py` with real policy scenarios
+- [X] T040i [US1] Create unit tests for reconciliation service at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating data merging and conflict detection
+- [X] T040j [US1] Create unit tests for reconciliation conflict resolution at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating deterministic resolution
+- [X] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy.py` with real policy scenarios
 - [ ] T040l [US1] Create integration tests for Carif-Oref reconciliation at `apps/orchestration/tests/integration/test_reconciliation.py` with CSV data
 - [ ] T040m [US1] Create n8n workflow at `specs/002-orchestration-decision/workflows/pipeline-orchestration.json` that orchestrates 8-stage pipeline (including policy validation and reconciliation) with error handling and retry logic
 - [ ] T040n [US1] Create policy rule versioning at `apps/orchestration/src/db/repositories/policy.py` with functions: get_rule_version, create_rule_version, track_applied_version, get_rules_by_version
