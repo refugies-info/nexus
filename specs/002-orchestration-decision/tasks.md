@@ -113,8 +113,8 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T031 [US1] Implement retry logic with exponential backoff at `apps/orchestration/src/utils/retry.py` using tenacity library (initial delay 1s, max delay 5min, max retries 10)
 - [X] T032 [US1] Create workflow API endpoints at `apps/orchestration/src/api/workflows.py`: POST /workflows (start), GET /workflows/{id} (status), POST /workflows/{id}/status (update)
 - [X] T033 [US1] Implement workflow state machine at `apps/orchestration/src/services/state_machine.py` enforcing stage sequence: ingestion → editorial_policy_validation → reconciliation → enrichment → langage_clair → translation → validation → publication
-- [ ] T034 [US1] Create stage executor at `apps/orchestration/src/services/stage_executor.py` that calls external stage services (placeholder for actual stage implementations)
-- [ ] T035 [US1] Implement error handling for stage failures at `apps/orchestration/src/services/error_handler.py` with retry logic and manual review routing
+- [X] T034 [US1] Create stage executor at `apps/orchestration/src/services/stage_executor.py` that calls external stage services (placeholder for actual stage implementations)
+- [X] T035 [US1] Implement error handling for stage failures at `apps/orchestration/src/services/error_handler.py` with retry logic and manual review routing
 - [ ] T036 [US1] Create unit tests for workflow service at `apps/orchestration/tests/unit/services/test_workflow_service.py` with mocked repositories
 - [ ] T037 [US1] Create unit tests for stage service at `apps/orchestration/tests/unit/services/test_stage_service.py` validating retry logic and state transitions
 - [ ] T038 [US1] Create integration tests for complete pipeline at `apps/orchestration/tests/integration/test_pipeline_execution.py` using test Supabase instance
