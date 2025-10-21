@@ -1,7 +1,8 @@
 """Stage executor for calling external stage services."""
 
 import logging
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from services.state_machine import WorkflowStateMachine
 from utils.errors import PipelineError
