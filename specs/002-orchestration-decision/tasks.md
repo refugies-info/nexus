@@ -67,7 +67,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 ### Tasks
 
-- [ ] T013 Create Supabase client wrapper at `apps/orchestration/src/db/client.py` with connection pooling and error handling
+- [X] T013 Create Supabase client wrapper at `apps/orchestration/src/db/client.py` with connection pooling and error handling
 - [ ] T014 Create base repository class at `apps/orchestration/src/db/repositories/base_repository.py` with common CRUD operations
 - [ ] T015 [P] Create workflow repository at `apps/orchestration/src/db/repositories/workflow_repository.py` with methods: create_workflow_run, get_workflow_run, update_workflow_status, list_workflow_runs
 - [ ] T016 [P] Create stage execution repository at `apps/orchestration/src/db/repositories/stage_repository.py` with methods: create_stage_execution, get_stage_execution, update_stage_status, list_stage_executions
