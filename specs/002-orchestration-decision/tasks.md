@@ -40,8 +40,8 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T002 Create Node.js tooling package at `packages/tooling/` with build scripts for n8n workflow management
 - [X] T003 [P] Configure `apps/orchestration/pyproject.toml` with Python dependencies: FastAPI, Pydantic, Supabase client, structlog, pytest, deepdiff
 - [X] T004 [P] Configure `package.json` with Node.js dependencies: n8n CLI tools, TypeScript, testing framework
-- [ ] T005 Install Supabase CLI following https://supabase.com/docs/guides/local-development/cli/getting-started (macOS: `brew install supabase/tap/supabase`)
-- [ ] T005b Create Supabase account at https://supabase.com if not already created (required for production deployment)
+- [X] T005 Install Supabase CLI following https://supabase.com/docs/guides/local-development/cli/getting-started (macOS: `brew install supabase/tap/supabase`)
+- [X] T005b Create Supabase account at https://supabase.com if not already created (required for production deployment)
 - [ ] T005c Initialize Supabase project locally with `supabase init` and configure connection string in `.env`
 - [X] T006 Create `.env.example` file documenting required environment variables (Supabase URL/key, Data Inclusion API URL, Vercel AI Gateway credentials)
 - [X] T007 Create database migration script at `supabase/migrations/001_init_schema.sql` with all tables from data-model.md (workflow_runs, stage_executions, information_sheets, update_events, update_diffs, policy_validation_decisions, carif_oref_reconciliation_status)
