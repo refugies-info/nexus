@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from models.stage import StageExecutionRequest, StageStatus
-from services.stage_service import (
+from services.stage import (
     count_stages_by_status,
     execute_stage,
     get_failed_stages,
