@@ -123,7 +123,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T040b [US1] Create policy rule repository at `apps/orchestration/src/db/repositories/policy.py` with functions: get_policy_rules, get_rule_by_id, create_policy_decision, get_policy_decision
 - [X] T040c [US1] Create Carif-Oref reconciliation service at `apps/orchestration/src/services/reconciliation.py` with pure functions: fetch_carif_oref_csv, match_programs, merge_data, detect_conflicts, resolve_conflicts
 - [X] T040d [US1] Implement hourly CSV fetch scheduler at `apps/orchestration/src/services/carif_oref.py` using APScheduler for hourly Carif-Oref CSV updates
-- [ ] T040d-bis [US1] Create Data Inclusion connector service at `apps/orchestration/src/services/data_inclusion.py` with pure functions: fetch_program, fetch_programs, search_programs, get_program_by_id (mirrors carif_oref.py pattern)
+- [X] T040d-bis [US1] Create Data Inclusion connector service at `apps/orchestration/src/services/data_inclusion.py` with pure functions: fetch_program, fetch_programs, search_programs, get_program_by_id (mirrors carif_oref.py pattern)
 - [ ] T040e [US1] Create conflict resolution logic in `apps/orchestration/src/services/reconciliation.py` with pure functions implementing deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete)
 - [ ] T040f [US1] Create policy validation API endpoint at `apps/orchestration/src/api/policies.py`: POST /policies/validate (validate program), GET /policies/decisions/{program_id} (get decision)
 - [ ] T040g [US1] Create reconciliation API endpoint at `apps/orchestration/src/api/reconciliation.py`: POST /reconciliation/process (reconcile), GET /reconciliation/status/{program_id} (status)
