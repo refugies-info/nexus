@@ -1,20 +1,21 @@
 # Tasks: Pipeline Orchestration & Update Handling
 
 **Feature**: Pipeline Orchestration & Update Handling
-**Branch**: `003-pipeline-orchestration`
+**Branch**: `002-orchestration-decision`
 **Created**: 2025-10-20
+**Updated**: 2025-10-21 (8-stage pipeline with editorial policy validation)
 **Status**: Ready for Implementation
 
 ## Overview
 
 This document contains all actionable tasks for implementing the Nexus pipeline orchestration system. Tasks are organized by implementation phase and user story, with clear dependencies and independent test criteria for each story.
 
-**Total Tasks**: 108 (T001-T108, including 3 new Supabase setup tasks)
+**Total Tasks**: 110 (T001-T110, including editorial policy validation and Carif-Oref reconciliation tasks)
 
 **Implementation Strategy**: MVP-first approach with incremental delivery
 - **Phase 1 (Setup)**: Infrastructure and database schema
 - **Phase 2 (Foundational)**: Core orchestration services and n8n integration
-- **Phase 3 (US1)**: Process new programs through pipeline
+- **Phase 3 (US1)**: Process new programs through 8-stage pipeline (including editorial policy validation + Carif-Oref reconciliation)
 - **Phase 4 (US2)**: Handle data updates efficiently
 - **Phase 5 (US3)**: Review and approve update diffs
 - **Phase 6 (US4)**: Monitor pipeline execution
@@ -43,7 +44,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [ ] T005b Create Supabase account at https://supabase.com if not already created (required for production deployment)
 - [ ] T005c Initialize Supabase project locally with `supabase init` and configure connection string in `.env`
 - [ ] T006 Create `.env.example` file documenting required environment variables (Supabase URL/key, Data Inclusion API URL, Vercel AI Gateway credentials)
-- [ ] T007 Create database migration script at `supabase/migrations/001_init_schema.sql` with all tables from data-model.md (workflow_runs, stage_executions, information_sheets, update_events, update_diffs)
+- [ ] T007 Create database migration script at `supabase/migrations/001_init_schema.sql` with all tables from data-model.md (workflow_runs, stage_executions, information_sheets, update_events, update_diffs, policy_validation_decisions, carif_oref_reconciliation_status)
 - [ ] T008 [P] Create Supabase initialization script at `scripts/init-supabase.sh` to apply migrations and seed test data
 - [ ] T009 Create FastAPI application entry point at `apps/orchestration/src/main.py` with health check endpoint and middleware configuration
 - [ ] T010 Create directory structure for FastAPI modules at `apps/orchestration/src/`: `api/`, `services/`, `models/`, `db/`, `utils/`
@@ -86,15 +87,17 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 ## Phase 3: User Story 1 - Process New Programs Through Pipeline
 
-**Goal**: Implement core pipeline orchestration to process new programs through all 7 stages sequentially
+**Goal**: Implement core pipeline orchestration to process new programs through all 8 stages sequentially, including editorial policy validation and Carif-Oref reconciliation
 
-**Story**: As the Nexus system, I need to process new French learning programs from Data Inclusion through all pipeline stages (ingestion → reconciliation → enrichment → langage clair → translation → validation → publication) so that accurate, multilingual information sheets are published to Réfugiés.info.
+**Story**: As the Nexus system, I need to process new French learning programs from Data Inclusion through all pipeline stages (ingestion → editorial policy validation → reconciliation → enrichment → langage clair → translation → validation → publication) so that accurate, multilingual information sheets are published to Réfugiés.info, with non-compliant programs rejected early and data reconciled with Carif-Oref.
 
-**Why P1**: Foundation for all pipeline functionality - without this, no information sheets can be generated. This is the core value proposition of Nexus.
+**Why P1**: Foundation for all pipeline functionality - without this, no information sheets can be generated. Editorial policy validation ensures compliance before processing; Carif-Oref reconciliation ensures data completeness.
 
 **Independent Test Criteria**:
 - [ ] New program can be submitted to pipeline via API
-- [ ] Program progresses through all 7 stages sequentially
+- [ ] Program progresses through all 8 stages sequentially (including editorial policy validation)
+- [ ] Non-compliant programs are rejected at policy validation stage with audit trail
+- [ ] Carif-Oref CSV data is fetched and reconciled (hourly fetch, deterministic conflict resolution)
 - [ ] State is tracked in database at each stage completion
 - [ ] Program reaches publication stage and information sheet is marked as published
 - [ ] Multiple programs can be processed concurrently without interference
@@ -108,15 +111,27 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [ ] T030 [US1] Create stage execution service at `apps/orchestration/src/services/stage_service.py` with methods: execute_stage, retry_stage, mark_stage_complete, handle_stage_failure
 - [ ] T031 [US1] Implement retry logic with exponential backoff at `apps/orchestration/src/utils/retry.py` using tenacity library (initial delay 1s, max delay 5min, max retries 10)
 - [ ] T032 [US1] Create workflow API endpoints at `apps/orchestration/src/api/workflows.py`: POST /workflows (start), GET /workflows/{id} (status), POST /workflows/{id}/stages/{stage} (execute)
-- [ ] T033 [US1] Implement workflow state machine at `apps/orchestration/src/services/state_machine.py` enforcing stage sequence: ingestion → reconciliation → enrichment → langage_clair → translation → validation → publication
+- [ ] T033 [US1] Implement workflow state machine at `apps/orchestration/src/services/state_machine.py` enforcing stage sequence: ingestion → editorial_policy_validation → reconciliation → enrichment → langage_clair → translation → validation → publication
 - [ ] T034 [US1] Create stage executor at `apps/orchestration/src/services/stage_executor.py` that calls external stage services (placeholder for actual stage implementations)
 - [ ] T035 [US1] Implement error handling for stage failures at `apps/orchestration/src/services/error_handler.py` with retry logic and manual review routing
 - [ ] T036 [US1] Create unit tests for workflow service at `apps/orchestration/tests/unit/services/test_workflow_service.py` with mocked repositories
 - [ ] T037 [US1] Create unit tests for stage service at `apps/orchestration/tests/unit/services/test_stage_service.py` validating retry logic and state transitions
 - [ ] T038 [US1] Create integration tests for complete pipeline at `apps/orchestration/tests/integration/test_pipeline_execution.py` using test Supabase instance
 - [ ] T039 [US1] Create contract tests for workflow API at `apps/orchestration/tests/contract/test_workflow_api.py` validating request/response schemas
-- [ ] T040 [US1] Create n8n workflow at `specs/002-orchestration-decision/workflows/pipeline-orchestration.json` that orchestrates 7-stage pipeline with error handling and retry logic
-- [ ] T041 [US1] Create n8n workflow documentation at `specs/002-orchestration-decision/workflows/README.md` explaining pipeline flow, error handling, and manual review routing
+- [ ] T040 [US1] Create editorial policy validator service at `apps/orchestration/src/services/policy_validator.py` with methods: validate_program, check_policy_rules, generate_audit_trail, reject_program
+- [ ] T040b [US1] Create policy rule repository at `apps/orchestration/src/db/repositories/policy_repository.py` with methods: get_policy_rules, get_rule_by_id, create_policy_decision, get_policy_decision
+- [ ] T040c [US1] Create Carif-Oref reconciliation service at `apps/orchestration/src/services/reconciliation_service.py` with methods: fetch_carif_oref_csv, match_programs, merge_data, detect_conflicts, resolve_conflicts
+- [ ] T040d [US1] Implement hourly CSV fetch scheduler at `apps/orchestration/src/services/carif_oref_scheduler.py` using APScheduler for hourly Carif-Oref CSV updates
+- [ ] T040e [US1] Create conflict resolution logic at `apps/orchestration/src/services/conflict_resolver.py` implementing deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete)
+- [ ] T040f [US1] Create policy validation API endpoint at `apps/orchestration/src/api/policies.py`: POST /policies/validate (validate program), GET /policies/decisions/{program_id} (get decision)
+- [ ] T040g [US1] Create reconciliation API endpoint at `apps/orchestration/src/api/reconciliation.py`: POST /reconciliation/process (reconcile), GET /reconciliation/status/{program_id} (status)
+- [ ] T040h [US1] Create unit tests for policy validator at `apps/orchestration/tests/unit/services/test_policy_validator.py` with various policy scenarios
+- [ ] T040i [US1] Create unit tests for reconciliation service at `apps/orchestration/tests/unit/services/test_reconciliation_service.py` validating data merging and conflict detection
+- [ ] T040j [US1] Create unit tests for conflict resolver at `apps/orchestration/tests/unit/services/test_conflict_resolver.py` validating deterministic resolution
+- [ ] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy_validation.py` with real policy scenarios
+- [ ] T040l [US1] Create integration tests for Carif-Oref reconciliation at `apps/orchestration/tests/integration/test_carif_oref_reconciliation.py` with CSV data
+- [ ] T040m [US1] Create n8n workflow at `specs/002-orchestration-decision/workflows/pipeline-orchestration.json` that orchestrates 8-stage pipeline (including policy validation and reconciliation) with error handling and retry logic
+- [ ] T041 [US1] Create n8n workflow documentation at `specs/002-orchestration-decision/workflows/README.md` explaining 8-stage pipeline flow (including policy validation and Carif-Oref reconciliation), error handling, and manual review routing
 - [ ] T042 [US1] Create test data fixtures at `apps/orchestration/tests/fixtures/test_programs.json` with sample programs for testing
 - [ ] T046 [US1] Create quickstart guide section in `specs/002-orchestration-decision/quickstart.md` for testing pipeline execution with curl examples
 
@@ -132,7 +147,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 **Independent Test Criteria**:
 - [ ] Updates are detected via checksum comparison
-- [ ] Early-stage programs (ingestion, reconciliation) trigger full reprocess
+- [ ] Early-stage programs (ingestion, editorial_policy_validation, reconciliation) trigger full reprocess
 - [ ] Late-stage programs (enrichment+) trigger smart catch-up
 - [ ] Smart catch-up processes update to original stage in <5 minutes
 - [ ] Original program data is preserved during update processing
