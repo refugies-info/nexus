@@ -11,16 +11,12 @@ from db.repositories.workflow import WorkflowRepository
 
 
 @pytest_asyncio.fixture
-async def workflow_repo(db_session: AsyncSession) -> WorkflowRepository:
-    """Create a WorkflowRepository instance for testing."""
+async def workflow_repo(mock_supabase_client, db_session: AsyncSession) -> WorkflowRepository:
+    """Create a WorkflowRepository instance for testing.
 
-    # Mock Supabase client - we'll use direct SQLAlchemy for tests
-    class MockSupabaseClient:
-        def __init__(self, session: AsyncSession):
-            self.session = session
-
-    client = MockSupabaseClient(db_session)
-    repo = WorkflowRepository(client)
+    Uses mock Supabase client with in-memory SQLite database.
+    """
+    repo = WorkflowRepository(mock_supabase_client)
     repo.session = db_session  # Inject session for testing
     return repo
 

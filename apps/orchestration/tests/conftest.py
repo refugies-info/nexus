@@ -10,6 +10,8 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.pool import StaticPool
 
+from .fixtures.mock_supabase import MockSupabaseClient
+
 
 @pytest_asyncio.fixture
 async def db_engine():
@@ -232,3 +234,9 @@ def sample_update_event_data() -> dict[str, Any]:
         "original_stage": "enrichment",
         "update_strategy": "smart_catchup",
     }
+
+
+@pytest.fixture
+def mock_supabase_client(db_session: AsyncSession) -> MockSupabaseClient:
+    """Create a mock Supabase client for testing."""
+    return MockSupabaseClient(db_session)
