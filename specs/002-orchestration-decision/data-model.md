@@ -112,7 +112,7 @@ This document defines the data model for pipeline orchestration state management
 - `id` (UUID, PRIMARY KEY): Unique identifier for the workflow run
 - `program_id` (TEXT, NOT NULL): Data Inclusion unique ID (from spec clarifications)
 - `current_stage` (TEXT, NOT NULL): Current pipeline stage
-  - Values: `ingestion`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
+  - Values: `ingestion`, `editorial_policy_validation`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
 - `status` (TEXT, NOT NULL): Workflow execution status
   - Values: `pending`, `running`, `completed`, `failed`
 - `created_at` (TIMESTAMPTZ, NOT NULL, DEFAULT NOW()): When workflow started
@@ -142,7 +142,7 @@ This document defines the data model for pipeline orchestration state management
 - `id` (UUID, PRIMARY KEY): Unique identifier for the stage execution
 - `workflow_run_id` (UUID, NOT NULL, FOREIGN KEY → workflow_runs.id): Parent workflow
 - `stage_name` (TEXT, NOT NULL): Name of the stage
-  - Values: `ingestion`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
+  - Values: `ingestion`, `editorial_policy_validation`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
 - `status` (TEXT, NOT NULL): Stage execution status
   - Values: `pending`, `running`, `completed`, `failed`
 - `retry_count` (INTEGER, NOT NULL, DEFAULT 0): Number of retry attempts
@@ -160,7 +160,7 @@ This document defines the data model for pipeline orchestration state management
 
 **Constraints**:
 - CHECK: `status` IN ('pending', 'running', 'completed', 'failed')
-- CHECK: `stage_name` IN ('ingestion', 'reconciliation', 'enrichment', 'langage_clair', 'translation', 'validation', 'publication')
+- CHECK: `stage_name` IN ('ingestion', 'editorial_policy_validation', 'reconciliation', 'enrichment', 'langage_clair', 'translation', 'validation', 'publication')
 - CHECK: `retry_count` >= 0
 - FOREIGN KEY: `workflow_run_id` REFERENCES `workflow_runs(id)` ON DELETE CASCADE
 
@@ -178,11 +178,11 @@ This document defines the data model for pipeline orchestration state management
 - `program_id` (TEXT, UNIQUE, NOT NULL): Data Inclusion unique ID
 - `refugies_info_id` (TEXT, NULLABLE): MongoDB ObjectId from Réfugiés.info system (populated after publication)
 - `current_stage` (TEXT, NOT NULL): Current stage of the program
-  - Values: `ingestion`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
+  - Values: `ingestion`, `editorial_policy_validation`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
 - `status` (TEXT, NOT NULL): Publication status
   - Values: `draft`, `in_review`, `approved`, `published`
 - `ingested_data` (JSONB, NOT NULL): Raw data from Data Inclusion API
-- `reconciled_data` (JSONB, NULLABLE): Data after reconciliation with Carif Oref
+- `reconciled_data` (JSONB, NULLABLE): Data after reconciliation with Carif-Oref CSV (hourly fetch, deterministic conflict resolution)
 - `enriched_data` (JSONB, NULLABLE): Data after enrichment (web scraping, metadata)
 - `langage_clair_data` (JSONB, NULLABLE): Data after AI plain language transformation
 - `translated_data` (JSONB, NULLABLE): Data after multilingual translation
@@ -217,7 +217,7 @@ This document defines the data model for pipeline orchestration state management
 - `original_checksum` (TEXT, NOT NULL): SHA-256 hash of original Data Inclusion service JSON (64-character hex string)
 - `updated_checksum` (TEXT, NOT NULL): SHA-256 hash of updated Data Inclusion service JSON (64-character hex string)
 - `original_stage` (TEXT, NOT NULL): Stage of original program when update detected
-  - Values: `ingestion`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
+  - Values: `ingestion`, `editorial_policy_validation`, `reconciliation`, `enrichment`, `langage_clair`, `translation`, `validation`, `publication`
 - `update_strategy` (TEXT, NOT NULL): How update will be processed
   - Values: `full_reprocess` (early stages), `smart_catchup` (late stages)
 - `processing_status` (TEXT, NOT NULL): Update processing status
@@ -243,7 +243,7 @@ Checksums are SHA-256 hashes of the complete Data Inclusion service JSON (exclud
 - `idx_update_events_created_at` ON `created_at` DESC
 
 **Constraints**:
-- CHECK: `original_stage` IN ('ingestion', 'reconciliation', 'enrichment', 'langage_clair', 'translation', 'validation', 'publication')
+- CHECK: `original_stage` IN ('ingestion', 'editorial_policy_validation', 'reconciliation', 'enrichment', 'langage_clair', 'translation', 'validation', 'publication')
 - CHECK: `update_strategy` IN ('full_reprocess', 'smart_catchup')
 - CHECK: `processing_status` IN ('pending', 'processing', 'completed', 'failed')
 
@@ -335,8 +335,8 @@ Checksums are SHA-256 hashes of the complete Data Inclusion service JSON (exclud
 ### update_events
 - `updated_checksum` must be different from `original_checksum`
 - `completed_at` must be >= `created_at`
-- `update_strategy` must be `full_reprocess` if `original_stage` is `ingestion` or `reconciliation`
-- `update_strategy` must be `smart_catchup` if `original_stage` is `enrichment`, `langage_clair`, `translation`, or `validation`
+- `update_strategy` must be `full_reprocess` if `original_stage` is `ingestion`, `editorial_policy_validation`, or `reconciliation`
+- `update_strategy` must be `smart_catchup` if `original_stage` is `enrichment`, `langage_clair`, `translation`, `validation`, or `publication`
 
 ### update_diffs
 - `risk_score` must match `priority`: low (<0.5), medium (0.5-0.8), high (>0.8)
@@ -347,15 +347,18 @@ Checksums are SHA-256 hashes of the complete Data Inclusion service JSON (exclud
 
 ## Migration Strategy
 
-### Phase 1: Core Tables
+### **Phase 1: Core Tables**
 - Create `workflow_runs`, `stage_executions`, `information_sheets`
 - Add indexes and constraints
 - Seed with test data
+- Add `editorial_policy_validation` stage to stage enums
+- Add `policy_validation_decisions` table (program_id, rule_applied, decision, reason, audit_trail)
 
-### Phase 2: Update Handling
+### **Phase 2: Update Handling**
 - Create `update_events`, `update_diffs`
 - Add foreign key relationships
 - Add indexes and constraints
+- Add `carif_oref_reconciliation_status` table (program_id, reconciliation_status, carif_oref_data, conflicts_detected, last_fetch_at)
 
 ### Phase 3: Optimization
 - Add materialized views for dashboards (if needed)
@@ -393,6 +396,8 @@ Checksums are SHA-256 hashes of the complete Data Inclusion service JSON (exclud
 
 Data model supports:
 - ✅ Complete workflow state tracking (workflow_runs, stage_executions)
+- ✅ Editorial policy validation (policy_validation_decisions with audit trail)
+- ✅ Carif-Oref reconciliation (hourly CSV fetch, deterministic conflict resolution)
 - ✅ Progressive data enhancement (information_sheets with stage-specific JSONB columns)
 - ✅ Update detection and routing (update_events with strategy)
 - ✅ Diff review workflow (update_diffs with risk scoring and approval)
