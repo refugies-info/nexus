@@ -36,20 +36,20 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 
 ### Tasks
 
-- [ ] T001 Create Python package structure for orchestration service at `apps/orchestration/` with `src/`, `tests/`, `pyproject.toml`
-- [ ] T002 Create Node.js tooling package at `packages/tooling/` with build scripts for n8n workflow management
-- [ ] T003 [P] Configure `apps/orchestration/pyproject.toml` with Python dependencies: FastAPI, Pydantic, Supabase client, structlog, pytest, deepdiff
-- [ ] T004 [P] Configure `package.json` with Node.js dependencies: n8n CLI tools, TypeScript, testing framework
+- [X] T001 Create Python package structure for orchestration service at `apps/orchestration/` with `src/`, `tests/`, `pyproject.toml`
+- [X] T002 Create Node.js tooling package at `packages/tooling/` with build scripts for n8n workflow management
+- [X] T003 [P] Configure `apps/orchestration/pyproject.toml` with Python dependencies: FastAPI, Pydantic, Supabase client, structlog, pytest, deepdiff
+- [X] T004 [P] Configure `package.json` with Node.js dependencies: n8n CLI tools, TypeScript, testing framework
 - [ ] T005 Install Supabase CLI following https://supabase.com/docs/guides/local-development/cli/getting-started (macOS: `brew install supabase/tap/supabase`)
 - [ ] T005b Create Supabase account at https://supabase.com if not already created (required for production deployment)
 - [ ] T005c Initialize Supabase project locally with `supabase init` and configure connection string in `.env`
-- [ ] T006 Create `.env.example` file documenting required environment variables (Supabase URL/key, Data Inclusion API URL, Vercel AI Gateway credentials)
-- [ ] T007 Create database migration script at `supabase/migrations/001_init_schema.sql` with all tables from data-model.md (workflow_runs, stage_executions, information_sheets, update_events, update_diffs, policy_validation_decisions, carif_oref_reconciliation_status)
-- [ ] T008 [P] Create Supabase initialization script at `scripts/init-supabase.sh` to apply migrations and seed test data
-- [ ] T009 Create FastAPI application entry point at `apps/orchestration/src/main.py` with health check endpoint and middleware configuration
-- [ ] T010 Create directory structure for FastAPI modules at `apps/orchestration/src/`: `api/`, `services/`, `models/`, `db/`, `utils/`
-- [ ] T011 [P] Create pytest configuration at `apps/orchestration/pytest.ini` with test discovery and coverage settings
-- [ ] T012 Create n8n workflows directory at `specs/002-orchestration-decision/workflows/` with README documenting workflow structure
+- [X] T006 Create `.env.example` file documenting required environment variables (Supabase URL/key, Data Inclusion API URL, Vercel AI Gateway credentials)
+- [X] T007 Create database migration script at `supabase/migrations/001_init_schema.sql` with all tables from data-model.md (workflow_runs, stage_executions, information_sheets, update_events, update_diffs, policy_validation_decisions, carif_oref_reconciliation_status)
+- [X] T008 [P] Create Supabase initialization script at `scripts/init-supabase.sh` to apply migrations and seed test data
+- [X] T009 Create FastAPI application entry point at `apps/orchestration/src/main.py` with health check endpoint and middleware configuration
+- [X] T010 Create directory structure for FastAPI modules at `apps/orchestration/src/`: `api/`, `services/`, `models/`, `db/`, `utils/`
+- [X] T011 [P] Create pytest configuration at `apps/orchestration/pytest.ini` with test discovery and coverage settings
+- [X] T012 Create n8n workflows directory at `specs/002-orchestration-decision/workflows/` with README documenting workflow structure
 
 ---
 
