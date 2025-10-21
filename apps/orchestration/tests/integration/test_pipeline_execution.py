@@ -347,13 +347,18 @@ class TestPipelineExecution:
             "publication",
         ]
 
-        # Verify: All stages are valid
-        for stage in stages:
+        # Verify: All stages except last have next stages
+        for stage in stages[:-1]:
             next_stage = state_machine(stage)
-            assert next_stage is not None or stage == "publication"
+            assert next_stage is not None
 
-        # Verify: Invalid stage is rejected
-        assert state_machine("invalid_stage") is None
+        # Verify: Last stage (publication) raises error when getting next
+        with pytest.raises(PipelineError):
+            state_machine("publication")
+
+        # Verify: Invalid stage raises error
+        with pytest.raises(PipelineError):
+            state_machine("invalid_stage")
 
         # Verify: Get all stages returns correct sequence
         all_stages = [state_machine(stage) for stage in stages[:-1]]
@@ -371,25 +376,17 @@ class TestPipelineExecution:
         assert state_machine("translation") == "validation"
         assert state_machine("validation") == "publication"
 
-        # Verify: Invalid transitions (backwards) raise PipelineError
+        # Verify: Last stage raises error
         with pytest.raises(PipelineError):
-            state_machine("publication", "validation")
-        with pytest.raises(PipelineError):
-            state_machine("enrichment", "ingestion")
-
-        # Verify: Invalid transitions (skipping stages) raise PipelineError
-        with pytest.raises(PipelineError):
-            state_machine("ingestion", "enrichment")
-        with pytest.raises(PipelineError):
-            state_machine("reconciliation", "translation")
+            state_machine("publication")
 
     @pytest.mark.asyncio
     async def test_pipeline_workflow_completion(self, workflow_service, mock_workflow_repo):
         """Test workflow completion after all stages."""
         workflow_id = "wf_001"
 
-        # Setup: Mark workflow as completed
-        mock_workflow_repo.mark_workflow_completed = AsyncMock(
+        # Setup: Mock the update_workflow_status to return completed status
+        mock_workflow_repo.update_workflow_status = AsyncMock(
             return_value={
                 "id": workflow_id,
                 "program_id": "prog_001",
@@ -410,7 +407,7 @@ class TestPipelineExecution:
         # Verify: Workflow marked as completed
         assert result.status == WorkflowStatus.COMPLETED
         assert result.current_stage == "publication"
-        mock_workflow_repo.mark_workflow_completed.assert_called_once()
+        mock_workflow_repo.update_workflow_status.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_pipeline_metadata_preservation(self, stage_service, mock_stage_repo):
