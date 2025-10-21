@@ -126,8 +126,8 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T040d-bis [US1] Create Data Inclusion connector service at `apps/orchestration/src/services/data_inclusion.py` with pure functions: fetch_program, fetch_programs, search_programs, get_program_by_id (mirrors carif_oref.py pattern)
 - [X] T040e [US1] Create conflict resolution logic in `apps/orchestration/src/services/reconciliation.py` with pure functions implementing deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete)
 - [X] T040f [US1] Create policy validation API endpoint at `apps/orchestration/src/api/policies.py`: POST /policies/validate (validate program), GET /policies/decisions/{program_id} (get decision)
-- [ ] T040g [US1] Create reconciliation API endpoint at `apps/orchestration/src/api/reconciliation.py`: POST /reconciliation/process (reconcile), GET /reconciliation/status/{program_id} (status)
-- [ ] T040h [US1] Create unit tests for policy service at `apps/orchestration/tests/unit/services/test_policy.py` with various policy scenarios
+- [X] T040g [US1] Create reconciliation API endpoint at `apps/orchestration/src/api/reconciliation.py`: POST /reconciliation/process (reconcile), GET /reconciliation/status/{program_id} (status)
+- [X] T040h [US1] Create unit tests for policy service at `apps/orchestration/tests/unit/services/test_policy.py` with various policy scenarios
 - [ ] T040i [US1] Create unit tests for reconciliation service at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating data merging and conflict detection
 - [ ] T040j [US1] Create unit tests for reconciliation conflict resolution at `apps/orchestration/tests/unit/services/test_reconciliation.py` validating deterministic resolution
 - [ ] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy.py` with real policy scenarios

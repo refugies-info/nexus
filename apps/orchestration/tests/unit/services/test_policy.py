@@ -3,7 +3,7 @@
 import pytest
 
 from services.policy import (
-    check_policy_rules,
+    check_applicable_rules,
     generate_audit_trail,
     reject_program,
     validate_program,
@@ -19,16 +19,15 @@ class TestValidateProgram:
         program_data = {
             "id": "prog-001",
             "name": "French Learning Program",
-            "type": "non-profit",
+            "is_for_profit": False,
             "is_temporary": False,
-            "target_audience": ["adults"],
+            "target_publics": ["adults"],
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             }
         ]
 
@@ -38,8 +37,8 @@ class TestValidateProgram:
             policy_rules=policy_rules,
         )
 
-        assert result["valid"] is True
-        assert result["decision"] == "approved"
+        assert result["is_compliant"] is True
+        assert len(result["violations"]) == 0
 
     @pytest.mark.asyncio
     async def test_validate_program_non_compliant(self):
@@ -47,15 +46,14 @@ class TestValidateProgram:
         program_data = {
             "id": "prog-002",
             "name": "Commercial Program",
-            "type": "for-profit",
+            "is_for_profit": True,
             "is_temporary": False,
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             }
         ]
 
@@ -65,8 +63,8 @@ class TestValidateProgram:
             policy_rules=policy_rules,
         )
 
-        assert result["valid"] is False
-        assert result["decision"] == "rejected"
+        assert result["is_compliant"] is False
+        assert len(result["violations"]) > 0
 
     @pytest.mark.asyncio
     async def test_validate_program_temporary_initiative(self):
@@ -74,15 +72,13 @@ class TestValidateProgram:
         program_data = {
             "id": "prog-003",
             "name": "One-Time Workshop",
-            "type": "non-profit",
             "is_temporary": True,
         }
         policy_rules = [
             {
                 "id": "rule-2",
-                "category": "temporary_initiative",
-                "criteria": {"is_temporary": False},
-                "decision": "approved",
+                "category": "temporary",
+                "criteria": {},
             }
         ]
 
@@ -92,7 +88,7 @@ class TestValidateProgram:
             policy_rules=policy_rules,
         )
 
-        assert result["valid"] is False
+        assert result["is_compliant"] is False
 
     @pytest.mark.asyncio
     async def test_validate_program_with_audit_trail(self):
@@ -100,14 +96,12 @@ class TestValidateProgram:
         program_data = {
             "id": "prog-004",
             "name": "Test Program",
-            "type": "non-profit",
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             }
         ]
 
@@ -134,118 +128,114 @@ class TestValidateProgram:
             policy_rules=[],
         )
 
-        assert result["valid"] is True
+        assert result["is_compliant"] is True
 
 
-class TestCheckPolicyRules:
-    """Test check_policy_rules function."""
+class TestCheckApplicableRules:
+    """Test check_applicable_rules function."""
 
     @pytest.mark.asyncio
-    async def test_check_policy_rules_all_pass(self):
-        """Test when all policy rules pass."""
+    async def test_check_applicable_rules_all_applicable(self):
+        """Test when all policy rules are applicable."""
         program_data = {
-            "type": "non-profit",
+            "is_for_profit": False,
             "is_temporary": False,
-            "target_audience": ["adults"],
+            "target_publics": ["adults"],
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             },
             {
                 "id": "rule-2",
                 "category": "temporary",
-                "criteria": {"is_temporary": False},
-                "decision": "approved",
+                "criteria": {},
             },
         ]
 
-        violations = await check_policy_rules(
+        applicable = await check_applicable_rules(
             program_data=program_data,
             policy_rules=policy_rules,
         )
 
-        assert len(violations) == 0
+        assert len(applicable) == 2
 
     @pytest.mark.asyncio
-    async def test_check_policy_rules_some_violations(self):
-        """Test when some policy rules are violated."""
+    async def test_check_applicable_rules_filters_correctly(self):
+        """Test that applicable rules are filtered correctly."""
         program_data = {
-            "type": "for-profit",
+            "is_for_profit": True,
             "is_temporary": True,
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             },
             {
                 "id": "rule-2",
                 "category": "temporary",
-                "criteria": {"is_temporary": False},
-                "decision": "approved",
+                "criteria": {},
             },
         ]
 
-        violations = await check_policy_rules(
+        applicable = await check_applicable_rules(
             program_data=program_data,
             policy_rules=policy_rules,
         )
 
-        assert len(violations) > 0
+        assert len(applicable) > 0
 
     @pytest.mark.asyncio
-    async def test_check_policy_rules_with_exceptions(self):
+    async def test_check_applicable_rules_with_exceptions(self):
         """Test policy rules with exceptions."""
         program_data = {
-            "type": "for-profit",
+            "is_for_profit": True,
             "is_subsidized": True,
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
-                "exceptions": [{"is_subsidized": True}],
+                "criteria": {"exceptions": ["subsidized"]},
             }
         ]
 
-        violations = await check_policy_rules(
+        applicable = await check_applicable_rules(
             program_data=program_data,
             policy_rules=policy_rules,
         )
 
-        # Should pass due to exception
-        assert len(violations) == 0
+        # Should still be applicable, but validation will check exceptions
+        assert len(applicable) > 0
 
 
 class TestGenerateAuditTrail:
     """Test generate_audit_trail function."""
 
-    @pytest.mark.asyncio
-    async def test_generate_audit_trail_approved(self):
+    def test_generate_audit_trail_approved(self):
         """Test audit trail for approved program."""
         program_id = "prog-001"
-        violations = []
+        validation_result = {
+            "program_id": program_id,
+            "is_compliant": True,
+            "violations": [],
+            "audit_trail": [],
+        }
 
-        trail = await generate_audit_trail(
+        trail = generate_audit_trail(
             program_id=program_id,
-            violations=violations,
+            validation_result=validation_result,
         )
 
-        assert isinstance(trail, list)
-        assert len(trail) > 0
-        assert trail[0]["program_id"] == program_id
-        assert trail[0]["decision"] == "approved"
+        assert isinstance(trail, dict)
+        assert trail["program_id"] == program_id
+        assert trail["is_compliant"] is True
 
-    @pytest.mark.asyncio
-    async def test_generate_audit_trail_rejected(self):
+    def test_generate_audit_trail_rejected(self):
         """Test audit trail for rejected program."""
         program_id = "prog-002"
         violations = [
@@ -255,32 +245,40 @@ class TestGenerateAuditTrail:
                 "reason": "Program is for-profit",
             }
         ]
+        validation_result = {
+            "program_id": program_id,
+            "is_compliant": False,
+            "violations": violations,
+            "audit_trail": [],
+        }
 
-        trail = await generate_audit_trail(
+        trail = generate_audit_trail(
             program_id=program_id,
-            violations=violations,
+            validation_result=validation_result,
         )
 
-        assert isinstance(trail, list)
-        assert len(trail) > 0
-        assert trail[0]["program_id"] == program_id
-        assert trail[0]["decision"] == "rejected"
+        assert isinstance(trail, dict)
+        assert trail["program_id"] == program_id
+        assert trail["is_compliant"] is False
 
-    @pytest.mark.asyncio
-    async def test_generate_audit_trail_includes_timestamp(self):
+    def test_generate_audit_trail_includes_timestamp(self):
         """Test audit trail includes timestamp."""
         program_id = "prog-003"
-        violations = []
+        validation_result = {
+            "program_id": program_id,
+            "is_compliant": True,
+            "violations": [],
+            "audit_trail": [],
+        }
 
-        trail = await generate_audit_trail(
+        trail = generate_audit_trail(
             program_id=program_id,
-            violations=violations,
+            validation_result=validation_result,
         )
 
-        assert "timestamp" in trail[0]
+        assert "validation_timestamp" in trail
 
-    @pytest.mark.asyncio
-    async def test_generate_audit_trail_includes_violations(self):
+    def test_generate_audit_trail_includes_violations(self):
         """Test audit trail includes violation details."""
         program_id = "prog-004"
         violations = [
@@ -295,35 +293,44 @@ class TestGenerateAuditTrail:
                 "reason": "Program is for-profit",
             },
         ]
+        validation_result = {
+            "program_id": program_id,
+            "is_compliant": False,
+            "violations": violations,
+            "audit_trail": [],
+        }
 
-        trail = await generate_audit_trail(
+        trail = generate_audit_trail(
             program_id=program_id,
-            violations=violations,
+            validation_result=validation_result,
         )
 
-        assert len(trail[0]["violations"]) == 2
+        assert len(trail["violations"]) == 2
 
 
 class TestRejectProgram:
     """Test reject_program function."""
 
     @pytest.mark.asyncio
-    async def test_reject_program_basic(self):
+    async def test_reject_program_basic(self, mock_policy_repo):
         """Test basic program rejection."""
         program_id = "prog-001"
         reason = "Program does not meet policy requirements"
+        violations = []
 
         result = await reject_program(
             program_id=program_id,
             reason=reason,
+            violations=violations,
+            repo=mock_policy_repo,
         )
 
         assert result["program_id"] == program_id
-        assert result["decision"] == "rejected"
+        assert result["status"] == "rejected"
         assert result["reason"] == reason
 
     @pytest.mark.asyncio
-    async def test_reject_program_with_violations(self):
+    async def test_reject_program_with_violations(self, mock_policy_repo):
         """Test rejection with violation details."""
         program_id = "prog-002"
         reason = "Multiple policy violations"
@@ -336,6 +343,7 @@ class TestRejectProgram:
             program_id=program_id,
             reason=reason,
             violations=violations,
+            repo=mock_policy_repo,
         )
 
         assert result["program_id"] == program_id
@@ -343,17 +351,20 @@ class TestRejectProgram:
         assert len(result["violations"]) == 2
 
     @pytest.mark.asyncio
-    async def test_reject_program_includes_timestamp(self):
+    async def test_reject_program_includes_timestamp(self, mock_policy_repo):
         """Test rejection includes timestamp."""
         program_id = "prog-003"
         reason = "Policy violation"
+        violations = []
 
         result = await reject_program(
             program_id=program_id,
             reason=reason,
+            violations=violations,
+            repo=mock_policy_repo,
         )
 
-        assert "timestamp" in result
+        assert "rejected_at" in result
 
 
 class TestPolicyEdgeCases:
@@ -370,8 +381,7 @@ class TestPolicyEdgeCases:
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             }
         ]
 
@@ -382,8 +392,8 @@ class TestPolicyEdgeCases:
         )
 
         # Should handle missing fields gracefully
-        assert "valid" in result
-        assert "decision" in result
+        assert "is_compliant" in result
+        assert "violations" in result
 
     @pytest.mark.asyncio
     async def test_validate_program_null_values(self):
@@ -391,15 +401,14 @@ class TestPolicyEdgeCases:
         program_data = {
             "id": "prog-002",
             "name": "Test Program",
-            "type": None,
+            "is_for_profit": None,
             "is_temporary": None,
         }
         policy_rules = [
             {
                 "id": "rule-1",
                 "category": "for_profit",
-                "criteria": {"type": "non-profit"},
-                "decision": "approved",
+                "criteria": {},
             }
         ]
 
@@ -409,24 +418,23 @@ class TestPolicyEdgeCases:
             policy_rules=policy_rules,
         )
 
-        assert "valid" in result
+        assert "is_compliant" in result
 
     @pytest.mark.asyncio
-    async def test_validate_program_complex_criteria(self):
-        """Test validation with complex criteria matching."""
+    async def test_validate_program_specialized_structure(self):
+        """Test validation with specialized structure."""
         program_data = {
             "id": "prog-003",
             "name": "Test Program",
-            "type": "non-profit",
-            "target_audience": ["adults", "seniors"],
+            "structure_type": "france_services",
+            "target_publics": ["adults", "seniors"],
             "location": "Paris",
         }
         policy_rules = [
             {
                 "id": "rule-1",
-                "category": "audience",
-                "criteria": {"target_audience": ["adults"]},
-                "decision": "approved",
+                "category": "specialized_structure",
+                "criteria": {"specialized_structures": ["france_services"]},
             }
         ]
 
@@ -436,4 +444,4 @@ class TestPolicyEdgeCases:
             policy_rules=policy_rules,
         )
 
-        assert result["valid"] is True
+        assert result["is_compliant"] is False

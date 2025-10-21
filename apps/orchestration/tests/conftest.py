@@ -240,3 +240,28 @@ def sample_update_event_data() -> dict[str, Any]:
 def mock_supabase_client(db_session: AsyncSession) -> MockSupabaseClient:
     """Create a mock Supabase client for testing."""
     return MockSupabaseClient(db_session)
+
+
+class MockPolicyRepository:
+    """Mock policy repository for testing."""
+
+    async def create_policy_decision(
+        self,
+        program_id: str,
+        decision: str,
+        reason: str,
+        violations: list[dict],
+    ) -> dict:
+        """Mock create policy decision."""
+        return {
+            "program_id": program_id,
+            "decision": decision,
+            "reason": reason,
+            "violations": violations,
+        }
+
+
+@pytest.fixture
+def mock_policy_repo() -> MockPolicyRepository:
+    """Create a mock policy repository for testing."""
+    return MockPolicyRepository()
