@@ -265,3 +265,36 @@ class MockPolicyRepository:
 def mock_policy_repo() -> MockPolicyRepository:
     """Create a mock policy repository for testing."""
     return MockPolicyRepository()
+
+
+class MockReconciliationRepository:
+    """Mock reconciliation repository for testing."""
+
+    def __init__(self, csv_data: list[dict] | None = None):
+        """Initialize with optional CSV data."""
+        self.csv_data = csv_data or []
+
+    async def get_latest_csv(self) -> list[dict]:
+        """Mock get latest CSV."""
+        return self.csv_data
+
+    async def create_reconciliation_status(
+        self,
+        program_id: str,
+        status: str,
+        carif_oref_data: dict | None = None,
+        conflicts: list[dict] | None = None,
+    ) -> dict:
+        """Mock create reconciliation status."""
+        return {
+            "program_id": program_id,
+            "status": status,
+            "carif_oref_data": carif_oref_data,
+            "conflicts": conflicts or [],
+        }
+
+
+@pytest.fixture
+def mock_reconciliation_repo() -> MockReconciliationRepository:
+    """Create a mock reconciliation repository for testing."""
+    return MockReconciliationRepository()
