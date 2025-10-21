@@ -54,8 +54,8 @@ class ErrorResponse(BaseModel):
         }
 
 
-class ApplicationException(Exception):
-    """Base application exception."""
+class ApplicationError(Exception):
+    """Base application error."""
 
     def __init__(
         self,
@@ -95,7 +95,7 @@ class ApplicationException(Exception):
         )
 
 
-class ValidationError(ApplicationException):
+class ValidationError(ApplicationError):
     """Validation error exception."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -107,7 +107,7 @@ class ValidationError(ApplicationException):
         )
 
 
-class RecordNotFoundError(ApplicationException):
+class RecordNotFoundError(ApplicationError):
     """Record not found exception."""
 
     def __init__(self, record_type: str, record_id: str):
@@ -119,7 +119,7 @@ class RecordNotFoundError(ApplicationException):
         )
 
 
-class DuplicateRecordError(ApplicationException):
+class DuplicateRecordError(ApplicationError):
     """Duplicate record exception."""
 
     def __init__(self, record_type: str, details: dict[str, Any] | None = None):
@@ -131,7 +131,7 @@ class DuplicateRecordError(ApplicationException):
         )
 
 
-class DatabaseError(ApplicationException):
+class DatabaseError(ApplicationError):
     """Database operation error exception."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -143,7 +143,7 @@ class DatabaseError(ApplicationException):
         )
 
 
-class PipelineError(ApplicationException):
+class PipelineError(ApplicationError):
     """Pipeline execution error exception."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -155,7 +155,7 @@ class PipelineError(ApplicationException):
         )
 
 
-class StageFailedError(ApplicationException):
+class StageFailedError(ApplicationError):
     """Stage execution failed exception."""
 
     def __init__(self, stage_name: str, error_message: str, details: dict[str, Any] | None = None):
@@ -167,7 +167,7 @@ class StageFailedError(ApplicationException):
         )
 
 
-class UpdateError(ApplicationException):
+class UpdateError(ApplicationError):
     """Update processing error exception."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -179,7 +179,7 @@ class UpdateError(ApplicationException):
         )
 
 
-class DiffGenerationError(ApplicationException):
+class DiffGenerationError(ApplicationError):
     """Diff generation error exception."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -191,7 +191,7 @@ class DiffGenerationError(ApplicationException):
         )
 
 
-class ExternalAPIError(ApplicationException):
+class ExternalAPIError(ApplicationError):
     """External API error exception."""
 
     def __init__(self, api_name: str, message: str, details: dict[str, Any] | None = None):
@@ -203,7 +203,7 @@ class ExternalAPIError(ApplicationException):
         )
 
 
-class ConfigurationError(ApplicationException):
+class ConfigurationError(ApplicationError):
     """Configuration error exception."""
 
     def __init__(self, message: str, details: dict[str, Any] | None = None):
@@ -227,11 +227,11 @@ def format_error_response(
     Returns:
         Tuple of (ErrorResponse, HTTP status code)
     """
-    if isinstance(error, ApplicationException):
+    if isinstance(error, ApplicationError):
         return error.to_response(request_id), error.status_code
     else:
         # Generic internal error
-        app_error = ApplicationException(
+        app_error = ApplicationError(
             error_code=ErrorCode.INTERNAL_ERROR,
             message=str(error),
             status_code=500,
