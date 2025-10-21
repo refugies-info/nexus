@@ -1,7 +1,8 @@
 """Retry logic with exponential backoff using tenacity."""
 
 import logging
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from tenacity import (
     RetryError,
