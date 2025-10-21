@@ -51,6 +51,9 @@ dev = [
     "psycopg[binary]>=3.1.0",
     "asyncpg>=0.29.0",
     "faker>=20.0.0",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "greenlet>=3.0.0",
 ]
 
 [project.urls]
@@ -60,7 +63,7 @@ Repository = "https://github.com/refugies-info/nexus"
 Issues = "https://github.com/refugies-info/nexus/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/nexus_orchestration"]
+packages = ["src"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -127,6 +130,6 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["apps", "libs", "packages"]
+known-first-party = ["apps", "libs", "packages", "db", "api", "services", "models", "utils", "auth"]
 force-single-line = false
 lines-after-imports = 2

@@ -7,7 +7,7 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from apps.orchestration.src.db.repositories.workflow_repository import WorkflowRepository
+from db.repositories.workflow_repository import WorkflowRepository
 
 
 @pytest_asyncio.fixture
