@@ -630,3 +630,165 @@ class TestReconciliationEdgeCases:
         assert "carif_oref_description" not in result
         assert "carif_oref_phone" in result
         assert result["carif_oref_phone"] == "01234567890"
+
+
+class TestConflictResolutionDeterminism:
+    """Test deterministic conflict resolution rules."""
+
+    @pytest.mark.asyncio
+    async def test_resolve_conflicts_recency_rule_priority(self):
+        """Test that recency rule takes priority over completeness."""
+        program_data = {
+            "id": "prog-001",
+            "name": "Name A",
+            "description": "Complete description",
+            "address": "123 Main St",
+            "phone": "01234567890",
+            "email": "test@example.com",
+            "website": "https://example.com",
+            "updated_at": "2025-10-20",
+        }
+        carif_oref_data = {
+            "name": "Name B",
+            "updated_at": "2025-10-21",
+        }
+        conflicts = [
+            {
+                "field": "name",
+                "data_inclusion_value": "Name A",
+                "carif_oref_value": "Name B",
+            }
+        ]
+
+        result = await resolve_conflicts(program_data, carif_oref_data, conflicts)
+
+        # Recency rule: Carif-Oref is more recent
+        assert result["name"] == "Name B"
+
+    @pytest.mark.asyncio
+    async def test_resolve_conflicts_same_timestamp_uses_completeness(self):
+        """Test completeness rule when timestamps are equal."""
+        program_data = {
+            "id": "prog-001",
+            "name": "Name A",
+            "description": "Complete description",
+            "address": "123 Main St",
+            "phone": "01234567890",
+            "email": "test@example.com",
+            "website": "https://example.com",
+            "updated_at": "2025-10-21",
+        }
+        carif_oref_data = {
+            "name": "Name B",
+            "updated_at": "2025-10-21",
+        }
+        conflicts = [
+            {
+                "field": "name",
+                "data_inclusion_value": "Name A",
+                "carif_oref_value": "Name B",
+            }
+        ]
+
+        result = await resolve_conflicts(program_data, carif_oref_data, conflicts)
+
+        # Same timestamp, Data Inclusion is more complete
+        assert result["name"] == "Name A"
+
+    @pytest.mark.asyncio
+    async def test_resolve_conflicts_no_timestamp_defaults_to_carif_oref(self):
+        """Test default to Carif-Oref when no timestamps available."""
+        program_data = {
+            "id": "prog-001",
+            "name": "Name A",
+        }
+        carif_oref_data = {
+            "name": "Name B",
+        }
+        conflicts = [
+            {
+                "field": "name",
+                "data_inclusion_value": "Name A",
+                "carif_oref_value": "Name B",
+            }
+        ]
+
+        result = await resolve_conflicts(program_data, carif_oref_data, conflicts)
+
+        # No timestamps, default to Carif-Oref
+        assert result["name"] == "Name B"
+
+    @pytest.mark.asyncio
+    async def test_resolve_conflicts_partial_timestamps(self):
+        """Test resolution with only one timestamp available."""
+        program_data = {
+            "id": "prog-001",
+            "name": "Name A",
+            "updated_at": "2025-10-21",
+        }
+        carif_oref_data = {
+            "name": "Name B",
+        }
+        conflicts = [
+            {
+                "field": "name",
+                "data_inclusion_value": "Name A",
+                "carif_oref_value": "Name B",
+            }
+        ]
+
+        result = await resolve_conflicts(program_data, carif_oref_data, conflicts)
+
+        # Only Data Inclusion has timestamp, default to Carif-Oref
+        assert result["name"] == "Name B"
+
+    @pytest.mark.asyncio
+    async def test_resolve_conflicts_preserves_non_conflicting_fields(self):
+        """Test that non-conflicting fields are preserved."""
+        program_data = {
+            "id": "prog-001",
+            "name": "Name A",
+            "description": "Desc A",
+            "address": "Address A",
+            "phone": "111",
+            "custom_field": "custom_value",
+            "updated_at": "2025-10-20",
+        }
+        carif_oref_data = {
+            "name": "Name B",
+            "updated_at": "2025-10-21",
+        }
+        conflicts = [
+            {
+                "field": "name",
+                "data_inclusion_value": "Name A",
+                "carif_oref_value": "Name B",
+            }
+        ]
+
+        result = await resolve_conflicts(program_data, carif_oref_data, conflicts)
+
+        # Only name should change
+        assert result["name"] == "Name B"
+        assert result["description"] == "Desc A"
+        assert result["address"] == "Address A"
+        assert result["phone"] == "111"
+        assert result["custom_field"] == "custom_value"
+
+    @pytest.mark.asyncio
+    async def test_resolve_conflicts_empty_conflicts_list(self):
+        """Test resolution with empty conflicts list."""
+        program_data = {
+            "id": "prog-001",
+            "name": "Name A",
+            "updated_at": "2025-10-20",
+        }
+        carif_oref_data = {
+            "name": "Name B",
+            "updated_at": "2025-10-21",
+        }
+
+        result = await resolve_conflicts(program_data, carif_oref_data, [])
+
+        # No conflicts to resolve
+        assert result == program_data
