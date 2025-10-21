@@ -116,7 +116,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [X] T034 [US1] Create stage executor at `apps/orchestration/src/services/stage_executor.py` that calls external stage services (placeholder for actual stage implementations)
 - [X] T035 [US1] Implement error handling for stage failures at `apps/orchestration/src/services/error_handler.py` with retry logic and manual review routing
 - [X] T036 [US1] Create unit tests for workflow service at `apps/orchestration/tests/unit/services/test_workflow_service.py` with mocked repositories
-- [ ] T037 [US1] Create unit tests for stage service at `apps/orchestration/tests/unit/services/test_stage_service.py` validating retry logic and state transitions
+- [X] T037 [US1] Create unit tests for stage service at `apps/orchestration/tests/unit/services/test_stage_service.py` validating retry logic and state transitions
 - [ ] T038 [US1] Create integration tests for complete pipeline at `apps/orchestration/tests/integration/test_pipeline_execution.py` using test Supabase instance
 - [ ] T039 [US1] Create contract tests for workflow API at `apps/orchestration/tests/contract/test_workflow_api.py` validating request/response schemas
 - [ ] T040 [US1] Create editorial policy validator service at `apps/orchestration/src/services/policy_validator.py` with methods: validate_program, check_policy_rules, generate_audit_trail, reject_program
