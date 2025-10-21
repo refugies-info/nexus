@@ -4,7 +4,7 @@ import logging
 from typing import Any
 
 from db.repositories.workflow import WorkflowRepository
-from services.stage_functions import (
+from services.stage_service import (
     handle_stage_failure,
 )
 from utils.errors import PipelineError
