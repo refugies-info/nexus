@@ -25,11 +25,11 @@ As the Nexus system, I need to process new French learning programs from Data In
 
 **Why this priority**: Foundation for all pipeline functionality - without this, no information sheets can be generated. This is the core value proposition of Nexus. Editorial policy validation ensures compliance before processing begins; Carif-Oref reconciliation ensures data completeness.
 
-**Independent Test**: Can be fully tested by submitting a new program and verifying it progresses through all 9 stages (including editorial policy validation and enhanced reconciliation), with state tracked at each stage, and delivers a published information sheet. Non-compliant programs should be rejected at validation stage with audit trail.
+**Independent Test**: Can be fully tested by submitting a new program and verifying it progresses through all 8 stages (including editorial policy validation and enhanced reconciliation), with state tracked at each stage, and delivers a published information sheet. Non-compliant programs should be rejected at validation stage with audit trail.
 
 **Acceptance Scenarios**:
 
-1. **Given** a new French learning program from Data Inclusion, **When** the pipeline processes it, **Then** the program progresses through all 9 stages sequentially and state is tracked in the database
+1. **Given** a new French learning program from Data Inclusion, **When** the pipeline processes it, **Then** the program progresses through all 8 stages sequentially and state is tracked in the database
 2. **Given** a program that violates editorial policy (e.g., for-profit with direct payment), **When** the editorial policy validation stage processes it, **Then** the program is rejected with reason and audit trail, and does not proceed to reconciliation
 3. **Given** a program with Carif-Oref source ID, **When** the reconciliation stage processes it, **Then** the system fetches matching Carif-Oref CSV data, scrapes additional details, and merges data
 4. **Given** a program at the enrichment stage, **When** a stage fails with a transient error, **Then** the system retries the stage automatically without manual intervention
@@ -102,7 +102,7 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **What happens when editorial policy rules conflict?** System applies rules in priority order (defined by editorial team) and records which rule triggered rejection
 - **What happens when a program matches multiple rejection criteria?** System records all matching criteria in audit trail and returns primary reason to user
 - **What happens when Carif-Oref CSV is unavailable?** System retries with exponential backoff (up to 24 hours); if unavailable, proceeds with Data Inclusion data only and flags for manual reconciliation
-- **What happens when Data Inclusion and Carif-Oref have conflicting data on policy-relevant fields?** System flags conflict for editorial review and does not auto-proceed
+- **What happens when Data Inclusion and Carif-Oref have conflicting data on policy-relevant fields?** System applies deterministic conflict resolution (prefer Carif-Oref if more recent, prefer Data Inclusion if more complete), flags conflict for editorial review, and continues to next stage
 
 ## Requirements *(mandatory)*
 
@@ -130,7 +130,7 @@ As a Nexus operator, I need to monitor pipeline execution status and identify fa
 - **FR-009i**: System MUST version policy rules and track which rule version was applied to each program
 
 #### Enhanced Data Reconciliation with Carif-Oref
-- **FR-009j**: System MUST fetch Carif-Oref CSV export from https://www.intercariforef.org/dian/?...&excsv=1 on a configurable schedule (hourly recommended to meet <1 hour latency target)
+- **FR-009j**: System MUST fetch Carif-Oref CSV export from https://www.intercariforef.org/dian/?...&excsv=1 on an hourly schedule (REQUIRED to meet <1 hour latency SLA target)
 - **FR-009k**: System MUST reconcile Data Inclusion records with Carif-Oref CSV data using structure_id and id fields as matching keys
 - **FR-009l**: System MUST merge Data Inclusion and Carif-Oref CSV data, with Carif-Oref data taking precedence for overlapping fields
 - **FR-009m**: System MUST handle programs with Data Inclusion source only (no Carif-Oref match) by proceeding with Data Inclusion data and recording reconciliation status

@@ -10,7 +10,7 @@
 
 This document contains all actionable tasks for implementing the Nexus pipeline orchestration system. Tasks are organized by implementation phase and user story, with clear dependencies and independent test criteria for each story.
 
-**Total Tasks**: 110 (T001-T110, including editorial policy validation and Carif-Oref reconciliation tasks)
+**Total Tasks**: 109 (T001-T108 + T040n, including editorial policy validation and Carif-Oref reconciliation tasks)
 
 **Implementation Strategy**: MVP-first approach with incremental delivery
 - **Phase 1 (Setup)**: Infrastructure and database schema
@@ -131,6 +131,7 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [ ] T040k [US1] Create integration tests for policy validation at `apps/orchestration/tests/integration/test_policy_validation.py` with real policy scenarios
 - [ ] T040l [US1] Create integration tests for Carif-Oref reconciliation at `apps/orchestration/tests/integration/test_carif_oref_reconciliation.py` with CSV data
 - [ ] T040m [US1] Create n8n workflow at `specs/002-orchestration-decision/workflows/pipeline-orchestration.json` that orchestrates 8-stage pipeline (including policy validation and reconciliation) with error handling and retry logic
+- [ ] T040n [US1] Create policy rule versioning at `apps/orchestration/src/db/repositories/policy_repository.py` with methods: get_rule_version, create_rule_version, track_applied_version, get_rules_by_version
 - [ ] T041 [US1] Create n8n workflow documentation at `specs/002-orchestration-decision/workflows/README.md` explaining 8-stage pipeline flow (including policy validation and Carif-Oref reconciliation), error handling, and manual review routing
 - [ ] T042 [US1] Create test data fixtures at `apps/orchestration/tests/fixtures/test_programs.json` with sample programs for testing
 - [ ] T046 [US1] Create quickstart guide section in `specs/002-orchestration-decision/quickstart.md` for testing pipeline execution with curl examples
@@ -286,34 +287,18 @@ This document contains all actionable tasks for implementing the Nexus pipeline 
 - [ ] T107 Create Streamlit deployment guide at `docs/streamlit-deployment.md` for diff review and monitoring UIs
 - [ ] T108 Update main README.md with orchestration feature overview and quick links to documentation
 
-### Phase 1 (Weeks 9-11): AI Prompts - Enrichment, Langage Clair, Translation
+---
 
-**User Story**: Implement LLM-based processing for service data enrichment, language simplification, and translation
+## Note on AI Processing Tasks
 
-**Acceptance Criteria**:
-- [ ] Enrichment stage processes services with confidence > 0.5 (fast mode) or > 0.7 (normal mode)
-- [ ] Langage Clair stage simplifies text to readability > 0.4 (fast mode) or > 0.6 (normal mode)
-- [ ] Translation stage produces translations with confidence > 0.5 (fast mode) or > 0.8 (normal mode)
-- [ ] Cost tracking shows monthly spend within budget ($5-15/month for 100 services)
-- [ ] Monitoring dashboard displays AI processing metrics
-- [ ] Unit tests validate prompt execution and quality thresholds
-- [ ] Integration tests validate end-to-end AI processing pipeline
+**Tasks T109-T121 (AI Prompts for Enrichment, Langage Clair, Translation)** are out of scope for the 002-orchestration-decision feature and should be implemented as part of separate feature branches:
+- `004-enrichment-ai` (enrichment service implementation)
+- `005-langage-clair-ai` (langage clair service implementation)
+- `006-translation-ai` (translation service implementation)
 
-**Tasks**:
+The orchestration feature (002) provides the infrastructure and pipeline framework; AI service implementations are separate features that will integrate with the orchestration layer via the stage executor pattern (T034).
 
-- [ ] T109 Create Vercel AI Gateway integration service at `apps/orchestration/src/services/ai_gateway_service.py` with methods: call_model, handle_rate_limits, track_costs, fallback_to_alternative_model
-- [ ] T110 [P] Create unit tests for AI Gateway service at `apps/orchestration/tests/unit/services/test_ai_gateway_service.py` with mocked API calls and fallback scenarios
-- [ ] T111 Create enrichment service at `apps/orchestration/src/services/enrichment_service.py` implementing enrichment prompt with GPT-3.5-turbo (fast mode) and GPT-4 (normal mode)
-- [ ] T112 [P] Create unit tests for enrichment at `apps/orchestration/tests/unit/services/test_enrichment_service.py` validating confidence thresholds and output format
-- [ ] T113 Create langage_clair service at `apps/orchestration/src/services/langage_clair_service.py` implementing simplification prompt with readability scoring
-- [ ] T114 [P] Create unit tests for langage_clair at `apps/orchestration/tests/unit/services/test_langage_clair_service.py` validating readability thresholds
-- [ ] T115 Create translation service at `apps/orchestration/src/services/translation_service.py` supporting English, Arabic, Spanish with confidence scoring
-- [ ] T116 [P] Create unit tests for translation at `apps/orchestration/tests/unit/services/test_translation_service.py` validating language support and confidence thresholds
-- [ ] T117 Create AI processing orchestrator at `apps/orchestration/src/services/ai_orchestrator.py` coordinating enrichment → langage_clair → translation
-- [ ] T118 [P] Create integration tests for AI pipeline at `apps/orchestration/tests/integration/test_ai_pipeline.py` validating end-to-end processing
-- [ ] T119 Add AI metrics tracking to metrics service: cost per service, confidence scores, processing time
-- [ ] T120 Create AI processing documentation at `apps/orchestration/docs/ai-processing.md` with prompt templates and troubleshooting
-- [ ] T121 Create AI cost monitoring dashboard in Streamlit at `apps/orchestration/ui/ai_monitoring.py` displaying costs and quality metrics
+These tasks are included here for reference but should not be implemented as part of 002-orchestration-decision.
 
 ---
 
