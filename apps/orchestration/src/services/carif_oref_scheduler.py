@@ -1,8 +1,4 @@
-"""DEPRECATED: CarifOrefScheduler class - Use scheduler_functions.py instead.
-
-This module is kept for backwards compatibility but will be removed in a future version.
-All new code should use the functional versions in scheduler_functions.py.
-"""
+"""DEPRECATED: CarifOrefScheduler class - Use scheduler_functions.py instead."""
 
 import logging
 import warnings
